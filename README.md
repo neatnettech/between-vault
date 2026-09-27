@@ -46,6 +46,7 @@ The exchange package is a versioned format (`protocol_version = 1`). The full PR
 ## Repository layout
 
 * `web/` the website and waiting list
+* `ios/` the iOS app (xcodegen project, SwiftUI, SwiftData)
 * `.github/workflows/` deploys `web/` to GitHub Pages
 
 Detailed specs and design files stay private and local, outside this repository.

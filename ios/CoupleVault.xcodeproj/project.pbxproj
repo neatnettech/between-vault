@@ -1,0 +1,707 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		019011D88D7DDDF13F5CE9E1 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77BA3758E8B6838DBD2C5C8 /* NotesView.swift */; };
+		2919DB88772175BF61646F47 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D80D7B42D1558D3B0CC5DC /* Note.swift */; };
+		2A630FEA6347A5D69A74C156 /* PrivacyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4812515468CAF8B6569E2AD2 /* PrivacyOverlayView.swift */; };
+		2B6CD8C72FE8B0F6DD0AEE1E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90EE600EA5B4C5B2D5BE2F87 /* Models.swift */; };
+		322D3FD711C8D1BCECB3E5F2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC143E491D4B85A6AA6DAE19 /* PrivacyInfo.xcprivacy */; };
+		3295C21E1950186A41B24B0B /* NoteState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0141D905C79DE83D3685AE68 /* NoteState.swift */; };
+		338796C11699A42EA9816AF0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38AE483843842874A3076545 /* SettingsView.swift */; };
+		38DE2EA4FF39474E797FFE5F /* ExchangePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0DCFE496A61EDFA0429EE1 /* ExchangePackage.swift */; };
+		3BE6FAA6C8078A9224885B09 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ACE2BC6D3A2BD0A2CCB7CE6 /* VaultView.swift */; };
+		3C57B8BD7D7EEE41860ADD09 /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505A57192D492C8D22DCF894 /* LockManager.swift */; };
+		5817DD351D322582345DFB36 /* PackageValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DCF7C82627E0AAC36339C77 /* PackageValidator.swift */; };
+		5B3A59A5857B56C62D1283BE /* ExchangeLogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A017703BBB73B33DC20FBCC9 /* ExchangeLogRepository.swift */; };
+		5D48D2A698E088E2E14A4D48 /* CoupleVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0988DFC74504382A198CB58 /* CoupleVaultApp.swift */; };
+		66B80494C1EC515C50530668 /* Partner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A4BEB538BD3CEE36A31601 /* Partner.swift */; };
+		69C0AF516AF694A1E79C5FA2 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0C4E6BE000A3FBF09A707D /* ExchangeView.swift */; };
+		732B50780A99BA4ED928ECB5 /* PartnerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7719E8324C952F00F20F3704 /* PartnerRepository.swift */; };
+		7BEC7670695ADF41B30572BB /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBECC36DE8EC2F697287062 /* KeyManager.swift */; };
+		886A524C6650342211DA3492 /* PackageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919E069606A55B5E9E2E800E /* PackageTests.swift */; };
+		8BD544170C028D9B62AFC6DD /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF29E00B06BC2C2D5169018 /* Identity.swift */; };
+		8CE36AC312163558F209E847 /* CryptoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FC75C30BF92BBB56F37905 /* CryptoEngine.swift */; };
+		8E060F810AD95787713CCD9F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BABFA4403FCCEB48A2F725F /* Assets.xcassets */; };
+		92D892CE7ECE3948672BDEDC /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C014089856F6F6C802CF2B0 /* PartnerView.swift */; };
+		9571DEF95D48B4D3D8F6B8EF /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B719920EB5C1CFC4AF6ECB /* NoteRepository.swift */; };
+		9A8A892376FDD873F6BA37ED /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C39EC214F9261CE2C9008C /* AppServices.swift */; };
+		9DCC71C8BEEE347BD9C07899 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C9EB06C6D65C5B128CF07A /* Category.swift */; };
+		AC5F912D9B2DC04AA88D86C4 /* PackageSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D9E016AD268B7CFC916E6C /* PackageSerializer.swift */; };
+		D9ED588905E0E6D2336E3CDB /* CategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81D53A2B469EDF9BCE579D20 /* CategoryRepository.swift */; };
+		E8661928603E8C6474716BC8 /* CryptoEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353C94A44A3501964DE7DC82 /* CryptoEngineTests.swift */; };
+		F89BEF1305BE33EA73DBEEE0 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E68B3E6D09E90EE7902A5940 /* RootView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F0C75152EBC494247D639C81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 25C8143D3FC4C5D038FD06F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 875FC72265583D6074B5E0EE;
+			remoteInfo = CoupleVault;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0141D905C79DE83D3685AE68 /* NoteState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteState.swift; sourceTree = "<group>"; };
+		03C39EC214F9261CE2C9008C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
+		0C014089856F6F6C802CF2B0 /* PartnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerView.swift; sourceTree = "<group>"; };
+		10D9E016AD268B7CFC916E6C /* PackageSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSerializer.swift; sourceTree = "<group>"; };
+		1BABFA4403FCCEB48A2F725F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2DF29E00B06BC2C2D5169018 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
+		353C94A44A3501964DE7DC82 /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
+		38AE483843842874A3076545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		43FC75C30BF92BBB56F37905 /* CryptoEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngine.swift; sourceTree = "<group>"; };
+		4812515468CAF8B6569E2AD2 /* PrivacyOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyOverlayView.swift; sourceTree = "<group>"; };
+		499F26174D2565E2FD0EA899 /* CoupleVault.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DCF7C82627E0AAC36339C77 /* PackageValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageValidator.swift; sourceTree = "<group>"; };
+		505A57192D492C8D22DCF894 /* LockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManager.swift; sourceTree = "<group>"; };
+		52C9EB06C6D65C5B128CF07A /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		5EBECC36DE8EC2F697287062 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
+		63D80D7B42D1558D3B0CC5DC /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		70387728731F38AF5E497791 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7719E8324C952F00F20F3704 /* PartnerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRepository.swift; sourceTree = "<group>"; };
+		7B174F7AEDABB6D07A4E333D /* CoupleVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CoupleVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		81D53A2B469EDF9BCE579D20 /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
+		86B719920EB5C1CFC4AF6ECB /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
+		90EE600EA5B4C5B2D5BE2F87 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		919E069606A55B5E9E2E800E /* PackageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageTests.swift; sourceTree = "<group>"; };
+		9ACE2BC6D3A2BD0A2CCB7CE6 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
+		A017703BBB73B33DC20FBCC9 /* ExchangeLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeLogRepository.swift; sourceTree = "<group>"; };
+		BB0C4E6BE000A3FBF09A707D /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
+		D77BA3758E8B6838DBD2C5C8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		DB0DCFE496A61EDFA0429EE1 /* ExchangePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangePackage.swift; sourceTree = "<group>"; };
+		E68B3E6D09E90EE7902A5940 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		E7A4BEB538BD3CEE36A31601 /* Partner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Partner.swift; sourceTree = "<group>"; };
+		EC143E491D4B85A6AA6DAE19 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		F0988DFC74504382A198CB58 /* CoupleVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleVaultApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		182F1C401BD7CBA0CDC9CE33 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				505A57192D492C8D22DCF894 /* LockManager.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		2968DECF9412DFA4E64D314E /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				43FC75C30BF92BBB56F37905 /* CryptoEngine.swift */,
+			);
+			path = Crypto;
+			sourceTree = "<group>";
+		};
+		29951B97286A6AAC5F230992 /* Partner */ = {
+			isa = PBXGroup;
+			children = (
+				E7A4BEB538BD3CEE36A31601 /* Partner.swift */,
+			);
+			path = Partner;
+			sourceTree = "<group>";
+		};
+		31DE6821A0C9D08B4796F7A2 /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				182F1C401BD7CBA0CDC9CE33 /* Authentication */,
+				2968DECF9412DFA4E64D314E /* Crypto */,
+				3A244A58390C007C067B936D /* KeyManagement */,
+			);
+			path = Security;
+			sourceTree = "<group>";
+		};
+		3A244A58390C007C067B936D /* KeyManagement */ = {
+			isa = PBXGroup;
+			children = (
+				2DF29E00B06BC2C2D5169018 /* Identity.swift */,
+				5EBECC36DE8EC2F697287062 /* KeyManager.swift */,
+			);
+			path = KeyManagement;
+			sourceTree = "<group>";
+		};
+		3E680B593FEF2FD881435B2A /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				BB0C4E6BE000A3FBF09A707D /* ExchangeView.swift */,
+			);
+			path = Exchange;
+			sourceTree = "<group>";
+		};
+		483C18878FD5439AA035EC7C /* CoupleVault */ = {
+			isa = PBXGroup;
+			children = (
+				1BABFA4403FCCEB48A2F725F /* Assets.xcassets */,
+				70387728731F38AF5E497791 /* Info.plist */,
+				EC143E491D4B85A6AA6DAE19 /* PrivacyInfo.xcprivacy */,
+				64700A2D4F52288B14A1AD93 /* App */,
+				6A95236FDA41B768A3617C8D /* Domain */,
+				5ABA8B52D8E26F3F0D0E5C39 /* Features */,
+				57EF87FFFCE01325646A4C8C /* Persistence */,
+				5A292E65B4048A42219F9543 /* Protocol */,
+				31DE6821A0C9D08B4796F7A2 /* Security */,
+			);
+			path = CoupleVault;
+			sourceTree = "<group>";
+		};
+		4E2465E535E490715DF9A56C /* Vault */ = {
+			isa = PBXGroup;
+			children = (
+				9ACE2BC6D3A2BD0A2CCB7CE6 /* VaultView.swift */,
+			);
+			path = Vault;
+			sourceTree = "<group>";
+		};
+		57EF87FFFCE01325646A4C8C /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				F50C047D15910315BDCE3143 /* Database */,
+				7FFDD08D5019974FC301637C /* Repositories */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		5A292E65B4048A42219F9543 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				8DAF0D677250EFE96A8B783B /* Model */,
+				C572C29BC22BA63745D39B46 /* Serialization */,
+				96A935106B1CF98848805DA8 /* Validation */,
+			);
+			path = Protocol;
+			sourceTree = "<group>";
+		};
+		5ABA8B52D8E26F3F0D0E5C39 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				3E680B593FEF2FD881435B2A /* Exchange */,
+				F2C9941B18882ED58D915064 /* Notes */,
+				F44B4237C370288FC10F78C4 /* Partner */,
+				8B2F349C4D80EBD1B5CD13FD /* Settings */,
+				4E2465E535E490715DF9A56C /* Vault */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		64700A2D4F52288B14A1AD93 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				03C39EC214F9261CE2C9008C /* AppServices.swift */,
+				F0988DFC74504382A198CB58 /* CoupleVaultApp.swift */,
+				4812515468CAF8B6569E2AD2 /* PrivacyOverlayView.swift */,
+				E68B3E6D09E90EE7902A5940 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		6564CD7C6C7D6C4120E322C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				499F26174D2565E2FD0EA899 /* CoupleVault.app */,
+				7B174F7AEDABB6D07A4E333D /* CoupleVaultTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6A95236FDA41B768A3617C8D /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				D6ECC40BCD957DE4A57C6F31 /* Objects */,
+				29951B97286A6AAC5F230992 /* Partner */,
+				BDF8C06C5D85DB8D6A41A818 /* Vault */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		7FFDD08D5019974FC301637C /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				81D53A2B469EDF9BCE579D20 /* CategoryRepository.swift */,
+				A017703BBB73B33DC20FBCC9 /* ExchangeLogRepository.swift */,
+				86B719920EB5C1CFC4AF6ECB /* NoteRepository.swift */,
+				7719E8324C952F00F20F3704 /* PartnerRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		8B2F349C4D80EBD1B5CD13FD /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				38AE483843842874A3076545 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		8DAF0D677250EFE96A8B783B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DB0DCFE496A61EDFA0429EE1 /* ExchangePackage.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		96A935106B1CF98848805DA8 /* Validation */ = {
+			isa = PBXGroup;
+			children = (
+				4DCF7C82627E0AAC36339C77 /* PackageValidator.swift */,
+			);
+			path = Validation;
+			sourceTree = "<group>";
+		};
+		A08EAECC3B7C5D45311D8FDA = {
+			isa = PBXGroup;
+			children = (
+				483C18878FD5439AA035EC7C /* CoupleVault */,
+				BAF3062C52002C064617FC87 /* CoupleVaultTests */,
+				6564CD7C6C7D6C4120E322C6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BAF3062C52002C064617FC87 /* CoupleVaultTests */ = {
+			isa = PBXGroup;
+			children = (
+				FD2DE98F97827EC010A91754 /* Protocol */,
+				D0A37F04107CE93316133DE2 /* Security */,
+			);
+			path = CoupleVaultTests;
+			sourceTree = "<group>";
+		};
+		BDF8C06C5D85DB8D6A41A818 /* Vault */ = {
+			isa = PBXGroup;
+			children = (
+				52C9EB06C6D65C5B128CF07A /* Category.swift */,
+			);
+			path = Vault;
+			sourceTree = "<group>";
+		};
+		C572C29BC22BA63745D39B46 /* Serialization */ = {
+			isa = PBXGroup;
+			children = (
+				10D9E016AD268B7CFC916E6C /* PackageSerializer.swift */,
+			);
+			path = Serialization;
+			sourceTree = "<group>";
+		};
+		D0A37F04107CE93316133DE2 /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				353C94A44A3501964DE7DC82 /* CryptoEngineTests.swift */,
+			);
+			path = Security;
+			sourceTree = "<group>";
+		};
+		D6ECC40BCD957DE4A57C6F31 /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+				63D80D7B42D1558D3B0CC5DC /* Note.swift */,
+				0141D905C79DE83D3685AE68 /* NoteState.swift */,
+			);
+			path = Objects;
+			sourceTree = "<group>";
+		};
+		F2C9941B18882ED58D915064 /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				D77BA3758E8B6838DBD2C5C8 /* NotesView.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
+		F44B4237C370288FC10F78C4 /* Partner */ = {
+			isa = PBXGroup;
+			children = (
+				0C014089856F6F6C802CF2B0 /* PartnerView.swift */,
+			);
+			path = Partner;
+			sourceTree = "<group>";
+		};
+		F50C047D15910315BDCE3143 /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				90EE600EA5B4C5B2D5BE2F87 /* Models.swift */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
+		FD2DE98F97827EC010A91754 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				919E069606A55B5E9E2E800E /* PackageTests.swift */,
+			);
+			path = Protocol;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		16F4BF6185DA6D06F314D394 /* CoupleVaultTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 145EB3E8B270F837496EF49E /* Build configuration list for PBXNativeTarget "CoupleVaultTests" */;
+			buildPhases = (
+				A472A5F70AFBCBC51A9B10B9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				384E5A53E13061C90CF0383E /* PBXTargetDependency */,
+			);
+			name = CoupleVaultTests;
+			packageProductDependencies = (
+			);
+			productName = CoupleVaultTests;
+			productReference = 7B174F7AEDABB6D07A4E333D /* CoupleVaultTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		875FC72265583D6074B5E0EE /* CoupleVault */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B7D0A16330D7E0934D9EE86F /* Build configuration list for PBXNativeTarget "CoupleVault" */;
+			buildPhases = (
+				104ADFE19801E2B55B89FDC8 /* Sources */,
+				9B75B6D2E7E40FD73CBC97C4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoupleVault;
+			packageProductDependencies = (
+			);
+			productName = CoupleVault;
+			productReference = 499F26174D2565E2FD0EA899 /* CoupleVault.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		25C8143D3FC4C5D038FD06F7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					875FC72265583D6074B5E0EE = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = D9716FF61B5F528DFDC2D2FB /* Build configuration list for PBXProject "CoupleVault" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A08EAECC3B7C5D45311D8FDA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6564CD7C6C7D6C4120E322C6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				875FC72265583D6074B5E0EE /* CoupleVault */,
+				16F4BF6185DA6D06F314D394 /* CoupleVaultTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9B75B6D2E7E40FD73CBC97C4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E060F810AD95787713CCD9F /* Assets.xcassets in Resources */,
+				322D3FD711C8D1BCECB3E5F2 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		104ADFE19801E2B55B89FDC8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A8A892376FDD873F6BA37ED /* AppServices.swift in Sources */,
+				9DCC71C8BEEE347BD9C07899 /* Category.swift in Sources */,
+				D9ED588905E0E6D2336E3CDB /* CategoryRepository.swift in Sources */,
+				5D48D2A698E088E2E14A4D48 /* CoupleVaultApp.swift in Sources */,
+				8CE36AC312163558F209E847 /* CryptoEngine.swift in Sources */,
+				5B3A59A5857B56C62D1283BE /* ExchangeLogRepository.swift in Sources */,
+				38DE2EA4FF39474E797FFE5F /* ExchangePackage.swift in Sources */,
+				69C0AF516AF694A1E79C5FA2 /* ExchangeView.swift in Sources */,
+				8BD544170C028D9B62AFC6DD /* Identity.swift in Sources */,
+				7BEC7670695ADF41B30572BB /* KeyManager.swift in Sources */,
+				3C57B8BD7D7EEE41860ADD09 /* LockManager.swift in Sources */,
+				2B6CD8C72FE8B0F6DD0AEE1E /* Models.swift in Sources */,
+				2919DB88772175BF61646F47 /* Note.swift in Sources */,
+				9571DEF95D48B4D3D8F6B8EF /* NoteRepository.swift in Sources */,
+				3295C21E1950186A41B24B0B /* NoteState.swift in Sources */,
+				019011D88D7DDDF13F5CE9E1 /* NotesView.swift in Sources */,
+				AC5F912D9B2DC04AA88D86C4 /* PackageSerializer.swift in Sources */,
+				5817DD351D322582345DFB36 /* PackageValidator.swift in Sources */,
+				66B80494C1EC515C50530668 /* Partner.swift in Sources */,
+				732B50780A99BA4ED928ECB5 /* PartnerRepository.swift in Sources */,
+				92D892CE7ECE3948672BDEDC /* PartnerView.swift in Sources */,
+				2A630FEA6347A5D69A74C156 /* PrivacyOverlayView.swift in Sources */,
+				F89BEF1305BE33EA73DBEEE0 /* RootView.swift in Sources */,
+				338796C11699A42EA9816AF0 /* SettingsView.swift in Sources */,
+				3BE6FAA6C8078A9224885B09 /* VaultView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A472A5F70AFBCBC51A9B10B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E8661928603E8C6474716BC8 /* CryptoEngineTests.swift in Sources */,
+				886A524C6650342211DA3492 /* PackageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		384E5A53E13061C90CF0383E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 875FC72265583D6074B5E0EE /* CoupleVault */;
+			targetProxy = F0C75152EBC494247D639C81 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		06A02B2CDAA1D8F7104047A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		2459EC1CDA1B65C2A3DBF142 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = tech.neatnet.couplevault.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoupleVault.app/CoupleVault";
+			};
+			name = Debug;
+		};
+		33F21EAE95B4DAB852EB0FAD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = CoupleVault/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.neatnet.couplevault;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		7A19EA15DB1D5E44F7EB2554 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = CoupleVault/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.neatnet.couplevault;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		870BABB72044C7FF84EAABFF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		E249BB089DDDB2DA1F07AA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = tech.neatnet.couplevault.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoupleVault.app/CoupleVault";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		145EB3E8B270F837496EF49E /* Build configuration list for PBXNativeTarget "CoupleVaultTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2459EC1CDA1B65C2A3DBF142 /* Debug */,
+				E249BB089DDDB2DA1F07AA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B7D0A16330D7E0934D9EE86F /* Build configuration list for PBXNativeTarget "CoupleVault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A19EA15DB1D5E44F7EB2554 /* Debug */,
+				33F21EAE95B4DAB852EB0FAD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D9716FF61B5F528DFDC2D2FB /* Build configuration list for PBXProject "CoupleVault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				870BABB72044C7FF84EAABFF /* Debug */,
+				06A02B2CDAA1D8F7104047A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 25C8143D3FC4C5D038FD06F7 /* Project object */;
+}
