@@ -2,9 +2,10 @@
 
 [![CI](https://github.com/neatnettech/between-vault/actions/workflows/ci.yml/badge.svg)](https://github.com/neatnettech/between-vault/actions/workflows/ci.yml)
 [![Pages](https://github.com/neatnettech/between-vault/actions/workflows/pages.yml/badge.svg)](https://github.com/neatnettech/between-vault/actions/workflows/pages.yml)
-[![Latest release](https://img.shields.io/github/v/release/neatnettech/between-vault?include_prereleases&sort=semver)](https://github.com/neatnettech/between-vault/releases)
+[![Version](https://img.shields.io/github/v/tag/neatnettech/between-vault?sort=semver&label=version)](https://github.com/neatnettech/between-vault/tags)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey.svg)](ios/project.yml)
+[![Swift](https://img.shields.io/badge/swift-6.0-orange.svg)](ios/project.yml)
 
 **Private by default. Shared by choice. No cloud required.**
 
