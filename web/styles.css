@@ -1,13 +1,25 @@
 :root {
+  /* Brand tokens, light (design handoff, Brand tokens board) */
   --bg: #FAFAF8;
   --surface: #FFFFFF;
   --text: #15171A;
   --secondary: #5B6066;
   --accent: #0E6B66;
+  /* Derived from the accent, not part of the published tokens */
   --accent-hover: #0B5752;
   --accent-soft: #E3EFEE;
   --border: #E3E2DD;
   --on-accent: #FFFFFF;
+  /* Spacing and radius scale (design handoff) */
+  --s4: 4px;
+  --s8: 8px;
+  --s12: 12px;
+  --s16: 16px;
+  --s24: 24px;
+  --s32: 32px;
+  --s48: 48px;
+  --s72: 72px;
+  --radius: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,7 +59,7 @@ a:hover { color: var(--accent-hover); }
 .container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--s24);
 }
 
 .sr-only {
@@ -64,14 +76,14 @@ a:hover { color: var(--accent-hover); }
 
 header {
   border-bottom: 1px solid var(--border);
-  padding: 20px 0;
+  padding: var(--s16) 0;
 }
 
 header .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--s16);
 }
 
 .wordmark {
@@ -85,12 +97,12 @@ header .container {
 header nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--s24);
   font-size: 15px;
 }
 
 .hero {
-  padding: 72px 0 24px;
+  padding: var(--s72) 0 var(--s24);
   text-align: center;
 }
 
@@ -100,48 +112,48 @@ header nav {
   font-size: 48px;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  margin-bottom: 20px;
+  margin-bottom: var(--s24);
 }
 
 .hero p {
   color: var(--secondary);
   max-width: 540px;
-  margin: 0 auto 32px;
+  margin: 0 auto var(--s32);
 }
 
 .hero-note {
-  margin-top: 16px;
+  margin-top: var(--s16);
   font-size: 15px;
   color: var(--secondary);
 }
 
 .waitlist-form { max-width: 460px; margin: 0 auto; text-align: left; }
 
-.form-row { display: flex; gap: 8px; }
+.form-row { display: flex; gap: var(--s8); }
 
 .form-row input[type="email"] {
   flex: 1;
   min-width: 0;
-  padding: 14px 16px;
+  padding: var(--s12) var(--s16);
   font-size: 16px;
   font-family: inherit;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 .form-row input[type="email"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
 
 .form-row button, .cta-button {
-  padding: 14px 22px;
+  padding: var(--s12) var(--s24);
   font-size: 16px;
   font-weight: 600;
   font-family: inherit;
   color: var(--on-accent);
   background: var(--accent);
   border: 1px solid var(--accent);
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -150,23 +162,23 @@ header nav {
 
 .consent {
   display: flex;
-  gap: 10px;
+  gap: var(--s8);
   align-items: flex-start;
-  margin-top: 14px;
+  margin-top: var(--s12);
   font-size: 14px;
   color: var(--secondary);
 }
 
-.consent input { margin-top: 4px; }
+.consent input { margin-top: var(--s4); }
 
 .form-error {
-  margin-top: 12px;
+  margin-top: var(--s12);
   font-size: 15px;
   color: #B3261E;
 }
 
 .form-status {
-  margin-top: 12px;
+  margin-top: var(--s12);
   font-size: 15px;
   color: var(--accent);
 }
@@ -182,34 +194,34 @@ header nav {
 .trust-strip {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 28px 0;
-  margin-top: 56px;
+  padding: var(--s24) 0;
+  margin-top: var(--s48);
 }
 
 .trust-strip .container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 48px;
+  gap: var(--s12) var(--s48);
   font-size: 15px;
   color: var(--secondary);
 }
 
-section { padding: 56px 0; }
+section { padding: var(--s48) 0; }
 
 h2 {
   font-family: "New York", ui-serif, Georgia, serif;
   font-size: 32px;
   line-height: 1.2;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: var(--s24);
 }
 
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 24px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s24); margin-top: var(--s24); }
 
 .step-num { font-weight: 700; color: var(--accent); font-size: 15px; letter-spacing: 0.04em; }
 
-.step h3 { font-size: 20px; margin: 8px 0; }
+.step h3 { font-size: 20px; margin: var(--s8) 0; }
 
 .step p { font-size: 16px; color: var(--secondary); }
 
@@ -218,16 +230,16 @@ h2 {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin: 32px 0 12px;
+  gap: var(--s16);
+  margin: var(--s32) 0 var(--s12);
   font-size: 15px;
 }
 
 .flow-box {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: var(--radius);
+  padding: var(--s12) var(--s16);
   text-align: center;
   line-height: 1.35;
 }
@@ -236,50 +248,50 @@ h2 {
 
 .flow-arrow { color: var(--accent); font-size: 20px; }
 
-.flow-caption { text-align: center; font-size: 14px; color: var(--secondary); margin-bottom: 32px; }
+.flow-caption { text-align: center; font-size: 14px; color: var(--secondary); margin-bottom: var(--s32); }
 
-.why-list { list-style: none; display: grid; gap: 14px; }
+.why-list { list-style: none; display: grid; gap: var(--s12); }
 
 .why-list li {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
+  border-radius: var(--radius);
+  padding: var(--s16) var(--s24);
   font-size: 16px;
 }
 
-.why-list strong { display: block; margin-bottom: 2px; }
+.why-list strong { display: block; margin-bottom: var(--s4); }
 
 .why-list span { color: var(--secondary); }
 
-.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s24); }
 
 .price-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 24px;
+  border-radius: var(--radius);
+  padding: var(--s24);
 }
 
 .price-card.featured { border-color: var(--accent); }
 
-.price-card .price { font-size: 28px; font-weight: 700; margin: 8px 0; }
+.price-card .price { font-size: 32px; font-weight: 700; margin: var(--s8) 0; }
 
 .price-card p { font-size: 15px; color: var(--secondary); }
 
 .open-source {
   background: var(--accent-soft);
-  border-radius: 8px;
-  padding: 32px;
+  border-radius: var(--radius);
+  padding: var(--s32);
 }
 
-.open-source p { margin: 12px 0 16px; }
+.open-source p { margin: var(--s12) 0 var(--s16); }
 
-.open-source .links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 15px; }
+.open-source .links { display: flex; flex-wrap: wrap; gap: var(--s8) var(--s24); font-size: 15px; }
 
 details {
   border-bottom: 1px solid var(--border);
-  padding: 16px 0;
+  padding: var(--s16) 0;
 }
 
 summary {
@@ -290,24 +302,24 @@ summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: var(--s12);
 }
 
 summary::after { content: "+"; color: var(--accent); font-size: 22px; }
 
 details[open] summary::after { content: "\2212"; }
 
-details p { margin-top: 10px; color: var(--secondary); font-size: 16px; }
+details p { margin-top: var(--s8); color: var(--secondary); font-size: 16px; }
 
-.final-cta { text-align: center; padding: 64px 0 72px; }
+.final-cta { text-align: center; padding: var(--s48) 0 var(--s72); }
 
-.final-cta h2 { margin-bottom: 16px; }
+.final-cta h2 { margin-bottom: var(--s16); }
 
-.final-note { margin-top: 16px; font-size: 14px; color: var(--secondary); }
+.final-note { margin-top: var(--s16); font-size: 14px; color: var(--secondary); }
 
 footer {
   border-top: 1px solid var(--border);
-  padding: 24px 0 40px;
+  padding: var(--s24) 0 var(--s32);
   font-size: 14px;
   color: var(--secondary);
 }
@@ -316,19 +328,19 @@ footer .container {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 8px 24px;
+  gap: var(--s8) var(--s24);
 }
 
-footer nav { display: flex; gap: 24px; }
+footer nav { display: flex; gap: var(--s24); }
 
 @media (max-width: 600px) {
   body { font-size: 17px; }
-  .hero { padding-top: 48px; }
+  .hero { padding-top: var(--s48); }
   .hero h1 { font-size: 36px; }
   h2 { font-size: 28px; }
   .form-row { flex-direction: column; }
   .form-row button { width: 100%; }
-  header nav { gap: 12px; }
+  header nav { gap: var(--s12); }
 }
 
 @media (prefers-reduced-motion: reduce) {
