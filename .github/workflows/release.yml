@@ -1,0 +1,104 @@
+name: Release
+
+# Tags are the build trigger.
+#   vX.Y.Z-rc.N  -> release candidate, drafts a prerelease
+#   vX.Y.Z       -> production build, drafts a release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and draft release
+    runs-on: macos-15
+    timeout-minutes: 40
+    env:
+      # Tag names come from whoever pushed the tag. Always go through the
+      # environment, never interpolate directly into a run block.
+      REF_NAME: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install xcodegen and xcbeautify
+        run: brew install xcodegen xcbeautify
+
+      - name: Classify the tag
+        id: tag
+        run: |
+          if [[ "$REF_NAME" == *-rc.* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A production tag must sit on a commit that already passed as a release
+      # candidate. Never tag a release without a preceding accepted RC.
+      - name: Require a preceding RC for production tags
+        if: steps.tag.outputs.prerelease == 'false'
+        run: |
+          if ! git tag --points-at HEAD | grep -q -- "^${REF_NAME}-rc\."; then
+            echo "::error::$REF_NAME has no matching ${REF_NAME}-rc.* tag on this commit. Promote an accepted RC instead of tagging a fresh commit."
+            exit 1
+          fi
+
+      - name: Generate project
+        working-directory: ios
+        run: xcodegen generate
+
+      # The tag is the release version, so the project must already declare it.
+      - name: Check the tag matches MARKETING_VERSION
+        run: |
+          expected="${REF_NAME#v}"
+          expected="${expected%%-rc.*}"
+          actual=$(grep -E '^\s*MARKETING_VERSION:' ios/project.yml | awk '{print $2}')
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::Tag says $expected but ios/project.yml MARKETING_VERSION is $actual."
+            exit 1
+          fi
+
+      - name: Test
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project BetweenVault.xcodeproj \
+            -scheme BetweenVault \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify --renderer github-actions
+
+      # Unsigned: no signing material lives in this repo. Adding the App Store
+      # Connect key as a secret is what turns this into a TestFlight upload.
+      - name: Archive (unsigned)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project BetweenVault.xcodeproj \
+            -scheme BetweenVault \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/BetweenVault.xcarchive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | xcbeautify --renderer github-actions
+
+      - name: Zip the archive
+        working-directory: ios
+        run: ditto -c -k --keepParent build/BetweenVault.xcarchive "build/BetweenVault-${REF_NAME}.xcarchive.zip"
+
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ steps.tag.outputs.prerelease }}
+        run: |
+          flags=(--draft --generate-notes --title "$REF_NAME")
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$REF_NAME" "${flags[@]}" ios/build/*.xcarchive.zip
