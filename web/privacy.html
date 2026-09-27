@@ -7,56 +7,72 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
 
   <header>
     <div class="container">
       <a class="wordmark" href="index.html">Private Couple Vault</a>
-      <nav>
+      <nav aria-label="Primary">
         <a href="index.html">Back to home</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <section>
+    <section class="doc">
       <div class="container">
-        <h1>Privacy policy</h1>
-        <p>Last updated September 27, 2026. This covers the website and waiting list. The app has its own, shorter statement: it collects nothing.</p>
+        <h1 class="page-title">Privacy policy</h1>
+        <p class="lede">Last updated September 27, 2026. This covers the website and waiting list. The app has its own, shorter statement: it collects nothing.</p>
 
-        <h2>What we collect</h2>
-        <p>Your email address. Only if you submit the form and tick the box.</p>
+        <section class="summary-card">
+          <dl>
+            <dt>What we collect</dt>
+            <dd>Your email address. Only if you submit the form and tick the box.</dd>
+            <dt>Why</dt>
+            <dd>To send you launch news. Nothing else.</dd>
+            <dt>Who processes it</dt>
+            <dd>Buttondown, our email list provider, based in the United States.</dd>
+            <dt>Cookies, analytics, pixels</dt>
+            <dd>None. This page loads nothing from anyone else.</dd>
+          </dl>
+        </section>
 
-        <h2>Why</h2>
-        <p>To send you launch news. Nothing else.</p>
+        <div class="blk">
+          <h2>What happens when you sign up</h2>
+          <p>The form sends your email address to Buttondown. They store it so we can send you a launch email. Open and click tracking are turned off on our list.</p>
+        </div>
 
-        <h2>Who processes it</h2>
-        <p>Buttondown, our email list provider, based in the United States.</p>
+        <div class="blk">
+          <h2>The confirmation email</h2>
+          <p>Right after you sign up, Buttondown sends you one email asking you to confirm. You are only on the list once you click the link in it. If you never click it, you get nothing else from us, and the unconfirmed address is deleted after 30 days.</p>
+        </div>
 
-        <h2>Cookies, analytics, pixels</h2>
-        <p>None. This page loads nothing from anyone else.</p>
+        <div class="blk">
+          <h2>What we do not do</h2>
+          <p>We do not sell, share or rent your address. We do not connect it to the app. The app has no account and sends nothing to us, so there is nothing to connect it to.</p>
+        </div>
 
-        <h2>What happens when you sign up</h2>
-        <p>The form sends your email address to Buttondown. They store it so we can send you a launch email. Open and click tracking are turned off on our list.</p>
+        <div class="blk">
+          <h2>How long we keep it</h2>
+          <p>Until launch, plus one year, or until you unsubscribe. Every email has an unsubscribe link.</p>
+        </div>
 
-        <h2>The confirmation email</h2>
-        <p>Right after you sign up, Buttondown sends you one email asking you to confirm. You are only on the list once you click the link in it. If you never click it, you get nothing else from us, and the unconfirmed address is deleted after 30 days.</p>
+        <div class="blk">
+          <h2>Your rights</h2>
+          <p>You can ask to see, correct or delete your email address at any time. Write to pp@neatnet.tech and we will delete it within 30 days. If you are in the EU, UK or Switzerland, you can also complain to your data protection authority. California residents have the same rights under the CCPA.</p>
+        </div>
 
-        <h2>What we do not do</h2>
-        <p>We do not sell, share or rent your address. We do not connect it to the app. The app has no account and sends nothing to us, so there is nothing to connect it to.</p>
+        <div class="blk">
+          <h2>Who we are</h2>
+          <p>[LEGAL NAME AND POSTAL ADDRESS OF THE CONTROLLER]</p>
+        </div>
 
-        <h2>How long we keep it</h2>
-        <p>Until launch, plus one year, or until you unsubscribe. Every email has an unsubscribe link.</p>
-
-        <h2>Your rights</h2>
-        <p>You can ask to see, correct or delete your email address at any time. Write to pp@neatnet.tech and we will delete it within 30 days. If you are in the EU, UK or Switzerland, you can also complain to your data protection authority. California residents have the same rights under the CCPA.</p>
-
-        <h2>Who we are</h2>
-        <p>[LEGAL NAME AND POSTAL ADDRESS OF THE CONTROLLER]</p>
-
-        <h2>Changes</h2>
-        <p>If this policy changes, the date at the top changes, and the previous version stays in the public repository.</p>
+        <div class="blk">
+          <h2>Changes</h2>
+          <p>If this policy changes, the date at the top changes, and the previous version stays in the public repository.</p>
+        </div>
       </div>
     </section>
   </main>
@@ -64,7 +80,7 @@
   <footer>
     <div class="container">
       <span>Private Couple Vault. GPLv3.</span>
-      <nav>
+      <nav aria-label="Footer">
         <a href="privacy.html">Privacy policy</a>
         <a href="https://github.com/neatnettech/private-couple-vault/blob/main/LICENSE">License</a>
         <a href="https://github.com/neatnettech/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>

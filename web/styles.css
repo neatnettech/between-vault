@@ -1,40 +1,114 @@
+/* Private Couple Vault website.
+   Values come from the design handoff boards: "Website index, desktop" (3),
+   "Website index, mobile" (4), "Website privacy policy" (5),
+   "Website signup success" (6), "Website index, dark mode" (7).
+   Where a board hard codes a hex, the token below carries it. */
+
 :root {
-  /* Brand tokens, light (design handoff, Brand tokens board) */
+  color-scheme: light dark;
+
+  /* Surfaces */
   --bg: #FAFAF8;
   --surface: #FFFFFF;
+  --band: #F1F2EF;
+  --panel: #0F1A1A;
+  --panel-border: #0F1A1A;
+
+  /* Ink */
+  --heading: #15171A;
   --text: #15171A;
+  --body: #2B2F33;
   --secondary: #5B6066;
+  --badge-fill: #ECEDEF;
+  --badge-ink: #454A50;
+
+  /* Accent */
   --accent: #0E6B66;
-  /* Derived from the accent, not part of the published tokens */
-  --accent-hover: #0B5752;
-  --accent-soft: #E3EFEE;
-  --border: #E3E2DD;
+  --accent-hover: #094C48;
+  --accent-tint: #DDF0EE;
+  --accent-on-tint: #0B5F5A;
   --on-accent: #FFFFFF;
-  /* Spacing and radius scale (design handoff) */
-  --s4: 4px;
-  --s8: 8px;
-  --s12: 12px;
-  --s16: 16px;
-  --s24: 24px;
-  --s32: 32px;
-  --s48: 48px;
-  --s72: 72px;
-  --radius: 10px;
+
+  /* The panel is dark in both schemes, so its ink does not flip */
+  --on-panel: #ECEDEE;
+  --on-panel-heading: #FFFFFF;
+  --on-panel-body: #C9CDD1;
+  --on-panel-link: #7ED3CA;
+  --on-panel-link-hover: #A8E4DD;
+
+  /* Lines and state */
+  --border: #E4E5E3;
+  --border-strong: #8E9398;
+  --error: #A1231B;
+
+  /* Geometry */
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --radius-panel: 14px;
+  --control-h: 52px;
+  --header-h: 72px;
+  --col: 720px;
+  --form-w: 560px;
 }
 
+/* Dark values, from the "Website index, dark mode" board.
+   Two selectors on purpose: the media query serves visitors who never touch the
+   switch (including with JavaScript off), the attribute serves an explicit choice.
+   Keep the two lists in sync. */
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0F1112;
     --surface: #1B1E20;
+    --band: #151719;
+    /* The light panel inverts against the page. Dark has nothing to invert
+       against, so it becomes a card like every other one on the dark board. */
+    --panel: #1B1E20;
+    --panel-border: #2A2D30;
+    --heading: #FFFFFF;
     --text: #ECEDEE;
+    --body: #C9CDD1;
     --secondary: #9BA1A7;
+    --badge-fill: #2A2D30;
+    --badge-ink: #C9CDD1;
     --accent: #4FB8AE;
-    --accent-hover: #6BC8BF;
-    --accent-soft: #172B29;
-    --border: #2A2E31;
-    --on-accent: #0F1112;
+    --accent-hover: #A8E4DD;
+    /* The handoff publishes no dark tint, so this pair is derived from the app
+       dark boards. Used by the step chips and the sealed file footer. */
+    --accent-tint: #1E2A2A;
+    --accent-on-tint: #7ED3CA;
+    --on-accent: #0F1A1A;
+    --border: #2A2D30;
+    --border-strong: #6B7076;
+    /* Not in the handoff: #A1231B is 2.9:1 on this background. 8.3:1 */
+    --error: #FF8A80;
   }
 }
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0F1112;
+  --surface: #1B1E20;
+  --band: #151719;
+  --panel: #1B1E20;
+  --panel-border: #2A2D30;
+  --heading: #FFFFFF;
+  --text: #ECEDEE;
+  --body: #C9CDD1;
+  --secondary: #9BA1A7;
+  --badge-fill: #2A2D30;
+  --badge-ink: #C9CDD1;
+  --accent: #4FB8AE;
+  --accent-hover: #A8E4DD;
+  --accent-tint: #1E2A2A;
+  --accent-on-tint: #7ED3CA;
+  --on-accent: #0F1A1A;
+  --border: #2A2D30;
+  --border-strong: #6B7076;
+  --error: #FF8A80;
+}
+
+:root[data-theme="light"] { color-scheme: light; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -43,10 +117,15 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-size: 18px;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+main { flex: 1; }
 
 a { color: var(--accent); }
 a:hover { color: var(--accent-hover); }
@@ -56,133 +135,13 @@ a:hover { color: var(--accent-hover); }
   outline-offset: 2px;
 }
 
+/* Exactly 720px of content once the viewport allows it, 20px gutters below that */
 .container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 var(--s24);
+  width: min(var(--col), 100% - 40px);
+  margin-inline: auto;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-header {
-  border-bottom: 1px solid var(--border);
-  padding: var(--s16) 0;
-}
-
-header .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s16);
-}
-
-.wordmark {
-  font-family: "New York", ui-serif, Georgia, serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text);
-  text-decoration: none;
-}
-
-header nav {
-  display: flex;
-  align-items: center;
-  gap: var(--s24);
-  font-size: 15px;
-}
-
-.hero {
-  padding: var(--s72) 0 var(--s24);
-  text-align: center;
-}
-
-.hero h1 {
-  font-family: "New York", ui-serif, Georgia, serif;
-  font-weight: 600;
-  font-size: 48px;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  margin-bottom: var(--s24);
-}
-
-.hero p {
-  color: var(--secondary);
-  max-width: 540px;
-  margin: 0 auto var(--s32);
-}
-
-.hero-note {
-  margin-top: var(--s16);
-  font-size: 15px;
-  color: var(--secondary);
-}
-
-.waitlist-form { max-width: 460px; margin: 0 auto; text-align: left; }
-
-.form-row { display: flex; gap: var(--s8); }
-
-.form-row input[type="email"] {
-  flex: 1;
-  min-width: 0;
-  padding: var(--s12) var(--s16);
-  font-size: 16px;
-  font-family: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.form-row input[type="email"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
-
-.form-row button, .cta-button {
-  padding: var(--s12) var(--s24);
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--on-accent);
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.form-row button:hover, .cta-button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-
-.consent {
-  display: flex;
-  gap: var(--s8);
-  align-items: flex-start;
-  margin-top: var(--s12);
-  font-size: 14px;
-  color: var(--secondary);
-}
-
-.consent input { margin-top: var(--s4); }
-
-.form-error {
-  margin-top: var(--s12);
-  font-size: 15px;
-  color: #B3261E;
-}
-
-.form-status {
-  margin-top: var(--s12);
-  font-size: 15px;
-  color: var(--accent);
-}
-
+/* Honeypot: off screen for people, present for bots */
 .hp {
   position: absolute;
   left: -9999px;
@@ -191,156 +150,677 @@ header nav {
   overflow: hidden;
 }
 
-.trust-strip {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: var(--s24) 0;
-  margin-top: var(--s48);
+/* Typography */
+
+h1, .page-title {
+  font-family: "New York", ui-serif, Georgia, serif;
+  font-weight: 600;
+  color: var(--heading);
 }
 
-.trust-strip .container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s12) var(--s48);
-  font-size: 15px;
-  color: var(--secondary);
+h1 {
+  font-size: 56px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
 }
-
-section { padding: var(--s48) 0; }
 
 h2 {
   font-family: "New York", ui-serif, Georgia, serif;
   font-size: 32px;
   line-height: 1.2;
+  letter-spacing: -0.01em;
   font-weight: 600;
-  margin-bottom: var(--s24);
+  color: var(--heading);
+  margin-bottom: 20px;
 }
 
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s24); margin-top: var(--s24); }
+p { font-size: 18px; line-height: 1.6; color: var(--body); }
 
-.step-num { font-weight: 700; color: var(--accent); font-size: 15px; letter-spacing: 0.04em; }
+/* Header */
 
-.step h3 { font-size: 20px; margin: var(--s8) 0; }
+header { border-bottom: 1px solid var(--border); }
 
-.step p { font-size: 16px; color: var(--secondary); }
-
-.flow {
+header .container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: var(--s16);
-  margin: var(--s32) 0 var(--s12);
-  font-size: 15px;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--header-h);
 }
 
-.flow-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s12) var(--s16);
-  text-align: center;
-  line-height: 1.35;
+.wordmark {
+  font-family: "New York", ui-serif, Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--heading);
+  text-decoration: none;
 }
 
-.flow-box small { display: block; color: var(--secondary); }
-
-.flow-arrow { color: var(--accent); font-size: 20px; }
-
-.flow-caption { text-align: center; font-size: 14px; color: var(--secondary); margin-bottom: var(--s32); }
-
-.why-list { list-style: none; display: grid; gap: var(--s12); }
-
-.why-list li {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s16) var(--s24);
+header nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
   font-size: 16px;
 }
 
-.why-list strong { display: block; margin-bottom: var(--s4); }
+.nav-cta {
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  font-weight: 600;
+}
 
-.why-list span { color: var(--secondary); }
+.nav-cta:hover { background: var(--accent-hover); color: var(--on-accent); }
 
-.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s24); }
+/* Theme switch. Not in the handoff, which follows the system preference only.
+   Hidden until theme.js unhides it, since it does nothing without JavaScript. */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  /* Control border, not the hairline: this is the button's only boundary cue,
+     and the hairline is 1.2:1 against the page */
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  color: var(--secondary);
+  cursor: pointer;
+}
+
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+.theme-toggle .sun { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun { display: block; }
+  :root:not([data-theme="light"]) .theme-toggle .moon { display: none; }
+}
+
+:root[data-theme="dark"] .theme-toggle .sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+:root[data-theme="light"] .theme-toggle .sun { display: none; }
+:root[data-theme="light"] .theme-toggle .moon { display: block; }
+
+/* Sections. Every section carries a top hairline except the hero, the band,
+   and the block right below the band, which already has one above it. */
+
+section {
+  padding: 72px 0;
+  border-top: 1px solid var(--border);
+}
+
+.hero, .band, .intro { border-top: 0; }
+
+.hero { padding: 112px 0 88px; }
+
+.hero .container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Desktop breaks the headline into three lines, mobile lets it flow */
+.hero h1 span { display: block; }
+.hero h1 .accent { color: var(--accent); }
+
+.hero-sub { font-size: 21px; max-width: 600px; }
+
+.hero-note { margin: 0; font-size: 16px; color: var(--secondary); }
+
+.intro { padding: 88px 0 72px; }
+
+/* Waiting list form */
+
+.waitlist-form {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--form-w);
+}
+
+.waitlist-form label.lab {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-row { display: flex; gap: 10px; }
+
+.form-row input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  height: var(--control-h);
+  padding: 0 16px;
+  font-size: 17px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+}
+
+.form-row input[aria-invalid="true"] { border: 2px solid var(--error); }
+
+.form-row button {
+  height: var(--control-h);
+  padding: 0 22px;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.form-row button:hover { background: var(--accent-hover); }
+
+.consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--body);
+}
+
+.consent input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.err {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--error);
+}
+
+/* A class level display beats the [hidden] attribute, so restate it */
+.err[hidden] { display: none; }
+
+.err svg { flex-shrink: 0; margin-top: 1px; }
+
+.form-status {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--accent);
+}
+
+/* Promise band */
+
+.band {
+  background: var(--band);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+/* The board draws five equal columns. With the real copy that forces three line
+   wraps, and wrapping a flex row leaves one orphan on a second line. Three
+   content sized columns put the short promises on one row and the long pair on
+   the next, with the icon beside the label instead of above it. */
+.band .container {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+  gap: 14px 24px;
+  padding: 24px 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--body);
+}
+
+.band li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+
+.band li svg { flex-shrink: 0; }
+
+.band li span { color: var(--body); }
+
+/* How it works */
+
+/* Three shared rows (heading, copy, node) so the cards line up internally
+   whatever the copy length. Without subgrid support the cards simply stack
+   their own content, which degrades rather than breaks. */
+.steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  gap: 20px;
+}
+
+.steps li {
+  position: relative;
+  grid-row: span 3;
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+}
+
+/* The cards are the flow, so the connector lives in the grid gap. The board
+   drew a second, separate diagram that repeated these three steps. */
+.steps li:not(:last-child)::after {
+  content: "\2192";
+  position: absolute;
+  top: 50%;
+  right: -19px;
+  transform: translateY(-50%);
+  width: 18px;
+  text-align: center;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--secondary);
+}
+
+.step-head { display: flex; align-items: center; gap: 10px; }
+
+/* The board sets this as a bare teal numeral. A chip reads as a step marker
+   without stealing weight from the card title. */
+.step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.steps h3 { font-size: 21px; font-weight: 600; color: var(--heading); }
+
+.steps p { font-size: 16px; line-height: 1.5; }
+
+/* Where each step physically happens. Bottom aligned across the three cards,
+   which also gives the uneven copy lengths something to rest against. */
+.step-node {
+  /* Default grid stretch, so all three footers share one height and one top
+     edge even when the middle label wraps */
+  margin: 0 -24px -24px;
+  padding: 14px 24px;
+  background: var(--band);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 11px 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.step-node svg { flex-shrink: 0; color: var(--secondary); }
+.step-node b { display: block; font-weight: 600; color: var(--text); }
+.step-node small { display: block; font-size: 13px; color: var(--secondary); }
+
+/* The middle step is the only thing that leaves the device */
+.steps li:nth-child(2) .step-node {
+  background: var(--accent-tint);
+  border-top-color: var(--accent-tint);
+}
+
+.steps li:nth-child(2) .step-node svg,
+.steps li:nth-child(2) .step-node b,
+.steps li:nth-child(2) .step-node small { color: var(--accent-on-tint); }
+
+.flow-caption {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--secondary);
+}
+
+/* Why it is different */
+
+.why-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+
+.why-list li {
+  display: flex;
+  gap: 14px;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--body);
+}
+
+.why-list li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+  margin-top: 12px;
+}
+
+.callout {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+/* Pricing */
+
+.pricing {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
 
 .price-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s24);
-}
-
-.price-card.featured { border-color: var(--accent); }
-
-.price-card .price { font-size: 32px; font-weight: 700; margin: var(--s8) 0; }
-
-.price-card p { font-size: 15px; color: var(--secondary); }
-
-.open-source {
-  background: var(--accent-soft);
-  border-radius: var(--radius);
-  padding: var(--s32);
-}
-
-.open-source p { margin: var(--s12) 0 var(--s16); }
-
-.open-source .links { display: flex; flex-wrap: wrap; gap: var(--s8) var(--s24); font-size: 15px; }
-
-details {
-  border-bottom: 1px solid var(--border);
-  padding: var(--s16) 0;
-}
-
-summary {
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 17px;
-  list-style: none;
+  border-radius: var(--radius-card);
+  padding: 28px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--s12);
+  flex-direction: column;
+  gap: 12px;
 }
 
-summary::after { content: "+"; color: var(--accent); font-size: 22px; }
+.price-card.featured { border: 1.5px solid var(--accent); }
 
-details[open] summary::after { content: "\2212"; }
+.price-eyebrow { font-size: 15px; font-weight: 600; color: var(--secondary); }
 
-details p { margin-top: var(--s8); color: var(--secondary); font-size: 16px; }
+.price-card.featured .price-eyebrow { color: var(--accent); }
 
-.final-cta { text-align: center; padding: var(--s48) 0 var(--s72); }
+.price {
+  font-family: "New York", ui-serif, Georgia, serif;
+  font-size: 40px;
+  font-weight: 600;
+  color: var(--heading);
+}
 
-.final-cta h2 { margin-bottom: var(--s16); }
+.price-card p { font-size: 16px; }
 
-.final-note { margin-top: var(--s16); font-size: 14px; color: var(--secondary); }
+.price-note { margin-top: 20px; font-size: 16px; color: var(--secondary); }
+
+/* Read the code panel. Dark in both color schemes. */
+
+.panel {
+  background: var(--panel);
+  color: var(--on-panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-panel);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel h2 { color: var(--on-panel-heading); margin: 0; }
+.panel p { color: var(--on-panel-body); }
+.panel a { color: var(--on-panel-link); }
+.panel a:hover { color: var(--on-panel-link-hover); }
+
+.panel .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Questions */
+
+.faq { display: flex; flex-direction: column; gap: 32px; }
+
+.faq h2 { margin: 0; }
+
+.faq h3 {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 8px;
+}
+
+/* Final call to action */
+
+.final-cta { padding: 72px 0 96px; }
+
+.final-cta .container { display: flex; flex-direction: column; gap: 20px; }
+
+.final-cta h2 { margin: 0; }
+
+.final-note { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--secondary); }
+
+/* Privacy policy */
+
+.page-title { font-size: 44px; margin-bottom: 12px; }
+
+.lede { margin-bottom: 40px; font-size: 16px; color: var(--secondary); }
+
+.doc {
+  padding: 80px 0 64px;
+  border-top: 0;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 24px 28px;
+  margin-bottom: 40px;
+}
+
+.summary-card dt { font-size: 16px; font-weight: 600; color: var(--secondary); }
+
+.summary-card dd {
+  margin: 0 0 14px;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.summary-card dd:last-child { margin-bottom: 0; }
+
+.blk { padding: 28px 0; border-top: 1px solid var(--border); }
+
+.blk h2 {
+  font-size: 24px;
+  line-height: 1.3;
+  letter-spacing: normal;
+  margin-bottom: 10px;
+}
+
+.blk p { line-height: 1.65; }
+
+/* Signup success */
+
+.confirm { padding: 112px 0 64px; border-top: 0; }
+
+.confirm .container { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+
+.confirm h1 { font-size: 48px; line-height: 1.1; }
+
+.icon-tile {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tips {
+  list-style: none;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--body);
+}
+
+.tips li { display: flex; gap: 14px; align-items: flex-start; }
+
+.tips li::before {
+  counter-increment: tip;
+  content: counter(tip);
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--badge-fill);
+  color: var(--badge-ink);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tips { counter-reset: tip; }
+
+.tail-links { margin-top: 16px; font-size: 16px; }
+
+/* Footer */
 
 footer {
   border-top: 1px solid var(--border);
-  padding: var(--s24) 0 var(--s32);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--secondary);
 }
 
 footer .container {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--s8) var(--s24);
+  gap: 8px 24px;
+  padding: 32px 0 48px;
 }
 
-footer nav { display: flex; gap: var(--s24); }
+footer nav { display: flex; gap: 24px; }
+
+/* Mobile, per the "Website index, mobile" board */
 
 @media (max-width: 600px) {
   body { font-size: 17px; }
-  .hero { padding-top: var(--s48); }
-  .hero h1 { font-size: 36px; }
-  h2 { font-size: 28px; }
+
+  header .container { height: 60px; }
+  .wordmark { font-size: 18px; }
+  header nav { gap: 16px; font-size: 15px; }
+  header nav a { min-height: 44px; display: flex; align-items: center; }
+  .nav-cta { display: none; }
+
+  section { padding: 48px 0; }
+
+  .hero { padding: 48px 0 40px; }
+  .hero .container { gap: 20px; }
+  .hero h1 { font-size: 38px; line-height: 1.1; }
+  .hero h1 span { display: inline; }
+  .hero-sub { font-size: 17px; }
+  .hero-note { font-size: 15px; }
+
+  .intro { padding: 48px 0; }
+
+  h2 { font-size: 26px; letter-spacing: normal; margin-bottom: 14px; }
+  p { font-size: 17px; }
+
+  .waitlist-form { gap: 12px; max-width: none; }
   .form-row { flex-direction: column; }
+
+  /* Stacked, the row's main axis is vertical, so flex: 1 would resolve the
+     height to a 0 basis and collapse the field. The mobile board swaps to
+     width for exactly this reason. */
+  .form-row input[type="email"] { flex: none; width: 100%; padding: 0 14px; }
+
   .form-row button { width: 100%; }
-  header nav { gap: var(--s12); }
+  .consent { margin-top: 0; }
+  .consent input { width: 22px; height: 22px; margin: 0; }
+
+  .band .container {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 20px 0;
+    font-size: 16px;
+  }
+
+  .theme-toggle { width: 44px; height: 44px; }
+
+  /* One card per row, so the shared row tracks stop earning their keep */
+  .steps { grid-template-columns: 1fr; grid-template-rows: none; gap: 24px; }
+
+  .steps li {
+    grid-row: auto;
+    grid-template-rows: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+  }
+  .steps h3 { font-size: 18px; }
+
+  /* Stacked cards, so the connector turns to point down */
+  .steps li:not(:last-child)::after {
+    content: "\2193";
+    top: auto;
+    right: auto;
+    bottom: -21px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .step-node { margin: 4px -18px -18px; padding: 12px 18px; }
+
+  .pricing { grid-template-columns: 1fr; gap: 12px; }
+  .price-card { padding: 20px; gap: 6px; }
+  .price-eyebrow { font-size: 14px; }
+  .price { font-size: 32px; }
+  .price-note { margin-top: 14px; font-size: 15px; }
+
+  .panel { padding: 24px; }
+
+  .faq { gap: 24px; }
+
+  .final-cta { padding: 48px 0 64px; }
+
+  .doc { padding: 48px 0 40px; }
+  .page-title { font-size: 32px; }
+  .lede { margin-bottom: 28px; }
+
+  .confirm { padding: 48px 0 40px; }
+  .confirm h1 { font-size: 34px; }
+
+  footer .container {
+    flex-direction: column;
+    gap: 4px;
+    padding: 24px 0 40px;
+  }
+
+  footer nav { flex-direction: column; gap: 0; }
+  footer nav a, footer .container > span { min-height: 44px; display: flex; align-items: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

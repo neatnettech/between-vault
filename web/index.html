@@ -8,19 +8,19 @@
   <meta property="og:title" content="Private Couple Vault">
   <meta property="og:description" content="Private by default. Shared by choice. No cloud required.">
   <meta property="og:type" content="website">
-  <!-- TODO: replace OWNER in the links below with your GitHub username -->
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
 
   <header>
     <div class="container">
       <a class="wordmark" href="index.html">Private Couple Vault</a>
-      <nav>
+      <nav aria-label="Primary">
         <a href="https://github.com/neatnettech/private-couple-vault">GitHub</a>
-        <a class="cta-button" href="#waitlist">Join the waiting list</a>
+        <a class="nav-cta" href="#waitlist">Join the waiting list</a>
       </nav>
     </div>
   </header>
@@ -29,22 +29,29 @@
 
     <section class="hero">
       <div class="container">
-        <h1>Private by default.<br>Shared by choice.<br>No cloud required.</h1>
-        <p>Private Couple Vault is a notes vault for two. It lives on your iPhones, and nothing leaves them unless you send it.</p>
+        <h1>
+          <span>Private by default.</span>
+          <span>Shared by choice.</span>
+          <span class="accent">No cloud required.</span>
+        </h1>
+        <p class="hero-sub">Private Couple Vault is a notes vault for two. It lives on your iPhones, and nothing leaves them unless you send it.</p>
 
-        <form class="waitlist-form" data-waitlist method="post"
+        <form class="waitlist-form" data-waitlist method="post" aria-label="Join the waiting list"
               action="https://buttondown.com/api/emails/embed-subscribe/neatnettech" novalidate>
           <input class="hp" type="text" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="lab" for="hero-email">Email address</label>
           <div class="form-row">
-            <label class="sr-only" for="hero-email">Email address</label>
-            <input type="email" name="email" id="hero-email" placeholder="Email address" autocomplete="email" required>
+            <input type="email" name="email" id="hero-email" placeholder="you@example.com" autocomplete="email" required>
             <button type="submit">Get early access</button>
           </div>
           <label class="consent">
             <input type="checkbox" name="consent" required>
             <span>Send me launch emails. See the <a href="privacy.html">privacy policy</a>.</span>
           </label>
-          <p class="form-error" data-error hidden></p>
+          <p class="err" data-error id="hero-error" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+            <span data-error-text></span>
+          </p>
           <p class="form-status" data-status hidden>Almost done. Check your inbox to confirm. <a href="thanks.html">What happens next?</a></p>
         </form>
 
@@ -52,46 +59,77 @@
       </div>
     </section>
 
-    <div class="trust-strip">
-      <div class="container">
-        <span>No cloud.</span>
-        <span>No account.</span>
-        <span>No analytics.</span>
-        <span>End to end encrypted exchange.</span>
-        <span>Open source (GPLv3), verifiable code.</span>
-      </div>
-    </div>
+    <section class="band" aria-label="What we promise">
+      <ul class="container">
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"></path><path d="M7 18h10.5a3.5 3.5 0 0 0 1.4-6.7M15.8 7.6A6 6 0 0 0 6.2 10 4 4 0 0 0 7 18"></path></svg>
+          <span>No cloud</span>
+        </li>
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path><path d="M3 3l18 18"></path></svg>
+          <span>No account</span>
+        </li>
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path><path d="M3 3l18 18"></path></svg>
+          <span>No analytics</span>
+        </li>
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+          <span>End to end encrypted exchange</span>
+        </li>
+        <li>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"></path></svg>
+          <span>Open source (GPLv3), verifiable code</span>
+        </li>
+      </ul>
+    </section>
 
-    <section id="what">
+    <section class="intro" id="what">
       <div class="container">
         <h2>What it is</h2>
         <p>A shared place for the things a couple needs to know: insurance numbers, doctor contacts, the boiler manual, the wifi password at your parents' house. Each of you keeps your own vault on your own phone, and you decide, item by item, what your partner gets.</p>
+      </div>
+    </section>
 
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <h3>Store</h3>
+    <section id="how">
+      <div class="container">
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li>
+            <div class="step-head">
+              <span class="step-num">1</span>
+              <h3>Store</h3>
+            </div>
             <p>Write it down. It is stored locally on your device.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <h3>Seal</h3>
+            <div class="step-node">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18.5h2"></path></svg>
+              <span><b>Your iPhone</b><small>vault stays here</small></span>
+            </div>
+          </li>
+          <li>
+            <div class="step-head">
+              <span class="step-num">2</span>
+              <h3>Seal</h3>
+            </div>
             <p>Mark what your partner should have, then review exactly what leaves.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <h3>Exchange</h3>
+            <div class="step-node">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"></path><path d="M14 3v5h5"></path></svg>
+              <span><b>.nvlt file</b><small>encrypted to one device</small></span>
+            </div>
+          </li>
+          <li>
+            <div class="step-head">
+              <span class="step-num">3</span>
+              <h3>Exchange</h3>
+            </div>
             <p>Hand over one encrypted file by AirDrop, Messages or Files.</p>
-          </div>
-        </div>
+            <div class="step-node">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18.5h2"></path></svg>
+              <span><b>Partner's iPhone</b><small>reviews, then accepts</small></span>
+            </div>
+          </li>
+        </ol>
 
-        <div class="flow" aria-hidden="true">
-          <div class="flow-box">Your iPhone<small>vault stays here</small></div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-box">.nvlt file<small>encrypted to one device</small></div>
-          <span class="flow-arrow">&rarr;</span>
-          <div class="flow-box">Partner's iPhone<small>reviews, then accepts</small></div>
-        </div>
         <p class="flow-caption">No server in between. AirDrop, Messages or Files only carry the sealed file.</p>
       </div>
     </section>
@@ -100,13 +138,15 @@
       <div class="container">
         <h2>Why it is different</h2>
         <ul class="why-list">
-          <li><strong>No cloud storage.</strong> <span>Your vault is stored locally on your device.</span></li>
-          <li><strong>No automatic synchronization.</strong> <span>You control when information is shared.</span></li>
-          <li><strong>No account.</strong> <span>No email, phone number or sign in inside the app.</span></li>
-          <li><strong>End to end encrypted exchange</strong> <span>between two paired phones.</span></li>
-          <li><strong>Your partner can recover your vault by design.</strong> <span>Pairing is also your backup plan.</span></li>
-          <li><strong>The honest limit.</strong> <span>If both phones are lost and there is no backup, your data is gone. We cannot restore it, because we never had it.</span></li>
+          <li><span><b>No cloud storage.</b> Your vault is stored locally on your device.</span></li>
+          <li><span><b>No automatic synchronization.</b> You control when information is shared.</span></li>
+          <li><span><b>No account.</b> No email, phone number or sign in inside the app.</span></li>
+          <li><span><b>End to end encrypted exchange</b> between two paired phones.</span></li>
+          <li><span><b>Your partner can recover your vault by design.</b> Pairing is also your backup plan.</span></li>
         </ul>
+        <div class="callout">
+          <p><b>The honest limit.</b> If both phones are lost and there is no backup, your data is gone. We cannot restore it, because we never had it.</p>
+        </div>
       </div>
     </section>
 
@@ -115,80 +155,80 @@
         <h2>Pricing</h2>
         <div class="pricing">
           <div class="price-card">
-            <div class="step-num">Free, forever</div>
-            <div class="price">$0</div>
+            <span class="price-eyebrow">Free, forever</span>
+            <span class="price">$0</span>
             <p>Notes, pairing, exchange and backup. No trial, no limits on notes.</p>
           </div>
           <div class="price-card featured">
-            <div class="step-num">One time</div>
-            <div class="price">$9.99</div>
+            <span class="price-eyebrow">One time</span>
+            <span class="price">$9.99</span>
             <p>Unlocks attachments. Pays for updates and publishing. No subscription.</p>
           </div>
         </div>
+        <p class="price-note">The code is free under GPLv3. You can build it yourself. The price is for the convenience of the App Store build.</p>
       </div>
     </section>
 
     <section id="open-source">
-      <div class="container">
-        <div class="open-source">
-          <h2>Read the code. Check our claims.</h2>
-          <p>Everything is open source under GPLv3. The exchange format is documented in PROTOCOL.md, and the threat model says plainly what we do and do not protect against. Audits welcome.</p>
-          <p>The code is free. You can build it yourself. The price is for the convenience of the App Store build.</p>
-          <div class="links">
-            <a href="https://github.com/neatnettech/private-couple-vault">Repository</a>
-            <a href="https://github.com/neatnettech/private-couple-vault/blob/main/PROTOCOL.md">PROTOCOL.md</a>
-            <a href="https://github.com/neatnettech/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>
-          </div>
+      <div class="container panel">
+        <h2>Read the code. Check our claims.</h2>
+        <p>Everything is open source under GPLv3. The exchange format is documented in PROTOCOL.md, and the threat model says plainly what we do and do not protect against. Audits welcome.</p>
+        <div class="links">
+          <a href="https://github.com/neatnettech/private-couple-vault">Repository</a>
+          <a href="https://github.com/neatnettech/private-couple-vault/blob/main/PROTOCOL.md">PROTOCOL.md</a>
+          <a href="https://github.com/neatnettech/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>
         </div>
       </div>
     </section>
 
     <section id="faq">
-      <div class="container">
+      <div class="container faq">
         <h2>Questions</h2>
-        <details>
-          <summary>Is there really no server?</summary>
+        <div>
+          <h3>Is there really no server?</h3>
           <p>Yes. The app has no backend. Items travel as an encrypted file you send yourself, through AirDrop, Messages or Files.</p>
-        </details>
-        <details>
-          <summary>What if I lose my phone?</summary>
+        </div>
+        <div>
+          <h3>What if I lose my phone?</h3>
           <p>Install the app on your new phone, pair with your partner again, and they send you your recovery file. If both phones are lost with no backup, the data is gone.</p>
-        </details>
-        <details>
-          <summary>Why open source?</summary>
+        </div>
+        <div>
+          <h3>Why open source?</h3>
           <p>Because "trust us" is not a security model. You, or someone you trust, can read every line.</p>
-        </details>
-        <details>
-          <summary>When does it launch?</summary>
-          <!-- TODO: replace with the launch window -->
+        </div>
+        <div>
+          <h3>When does it launch?</h3>
           <p>Soon. Join the list and we will send one email when it is on the App Store.</p>
-        </details>
-        <details>
-          <summary>Do you track me?</summary>
+        </div>
+        <div>
+          <h3>Do you track me?</h3>
           <p>No. Not even on this website: no analytics, no cookies, and this page loads nothing from anyone else.</p>
-        </details>
+        </div>
       </div>
     </section>
 
     <section class="final-cta" id="waitlist">
       <div class="container">
         <h2>Get one email when it launches</h2>
-        <form class="waitlist-form" data-waitlist method="post"
+        <form class="waitlist-form" data-waitlist method="post" aria-label="Join the waiting list"
               action="https://buttondown.com/api/emails/embed-subscribe/neatnettech" novalidate>
           <input class="hp" type="text" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="lab" for="footer-email">Email address</label>
           <div class="form-row">
-            <label class="sr-only" for="footer-email">Email address</label>
-            <input type="email" name="email" id="footer-email" placeholder="Email address" autocomplete="email" required>
+            <input type="email" name="email" id="footer-email" placeholder="you@example.com" autocomplete="email" required>
             <button type="submit">Join the waiting list</button>
           </div>
           <label class="consent">
             <input type="checkbox" name="consent" required>
             <span>Send me launch emails. See the <a href="privacy.html">privacy policy</a>.</span>
           </label>
-          <p class="form-error" data-error hidden></p>
+          <p class="err" data-error id="footer-error" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+            <span data-error-text></span>
+          </p>
           <p class="form-status" data-status hidden>Almost done. Check your inbox to confirm. <a href="thanks.html">What happens next?</a></p>
+          <p class="final-note">Submitting sends your email to Buttondown, our list provider. Nothing else is sent.</p>
         </form>
-        <p class="final-note">Submitting sends your email to Buttondown, our list provider. Nothing else is sent.</p>
       </div>
     </section>
 
@@ -197,7 +237,7 @@
   <footer>
     <div class="container">
       <span>Private Couple Vault. GPLv3.</span>
-      <nav>
+      <nav aria-label="Footer">
         <a href="privacy.html">Privacy policy</a>
         <a href="https://github.com/neatnettech/private-couple-vault/blob/main/LICENSE">License</a>
         <a href="https://github.com/neatnettech/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>
@@ -219,28 +259,41 @@
         var consent = form.querySelector('input[name="consent"]');
         var honeypot = form.querySelector('input[name="website_url"]');
         var error = form.querySelector("[data-error]");
+        var errorText = form.querySelector("[data-error-text]");
         var status = form.querySelector("[data-status]");
+
+        function clearError(field) {
+          field.removeAttribute("aria-invalid");
+          field.removeAttribute("aria-describedby");
+        }
+
+        function markError(field, message) {
+          errorText.textContent = message;
+          error.hidden = false;
+          field.setAttribute("aria-invalid", "true");
+          field.setAttribute("aria-describedby", error.id);
+          field.focus();
+        }
 
         form.addEventListener("submit", function (e) {
           if (honeypot && honeypot.value) {
             e.preventDefault();
             return;
           }
-          var message = "";
+          clearError(email);
+          if (consent) { clearError(consent); }
+
           if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value)) {
-            message = "Enter a full email address, like name@example.com.";
-          } else if (consent && !consent.checked) {
-            message = "Tick the box so we are allowed to email you.";
-          }
-          if (message) {
             e.preventDefault();
-            error.textContent = message;
-            error.hidden = false;
-            email.setAttribute("aria-invalid", "true");
-            email.focus();
+            markError(email, "Enter a full email address, like name@example.com.");
             return;
           }
-          email.removeAttribute("aria-invalid");
+          if (consent && !consent.checked) {
+            e.preventDefault();
+            markError(consent, "Tick the box so we are allowed to email you.");
+            return;
+          }
+
           error.hidden = true;
           status.hidden = false;
           form.setAttribute("target", "buttondown_popup");
