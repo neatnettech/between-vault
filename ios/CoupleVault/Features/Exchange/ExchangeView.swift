@@ -5,24 +5,32 @@ struct ExchangeView: View {
         NavigationStack {
             List {
                 Section("Ready to send") {
-                    Text("Nothing sealed yet")
-                        .foregroundStyle(.secondary)
-                    Text("Seal a note to get it ready for your partner.")
-                        .font(.footnote)
-                        .foregroundStyle(.tertiary)
+                    EmptyState(
+                        systemImage: "tray",
+                        headline: "Nothing sealed yet",
+                        message: "Seal a note to get it ready for your partner."
+                    )
+                    .listRowBackground(Theme.Colors.bg)
                 }
                 Section("Waiting for me") {
-                    Text("Nothing waiting")
-                        .foregroundStyle(.secondary)
-                    Text("When your partner sends you a file, open it here.")
-                        .font(.footnote)
-                        .foregroundStyle(.tertiary)
+                    EmptyState(
+                        systemImage: "tray.and.arrow.down",
+                        headline: "Nothing waiting",
+                        message: "When your partner sends you a file, open it here."
+                    )
+                    .listRowBackground(Theme.Colors.bg)
                 }
                 Section("Recently exchanged") {
-                    Text("No exchanges yet")
-                        .foregroundStyle(.secondary)
+                    EmptyState(
+                        systemImage: "clock.arrow.circlepath",
+                        headline: "No exchanges yet",
+                        message: "Sent and received items show up here."
+                    )
+                    .listRowBackground(Theme.Colors.bg)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.bg)
             .navigationTitle("Exchange")
         }
     }

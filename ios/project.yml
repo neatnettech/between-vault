@@ -17,7 +17,7 @@ targets:
     info:
       path: CoupleVault/Info.plist
       properties:
-        CFBundleDisplayName: Private Couple Vault
+        CFBundleDisplayName: between
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSFaceIDUsageDescription: Unlock your vault with Face ID.

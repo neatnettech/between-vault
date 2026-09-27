@@ -9,21 +9,34 @@ struct PartnerView: View {
             List {
                 if let partner {
                     Section("Paired partner") {
-                        LabeledContent("Fingerprint", value: partner.fingerprint)
+                        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+                            Text("Fingerprint")
+                                .font(Theme.Typography.footnote)
+                                .foregroundStyle(Theme.Colors.secondary)
+                            FingerprintDisplay(fingerprint: partner.fingerprint)
+                        }
                         Text("Your partner can recover your vault. This is by design.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .font(Theme.Typography.footnote)
+                            .foregroundStyle(Theme.Colors.secondary)
                     }
+                    .listRowBackground(Theme.Colors.surface)
                 } else {
                     Section {
-                        Text("No partner paired yet.")
-                            .foregroundStyle(.secondary)
+                        EmptyState(
+                            systemImage: "person.2",
+                            headline: "No partner paired yet",
+                            message: "Pairing lands with the exchange work."
+                        )
                         Button("Pair with partner") {
                             // Pairing flow lands with the exchange work item.
                         }
+                        .buttonStyle(.vaultPrimary)
                     }
+                    .listRowBackground(Theme.Colors.bg)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.bg)
             .navigationTitle("Partner")
             .task {
                 partner = try? services.partnerRepository.partner()

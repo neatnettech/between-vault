@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Private Couple Vault</string>
+	<string>between</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

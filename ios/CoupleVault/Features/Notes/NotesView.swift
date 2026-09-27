@@ -8,20 +8,20 @@ struct NotesView: View {
     var body: some View {
         List {
             if notes.isEmpty {
-                Text("Nothing here yet.")
-                    .foregroundStyle(.secondary)
+                EmptyState(
+                    systemImage: "note.text",
+                    headline: "Nothing here yet",
+                    message: "Add a note to this category."
+                )
+                .listRowBackground(Theme.Colors.bg)
             }
             ForEach(notes) { note in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(note.title)
-                        .font(.body)
-                    Text(note.body)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
+                NoteRow(note: note)
+                    .listRowBackground(Theme.Colors.surface)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.bg)
         .navigationTitle(category.name)
         .task {
             notes = (try? services.noteRepository.notes(in: category.id)) ?? []

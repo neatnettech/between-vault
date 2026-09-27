@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Full screen cover shown whenever the vault is locked, including the app switcher
 /// snapshot. No content is ever visible behind it.
@@ -11,17 +12,29 @@ struct PrivacyOverlayView: View {
                 .fill(.regularMaterial)
                 .ignoresSafeArea()
 
-            VStack(spacing: 16) {
+            VStack(spacing: Theme.Space.md) {
                 Image(systemName: "lock.fill")
-                    .font(.largeTitle)
+                    .font(Theme.Typography.largeTitle)
+                    .foregroundStyle(Theme.Colors.accent)
                 Text("Locked")
-                    .font(.title3)
+                    .font(Theme.Typography.title3)
+                    .foregroundStyle(Theme.Colors.text)
                 Button("Unlock with Face ID") {
-                    Task { await lockManager.unlock() }
+                    Task { await unlock() }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.vaultPrimary)
             }
+            .padding(Theme.Space.lg)
+            .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            .padding(Theme.Space.lg)
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private func unlock() async {
+        await lockManager.unlock()
+        if !lockManager.isLocked {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
     }
 }

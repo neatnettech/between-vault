@@ -1,4 +1,4 @@
-# Private Couple Vault
+# between
 
 **Private by default. Shared by choice. No cloud required.**
 
@@ -53,7 +53,7 @@ Detailed specs and design files stay private and local, outside this repository.
 
 ## Status
 
-In development. Website and waiting list: [Private Couple Vault](https://neatnettech.github.io/private-couple-vault/).
+In development. Website and waiting list: [between](https://neatnettech.github.io/private-couple-vault/).
 
 ## License
 

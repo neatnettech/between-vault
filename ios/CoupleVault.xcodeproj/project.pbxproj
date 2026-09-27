@@ -22,18 +22,21 @@
 		5D48D2A698E088E2E14A4D48 /* CoupleVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0988DFC74504382A198CB58 /* CoupleVaultApp.swift */; };
 		66B80494C1EC515C50530668 /* Partner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A4BEB538BD3CEE36A31601 /* Partner.swift */; };
 		69C0AF516AF694A1E79C5FA2 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0C4E6BE000A3FBF09A707D /* ExchangeView.swift */; };
+		7138592BD314EA73396BE836 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A4C71082639D4CF229EA0E /* Theme.swift */; };
 		732B50780A99BA4ED928ECB5 /* PartnerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7719E8324C952F00F20F3704 /* PartnerRepository.swift */; };
 		7BEC7670695ADF41B30572BB /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBECC36DE8EC2F697287062 /* KeyManager.swift */; };
 		886A524C6650342211DA3492 /* PackageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919E069606A55B5E9E2E800E /* PackageTests.swift */; };
 		8BD544170C028D9B62AFC6DD /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF29E00B06BC2C2D5169018 /* Identity.swift */; };
 		8CE36AC312163558F209E847 /* CryptoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FC75C30BF92BBB56F37905 /* CryptoEngine.swift */; };
 		8E060F810AD95787713CCD9F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BABFA4403FCCEB48A2F725F /* Assets.xcassets */; };
+		8EC80C9705A7511D2F791A78 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B63AA64A856A33B36EA9156 /* ThemeTests.swift */; };
 		92D892CE7ECE3948672BDEDC /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C014089856F6F6C802CF2B0 /* PartnerView.swift */; };
 		9571DEF95D48B4D3D8F6B8EF /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B719920EB5C1CFC4AF6ECB /* NoteRepository.swift */; };
 		9A8A892376FDD873F6BA37ED /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C39EC214F9261CE2C9008C /* AppServices.swift */; };
 		9DCC71C8BEEE347BD9C07899 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C9EB06C6D65C5B128CF07A /* Category.swift */; };
 		AC5F912D9B2DC04AA88D86C4 /* PackageSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D9E016AD268B7CFC916E6C /* PackageSerializer.swift */; };
 		D9ED588905E0E6D2336E3CDB /* CategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81D53A2B469EDF9BCE579D20 /* CategoryRepository.swift */; };
+		DA758949A91D0587C1B8EDAD /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617C722D59E1EC8D7F149169 /* Components.swift */; };
 		E8661928603E8C6474716BC8 /* CryptoEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353C94A44A3501964DE7DC82 /* CryptoEngineTests.swift */; };
 		F89BEF1305BE33EA73DBEEE0 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E68B3E6D09E90EE7902A5940 /* RootView.swift */; };
 /* End PBXBuildFile section */
@@ -54,6 +57,7 @@
 		0C014089856F6F6C802CF2B0 /* PartnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerView.swift; sourceTree = "<group>"; };
 		10D9E016AD268B7CFC916E6C /* PackageSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSerializer.swift; sourceTree = "<group>"; };
 		1BABFA4403FCCEB48A2F725F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2B63AA64A856A33B36EA9156 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
 		2DF29E00B06BC2C2D5169018 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		353C94A44A3501964DE7DC82 /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
 		38AE483843842874A3076545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -63,7 +67,9 @@
 		4DCF7C82627E0AAC36339C77 /* PackageValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageValidator.swift; sourceTree = "<group>"; };
 		505A57192D492C8D22DCF894 /* LockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManager.swift; sourceTree = "<group>"; };
 		52C9EB06C6D65C5B128CF07A /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		54A4C71082639D4CF229EA0E /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		5EBECC36DE8EC2F697287062 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
+		617C722D59E1EC8D7F149169 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		63D80D7B42D1558D3B0CC5DC /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		70387728731F38AF5E497791 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7719E8324C952F00F20F3704 /* PartnerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRepository.swift; sourceTree = "<group>"; };
@@ -135,6 +141,15 @@
 			path = Exchange;
 			sourceTree = "<group>";
 		};
+		4417E417BB806498E9BE1C7D /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				617C722D59E1EC8D7F149169 /* Components.swift */,
+				54A4C71082639D4CF229EA0E /* Theme.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
 		483C18878FD5439AA035EC7C /* CoupleVault */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +157,7 @@
 				70387728731F38AF5E497791 /* Info.plist */,
 				EC143E491D4B85A6AA6DAE19 /* PrivacyInfo.xcprivacy */,
 				64700A2D4F52288B14A1AD93 /* App */,
+				4417E417BB806498E9BE1C7D /* Design */,
 				6A95236FDA41B768A3617C8D /* Domain */,
 				5ABA8B52D8E26F3F0D0E5C39 /* Features */,
 				57EF87FFFCE01325646A4C8C /* Persistence */,
@@ -188,6 +204,14 @@
 				4E2465E535E490715DF9A56C /* Vault */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		62C187EA7A3135B5CC420D4D /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				2B63AA64A856A33B36EA9156 /* ThemeTests.swift */,
+			);
+			path = Design;
 			sourceTree = "<group>";
 		};
 		64700A2D4F52288B14A1AD93 /* App */ = {
@@ -267,6 +291,7 @@
 		BAF3062C52002C064617FC87 /* CoupleVaultTests */ = {
 			isa = PBXGroup;
 			children = (
+				62C187EA7A3135B5CC420D4D /* Design */,
 				FD2DE98F97827EC010A91754 /* Protocol */,
 				D0A37F04107CE93316133DE2 /* Security */,
 			);
@@ -431,6 +456,7 @@
 				9A8A892376FDD873F6BA37ED /* AppServices.swift in Sources */,
 				9DCC71C8BEEE347BD9C07899 /* Category.swift in Sources */,
 				D9ED588905E0E6D2336E3CDB /* CategoryRepository.swift in Sources */,
+				DA758949A91D0587C1B8EDAD /* Components.swift in Sources */,
 				5D48D2A698E088E2E14A4D48 /* CoupleVaultApp.swift in Sources */,
 				8CE36AC312163558F209E847 /* CryptoEngine.swift in Sources */,
 				5B3A59A5857B56C62D1283BE /* ExchangeLogRepository.swift in Sources */,
@@ -452,6 +478,7 @@
 				2A630FEA6347A5D69A74C156 /* PrivacyOverlayView.swift in Sources */,
 				F89BEF1305BE33EA73DBEEE0 /* RootView.swift in Sources */,
 				338796C11699A42EA9816AF0 /* SettingsView.swift in Sources */,
+				7138592BD314EA73396BE836 /* Theme.swift in Sources */,
 				3BE6FAA6C8078A9224885B09 /* VaultView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -462,6 +489,7 @@
 			files = (
 				E8661928603E8C6474716BC8 /* CryptoEngineTests.swift in Sources */,
 				886A524C6650342211DA3492 /* PackageTests.swift in Sources */,
+				8EC80C9705A7511D2F791A78 /* ThemeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
