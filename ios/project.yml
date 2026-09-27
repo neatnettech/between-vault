@@ -18,6 +18,9 @@ targets:
       path: BetweenVault/Info.plist
       properties:
         CFBundleDisplayName: Between Vault
+        # Track the build settings so the tag, project.yml and the bundle cannot drift.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSFaceIDUsageDescription: Unlock your vault with Face ID.
@@ -42,7 +45,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.0
+        MARKETING_VERSION: 1.0.0
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   BetweenVaultTests:
