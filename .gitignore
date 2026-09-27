@@ -5,5 +5,43 @@ xcuserdata/
 *.xcuserstate
 *.xccheckout
 
+# Xcode build and editor droppings
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcresult/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+*.xcodeproj/xcshareddata/IDEWorkspaceChecks.plist
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# Signing material. None of this ever belongs in the repo.
+*.p12
+*.p8
+*.pem
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+*.keystore
+*.jks
+ExportOptions.plist
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.secrets.xcconfig
+Secrets.swift
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
 # Private working documents. Detailed specs and design files stay local only.
 private/
