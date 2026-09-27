@@ -4,3 +4,6 @@ build/
 xcuserdata/
 *.xcuserstate
 *.xccheckout
+
+# Private working documents. Detailed specs and design files stay local only.
+private/
