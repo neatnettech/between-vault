@@ -1,5 +1,11 @@
 # Between Vault
 
+[![CI](https://github.com/neatnettech/between-vault/actions/workflows/ci.yml/badge.svg)](https://github.com/neatnettech/between-vault/actions/workflows/ci.yml)
+[![Pages](https://github.com/neatnettech/between-vault/actions/workflows/pages.yml/badge.svg)](https://github.com/neatnettech/between-vault/actions/workflows/pages.yml)
+[![Latest release](https://img.shields.io/github/v/release/neatnettech/between-vault?include_prereleases&sort=semver)](https://github.com/neatnettech/between-vault/releases)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey.svg)](ios/project.yml)
+
 **Private by default. Shared by choice. No cloud required.**
 
 A notes vault for two people. It lives on your iPhones, and nothing leaves them unless you send it.
@@ -55,6 +61,16 @@ Detailed specs and design files stay private and local, outside this repository.
 
 In development. Website and waiting list: [Between Vault](https://neatnettech.github.io/between-vault/).
 
+## Contributing
+
+`main` is the trunk. Work on short lived `feat/`, `fix/` or `chore/` branches and
+merge through a pull request with CI green. Releases are cut by tagging
+`vX.Y.Z-rc.N` first, then promoting the accepted candidate to `vX.Y.Z` on the same
+commit. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full flow and the local
+setup.
+
+Found a security problem? Please report it privately. See [SECURITY.md](SECURITY.md).
+
 ## License
 
-GPLv3.
+GPLv3. See [LICENSE](LICENSE).
