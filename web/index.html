@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Private Couple Vault: Private by default. Shared by choice.</title>
+  <meta name="description" content="A notes vault for two people. It lives on your iPhones, and nothing leaves them unless you send it. No cloud. No account. Open source.">
+  <meta property="og:title" content="Private Couple Vault">
+  <meta property="og:description" content="Private by default. Shared by choice. No cloud required.">
+  <meta property="og:type" content="website">
+  <!-- TODO: replace OWNER in the links below with your GitHub username -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <a class="wordmark" href="index.html">Private Couple Vault</a>
+      <nav>
+        <a href="https://github.com/OWNER/private-couple-vault">GitHub</a>
+        <a class="cta-button" href="#waitlist">Join the waiting list</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container">
+        <h1>Private by default.<br>Shared by choice.<br>No cloud required.</h1>
+        <p>Private Couple Vault is a notes vault for two. It lives on your iPhones, and nothing leaves them unless you send it.</p>
+
+        <form class="waitlist-form" data-waitlist method="post"
+              action="https://buttondown.com/api/emails/embed-subscribe/REPLACE_ME" novalidate>
+          <input class="hp" type="text" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="form-row">
+            <label class="sr-only" for="hero-email">Email address</label>
+            <input type="email" name="email" id="hero-email" placeholder="Email address" autocomplete="email" required>
+            <button type="submit">Get early access</button>
+          </div>
+          <label class="consent">
+            <input type="checkbox" name="consent" required>
+            <span>Send me launch emails. See the <a href="privacy.html">privacy policy</a>.</span>
+          </label>
+          <p class="form-error" data-error hidden></p>
+          <p class="form-status" data-status hidden>Almost done. Check your inbox to confirm. <a href="thanks.html">What happens next?</a></p>
+        </form>
+
+        <p class="hero-note">Free. Open source. No cloud.</p>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="container">
+        <span>No cloud.</span>
+        <span>No account.</span>
+        <span>No analytics.</span>
+        <span>End to end encrypted exchange.</span>
+        <span>Open source (GPLv3), verifiable code.</span>
+      </div>
+    </div>
+
+    <section id="what">
+      <div class="container">
+        <h2>What it is</h2>
+        <p>A shared place for the things a couple needs to know: insurance numbers, doctor contacts, the boiler manual, the wifi password at your parents' house. Each of you keeps your own vault on your own phone, and you decide, item by item, what your partner gets.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Store</h3>
+            <p>Write it down. It is stored locally on your device.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Seal</h3>
+            <p>Mark what your partner should have, then review exactly what leaves.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Exchange</h3>
+            <p>Hand over one encrypted file by AirDrop, Messages or Files.</p>
+          </div>
+        </div>
+
+        <div class="flow" aria-hidden="true">
+          <div class="flow-box">Your iPhone<small>vault stays here</small></div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-box">.nvlt file<small>encrypted to one device</small></div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-box">Partner's iPhone<small>reviews, then accepts</small></div>
+        </div>
+        <p class="flow-caption">No server in between. AirDrop, Messages or Files only carry the sealed file.</p>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="container">
+        <h2>Why it is different</h2>
+        <ul class="why-list">
+          <li><strong>No cloud storage.</strong> <span>Your vault is stored locally on your device.</span></li>
+          <li><strong>No automatic synchronization.</strong> <span>You control when information is shared.</span></li>
+          <li><strong>No account.</strong> <span>No email, phone number or sign in inside the app.</span></li>
+          <li><strong>End to end encrypted exchange</strong> <span>between two paired phones.</span></li>
+          <li><strong>Your partner can recover your vault by design.</strong> <span>Pairing is also your backup plan.</span></li>
+          <li><strong>The honest limit.</strong> <span>If both phones are lost and there is no backup, your data is gone. We cannot restore it, because we never had it.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="container">
+        <h2>Pricing</h2>
+        <div class="pricing">
+          <div class="price-card">
+            <div class="step-num">Free, forever</div>
+            <div class="price">$0</div>
+            <p>Notes, pairing, exchange and backup. No trial, no limits on notes.</p>
+          </div>
+          <div class="price-card featured">
+            <div class="step-num">One time</div>
+            <div class="price">$9.99</div>
+            <p>Unlocks attachments. Pays for updates and publishing. No subscription.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="open-source">
+      <div class="container">
+        <div class="open-source">
+          <h2>Read the code. Check our claims.</h2>
+          <p>Everything is open source under GPLv3. The exchange format is documented in PROTOCOL.md, and the threat model says plainly what we do and do not protect against. Audits welcome.</p>
+          <p>The code is free. You can build it yourself. The price is for the convenience of the App Store build.</p>
+          <div class="links">
+            <a href="https://github.com/OWNER/private-couple-vault">Repository</a>
+            <a href="https://github.com/OWNER/private-couple-vault/blob/main/PROTOCOL.md">PROTOCOL.md</a>
+            <a href="https://github.com/OWNER/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <h2>Questions</h2>
+        <details>
+          <summary>Is there really no server?</summary>
+          <p>Yes. The app has no backend. Items travel as an encrypted file you send yourself, through AirDrop, Messages or Files.</p>
+        </details>
+        <details>
+          <summary>What if I lose my phone?</summary>
+          <p>Install the app on your new phone, pair with your partner again, and they send you your recovery file. If both phones are lost with no backup, the data is gone.</p>
+        </details>
+        <details>
+          <summary>Why open source?</summary>
+          <p>Because "trust us" is not a security model. You, or someone you trust, can read every line.</p>
+        </details>
+        <details>
+          <summary>When does it launch?</summary>
+          <!-- TODO: replace with the launch window -->
+          <p>Soon. Join the list and we will send one email when it is on the App Store.</p>
+        </details>
+        <details>
+          <summary>Do you track me?</summary>
+          <p>No. Not even on this website: no analytics, no cookies, and this page loads nothing from anyone else.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta" id="waitlist">
+      <div class="container">
+        <h2>Get one email when it launches</h2>
+        <form class="waitlist-form" data-waitlist method="post"
+              action="https://buttondown.com/api/emails/embed-subscribe/REPLACE_ME" novalidate>
+          <input class="hp" type="text" name="website_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="form-row">
+            <label class="sr-only" for="footer-email">Email address</label>
+            <input type="email" name="email" id="footer-email" placeholder="Email address" autocomplete="email" required>
+            <button type="submit">Join the waiting list</button>
+          </div>
+          <label class="consent">
+            <input type="checkbox" name="consent" required>
+            <span>Send me launch emails. See the <a href="privacy.html">privacy policy</a>.</span>
+          </label>
+          <p class="form-error" data-error hidden></p>
+          <p class="form-status" data-status hidden>Almost done. Check your inbox to confirm. <a href="thanks.html">What happens next?</a></p>
+        </form>
+        <p class="final-note">Submitting sends your email to Buttondown, our list provider. Nothing else is sent.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <span>Private Couple Vault. GPLv3.</span>
+      <nav>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="https://github.com/OWNER/private-couple-vault/blob/main/LICENSE">License</a>
+        <a href="https://github.com/OWNER/private-couple-vault/blob/main/SYSTEM_SPEC.md">Threat model</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // The only place to change your Buttondown username.
+    var BUTTONDOWN_USER = "REPLACE_ME";
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var forms = document.querySelectorAll("form[data-waitlist]");
+      forms.forEach(function (form) {
+        form.setAttribute("action",
+          "https://buttondown.com/api/emails/embed-subscribe/" + BUTTONDOWN_USER);
+
+        var email = form.querySelector('input[name="email"]');
+        var consent = form.querySelector('input[name="consent"]');
+        var honeypot = form.querySelector('input[name="website_url"]');
+        var error = form.querySelector("[data-error]");
+        var status = form.querySelector("[data-status]");
+
+        form.addEventListener("submit", function (e) {
+          if (honeypot && honeypot.value) {
+            e.preventDefault();
+            return;
+          }
+          var message = "";
+          if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value)) {
+            message = "Enter a full email address, like name@example.com.";
+          } else if (consent && !consent.checked) {
+            message = "Tick the box so we are allowed to email you.";
+          }
+          if (message) {
+            e.preventDefault();
+            error.textContent = message;
+            error.hidden = false;
+            email.setAttribute("aria-invalid", "true");
+            email.focus();
+            return;
+          }
+          email.removeAttribute("aria-invalid");
+          error.hidden = true;
+          status.hidden = false;
+          form.setAttribute("target", "buttondown_popup");
+          window.open("", "buttondown_popup", "width=560,height=520");
+        });
+      });
+    });
+  </script>
+</body>
+</html>
