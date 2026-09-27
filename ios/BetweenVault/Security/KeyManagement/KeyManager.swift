@@ -6,7 +6,7 @@ enum KeyManager {
         case keychainFailure(OSStatus)
     }
 
-    private static let service = "tech.neatnet.couplevault.keys"
+    private static let service = "tech.neatnet.betweenvault.keys"
 
     /// Returns the stored key for the account, creating and persisting one if absent.
     static func loadOrCreate(_ account: String) throws -> Data {

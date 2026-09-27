@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import CoupleVault
+@testable import BetweenVault
 
 struct PackageTests {
     private let pairKey = CryptoEngine.randomKey()

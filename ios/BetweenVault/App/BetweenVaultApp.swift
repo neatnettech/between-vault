@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct CoupleVaultApp: App {
+struct BetweenVaultApp: App {
     @State private var services: AppServices?
     @State private var lockManager = LockManager()
     @Environment(\.scenePhase) private var scenePhase

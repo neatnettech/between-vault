@@ -2,7 +2,7 @@ import SwiftUI
 import Testing
 import UIKit
 
-@testable import CoupleVault
+@testable import BetweenVault
 
 @MainActor
 struct ThemeTests {

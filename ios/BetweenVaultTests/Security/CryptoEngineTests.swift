@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import CoupleVault
+@testable import BetweenVault
 
 struct CryptoEngineTests {
     @Test func roundTrip() throws {
