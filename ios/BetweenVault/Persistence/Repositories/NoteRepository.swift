@@ -36,6 +36,7 @@ final class NoteRepository {
                 categoryID: record.categoryID,
                 version: record.version,
                 baseVersion: record.baseVersion,
+                partnerKnownVersion: record.partnerKnownVersion,
                 createdAt: record.createdAt,
                 updatedAt: record.updatedAt
             )
@@ -80,6 +81,7 @@ final class NoteRepository {
             existing.stateRaw = note.state.rawValue
             existing.version = note.version
             existing.baseVersion = note.baseVersion
+            existing.partnerKnownVersion = note.partnerKnownVersion
             existing.ciphertext = ciphertext
             existing.updatedAt = note.updatedAt
         } else {
@@ -90,6 +92,7 @@ final class NoteRepository {
                     stateRaw: note.state.rawValue,
                     version: note.version,
                     baseVersion: note.baseVersion,
+                    partnerKnownVersion: note.partnerKnownVersion,
                     ciphertext: ciphertext,
                     createdAt: note.createdAt,
                     updatedAt: note.updatedAt

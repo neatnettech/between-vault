@@ -90,12 +90,6 @@ struct StateBadge: View {
 struct NoteRow: View {
     let note: Note
 
-    /// `Note` carries no explicit flag. Divergence from the version the partner has is the
-    /// existing signal for it.
-    private var changedSinceSent: Bool {
-        note.state == .shared && note.version > note.baseVersion
-    }
-
     /// Board shows "2d ago", "1w ago", "3w ago", then an absolute date ("Jun 12").
     /// The minute and hour ladders are derived, the boards never show them.
     ///
@@ -133,7 +127,7 @@ struct NoteRow: View {
                 .font(Theme.Typography.subheadline)
                 .foregroundStyle(Theme.Colors.secondary)
                 .lineLimit(2)
-            StateBadge(state: note.state, changedSinceSent: changedSinceSent)
+            StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
         }
         .padding(.vertical, Theme.Space.sm)
         .padding(.horizontal, Theme.Space.md)
@@ -465,6 +459,7 @@ private struct ComponentGallery: View {
         categoryID: UUID(),
         version: 3,
         baseVersion: 2,
+        partnerKnownVersion: 2,
         createdAt: .now,
         updatedAt: .now.addingTimeInterval(-172_800)
     )

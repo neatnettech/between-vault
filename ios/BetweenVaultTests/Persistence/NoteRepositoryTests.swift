@@ -31,6 +31,7 @@ struct NoteRepositoryTests {
             categoryID: category,
             version: 1,
             baseVersion: 0,
+            partnerKnownVersion: 0,
             createdAt: Date(timeIntervalSince1970: 1_700_000_000),
             updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
         )

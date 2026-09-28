@@ -36,7 +36,10 @@ final class NoteRecord {
     var categoryID: UUID?
     var stateRaw: String
     var version: Int
+    /// The common ancestor the partner's copy was based on at the last exchange (spec section 16).
     var baseVersion: Int
+    /// The version last sent to the partner. Defaulted, so adding it stays a lightweight migration.
+    var partnerKnownVersion: Int = 0
     /// AES-GCM(nonce + ciphertext + tag) under the vault key. Title and body live inside.
     var ciphertext: Data
     var createdAt: Date
@@ -48,6 +51,7 @@ final class NoteRecord {
         stateRaw: String,
         version: Int,
         baseVersion: Int,
+        partnerKnownVersion: Int = 0,
         ciphertext: Data,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
@@ -57,6 +61,7 @@ final class NoteRecord {
         self.stateRaw = stateRaw
         self.version = version
         self.baseVersion = baseVersion
+        self.partnerKnownVersion = partnerKnownVersion
         self.ciphertext = ciphertext
         self.createdAt = createdAt
         self.updatedAt = updatedAt
