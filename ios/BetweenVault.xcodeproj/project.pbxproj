@@ -17,11 +17,13 @@
 		2B22EC8E7D834DA33A236A8A /* PackageValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC529AE18B505426C1456254 /* PackageValidator.swift */; };
 		400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62B6562834B98DED89F64DA /* AppServices.swift */; };
 		47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */; };
+		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4122C2060ACA4481A1C22926 /* ThemeTests.swift */; };
 		6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD283DBA80128A707436C5 /* LockManager.swift */; };
 		724769FCD787E5B3244C3E17 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4019E724CC4067D6FE7112 /* NotesView.swift */; };
 		73153977095EE863A27F519C /* PackageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D93BC6A2D9ED15380D3427 /* PackageTests.swift */; };
+		73E96A8D5271D1AF5EDF102A /* BuiltInCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */; };
 		7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649468903C22D4E5EB8E541 /* CryptoEngine.swift */; };
 		7B9C512DB3559931CCB5E256 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67C3E039C7E5333270671E1 /* Identity.swift */; };
 		83A59DF99DFE71A0A80D62EE /* PrivacyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */; };
@@ -54,6 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInCategory.swift; sourceTree = "<group>"; };
 		108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
 		1553B454DCDC33314C1A9B83 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
 		17BF8FDCD9DA6268D61EFA82 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -70,6 +73,7 @@
 		6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerView.swift; sourceTree = "<group>"; };
 		6E4019E724CC4067D6FE7112 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		7CF0A0F45F745836889C862F /* Partner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Partner.swift; sourceTree = "<group>"; };
+		86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepositoryTests.swift; sourceTree = "<group>"; };
 		8A47012B8F91AB4BD7554FCB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		8F378B970C775E0AA86C1AC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		99695F85D8BA477356642B65 /* NoteState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteState.swift; sourceTree = "<group>"; };
@@ -133,6 +137,7 @@
 		2D83882EB499015DE8CE66EF /* Vault */ = {
 			isa = PBXGroup;
 			children = (
+				0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */,
 				8A47012B8F91AB4BD7554FCB /* Category.swift */,
 			);
 			path = Vault;
@@ -208,6 +213,7 @@
 			isa = PBXGroup;
 			children = (
 				4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */,
+				86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -470,6 +476,7 @@
 				89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */,
 				215BC30B4A0EA02F20E8BC77 /* ComponentsTests.swift in Sources */,
 				8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */,
+				4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */,
 				73153977095EE863A27F519C /* PackageTests.swift in Sources */,
 				64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */,
 			);
@@ -481,6 +488,7 @@
 			files = (
 				400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */,
 				47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */,
+				73E96A8D5271D1AF5EDF102A /* BuiltInCategory.swift in Sources */,
 				E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */,
 				E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */,
 				16AF48E3713973E49987F962 /* Components.swift in Sources */,

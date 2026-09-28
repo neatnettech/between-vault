@@ -148,8 +148,11 @@ struct NoteRow: View {
 struct CategoryTile: View {
     let name: String
     let count: Int
+    /// Comes from the stored category, never derived from `name`: the name is user editable once 1.7
+    /// ships rename, and it is English, so keying the icon on it would lose the glyph on any rename
+    /// and on any translation.
+    let symbol: String
     var subtitle: String?
-    var builtInKey: String?
 
     @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 24
 
@@ -163,25 +166,9 @@ struct CategoryTile: View {
         return [name, counted, subtitle].compactMap { $0 }.joined(separator: ", ")
     }
 
-    /// Board 3 icons, keyed on the built in key first, then the starter names.
-    static func symbol(for name: String, builtInKey: String?) -> String {
-        switch builtInKey {
-        case "emergency": return "plus.circle"
-        case "other": return "ellipsis"
-        default: break
-        }
-        switch name {
-        case "Home": return "house"
-        case "Documents": return "doc"
-        case "Finance": return "creditcard"
-        case "Personal": return "person"
-        default: return "folder"
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: subtitle == nil ? Theme.Space.lg : Theme.Space.sm) {
-            Image(systemName: Self.symbol(for: name, builtInKey: builtInKey))
+            Image(systemName: symbol)
                 .font(.system(size: iconSize))
                 .foregroundStyle(Theme.Colors.accent)
             VStack(alignment: .leading, spacing: Theme.Space.xxs) {
@@ -496,8 +483,13 @@ private struct ComponentGallery: View {
                 StateBadge(state: .shared, changedSinceSent: true)
 
                 NoteRow(note: note)
-                CategoryTile(name: "Emergency", count: 5, subtitle: "What your partner needs if something happens", builtInKey: "emergency")
-                CategoryTile(name: "Home", count: 12)
+                CategoryTile(
+                    name: "Emergency",
+                    count: 5,
+                    symbol: "plus.circle",
+                    subtitle: "What your partner needs if something happens"
+                )
+                CategoryTile(name: "Home", count: 1, symbol: "house")
                 ReviewRow(title: "Boiler service", categoryName: "Home")
                 CodeDisplay(code: "481923")
                 FingerprintDisplay(fingerprint: "5F2A91C07E3B44D8")

@@ -6,14 +6,26 @@ final class CategoryRecord {
     @Attribute(.unique) var id: UUID
     var name: String
     var sort: Int
-    /// Stable identity for the built in categories ("emergency", "other").
+    /// SF Symbol for the tile. Stored so a rename keeps the icon.
+    /// Defaulted, so adding it stays a lightweight migration.
+    var symbol: String = CategoryRecord.defaultSymbol
+    /// Raw `BuiltInCategory` for the two categories that cannot be deleted, `nil` otherwise.
     /// Built in categories can be renamed and reordered, never deleted.
     var builtInKey: String?
 
-    init(id: UUID = UUID(), name: String, sort: Int, builtInKey: String? = nil) {
+    static let defaultSymbol = "folder"
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        sort: Int,
+        symbol: String = CategoryRecord.defaultSymbol,
+        builtInKey: String? = nil
+    ) {
         self.id = id
         self.name = name
         self.sort = sort
+        self.symbol = symbol
         self.builtInKey = builtInKey
     }
 }
