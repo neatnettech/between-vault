@@ -12,6 +12,7 @@
 		16AF48E3713973E49987F962 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6401CB8B0F4ABD25CF32B09 /* Components.swift */; };
 		19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D1A9BC6DD2621344C2F5F5 /* ExchangeLogRepository.swift */; };
 		1F4B62B2222D9E4251854845 /* NoteState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99695F85D8BA477356642B65 /* NoteState.swift */; };
+		215BC30B4A0EA02F20E8BC77 /* ComponentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C7B6BEDBBE67B3F669C113 /* ComponentsTests.swift */; };
 		22E68C04E8663ACDA5843ABD /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1553B454DCDC33314C1A9B83 /* KeyManager.swift */; };
 		2B22EC8E7D834DA33A236A8A /* PackageValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC529AE18B505426C1456254 /* PackageValidator.swift */; };
 		400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62B6562834B98DED89F64DA /* AppServices.swift */; };
@@ -79,6 +80,7 @@
 		CC529AE18B505426C1456254 /* PackageValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageValidator.swift; sourceTree = "<group>"; };
 		D0E3AEA809ED556F3068F402 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		DA0AB0C54F88EB3040B8503A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E1C7B6BEDBBE67B3F669C113 /* ComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsTests.swift; sourceTree = "<group>"; };
 		E62B6562834B98DED89F64DA /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		E6401CB8B0F4ABD25CF32B09 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		EB278D67828CA7BA78523340 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 		EDACE117F389F150D22C484B /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				E1C7B6BEDBBE67B3F669C113 /* ComponentsTests.swift */,
 				4122C2060ACA4481A1C22926 /* ThemeTests.swift */,
 			);
 			path = Design;
@@ -453,6 +456,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				215BC30B4A0EA02F20E8BC77 /* ComponentsTests.swift in Sources */,
 				8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */,
 				73153977095EE863A27F519C /* PackageTests.swift in Sources */,
 				64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */,

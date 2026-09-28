@@ -81,6 +81,8 @@ struct StateBadge: View {
 
 // MARK: - NoteRow
 
+/// Board 4: title with a trailing compact date on the first line, a two line preview,
+/// then the state badge on its own line. Row padding comes from the board's `.nr` spec.
 struct NoteRow: View {
     let note: Note
 
@@ -90,28 +92,44 @@ struct NoteRow: View {
         note.state == .shared && note.version > note.baseVersion
     }
 
-    private var relativeDate: String {
-        note.updatedAt.formatted(.relative(presentation: .numeric))
+    /// Board shows "2d ago", "1w ago", "3w ago", then an absolute date ("Jun 12").
+    /// The minute and hour ladders are derived, the boards never show them.
+    static func timestampString(for date: Date, now: Date = .now) -> String {
+        let seconds = now.timeIntervalSince(date)
+        let days = Int(seconds / 86_400)
+        if seconds < 60 { return "now" }
+        if seconds < 3_600 { return "\(Int(seconds / 60))m ago" }
+        if seconds < 86_400 { return "\(Int(seconds / 3_600))h ago" }
+        if days < 7 { return "\(days)d ago" }
+        if days < 28 { return "\(days / 7)w ago" }
+        var style = Date.FormatStyle()
+            .month(.abbreviated)
+            .day()
+        if !Calendar.current.isDate(date, equalTo: now, toGranularity: .year) {
+            style = style.year()
+        }
+        return date.formatted(style)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Space.xxs) {
             HStack(alignment: .firstTextBaseline, spacing: Theme.Space.xs) {
                 Text(note.title)
-                    .font(Theme.Typography.body)
+                    .font(Theme.Typography.body.weight(.semibold))
                     .foregroundStyle(Theme.Colors.text)
                 Spacer(minLength: Theme.Space.xs)
-                StateBadge(state: note.state, changedSinceSent: changedSinceSent)
+                Text(Self.timestampString(for: note.updatedAt))
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.secondary)
             }
             Text(note.body)
-                .font(Theme.Typography.footnote)
+                .font(Theme.Typography.subheadline)
                 .foregroundStyle(Theme.Colors.secondary)
                 .lineLimit(2)
-            Text(relativeDate)
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.tertiary)
+            StateBadge(state: note.state, changedSinceSent: changedSinceSent)
         }
-        .padding(.vertical, Theme.Space.xxs)
+        .padding(.vertical, Theme.Space.sm)
+        .padding(.horizontal, Theme.Space.md)
         .accessibilityElement(children: .combine)
     }
 }

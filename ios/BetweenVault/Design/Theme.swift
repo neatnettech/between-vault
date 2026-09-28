@@ -106,6 +106,8 @@ enum Theme {
         static let title3 = Font.title3.weight(.semibold)
         static let body = Font.body
         static let footnote = Font.footnote
+        /// Board 4 previews: 15px
+        static let subheadline = Font.subheadline
         /// Board says 12 semibold. 13 is the nearest semantic style and keeps Dynamic Type.
         static let badge = Font.footnote.weight(.semibold)
         /// Board "Hero only": the serif line used on the lock screen and onboarding
