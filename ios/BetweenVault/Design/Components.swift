@@ -63,8 +63,8 @@ struct StateBadge: View {
                         .imageScale(.small)
                     Text("Changed since sent")
                 }
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
+                .padding(.vertical, Theme.Space.xxs / 2)
+                .padding(.horizontal, Theme.Space.xs)
                 .foregroundStyle(Theme.Colors.changedFlagInk)
                 .background(Theme.Colors.changedFlagBG, in: Capsule())
             }
@@ -72,7 +72,7 @@ struct StateBadge: View {
         .font(Theme.Typography.badge)
         .foregroundStyle(ink)
         .padding(.vertical, Theme.Space.xxs)
-        .padding(.horizontal, 9)
+        .padding(.horizontal, Theme.Space.sm)
         .background(background, in: Capsule())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spec.voiceOver)
