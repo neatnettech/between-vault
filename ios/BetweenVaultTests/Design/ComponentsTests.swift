@@ -30,4 +30,32 @@ struct ComponentsTests {
         #expect(!text.contains("ago"))
         #expect(text == ago(days: 700).formatted(.dateTime.month(.abbreviated).day().year()))
     }
+
+    // MARK: - CategoryTile
+
+    @Test func tileLabelInflectsTheNoteCount() {
+        #expect(
+            CategoryTile.accessibilityText(name: "Home", count: 1, subtitle: nil)
+                == "Home, 1 note"
+        )
+        #expect(
+            CategoryTile.accessibilityText(name: "Home", count: 12, subtitle: nil)
+                == "Home, 12 notes"
+        )
+        #expect(
+            CategoryTile.accessibilityText(name: "Home", count: 0, subtitle: nil)
+                == "Home, 0 notes"
+        )
+    }
+
+    /// `.accessibilityElement(children: .ignore)` hides the subtitle, so the label must carry it.
+    @Test func tileLabelCarriesTheSubtitle() {
+        #expect(
+            CategoryTile.accessibilityText(
+                name: "Emergency",
+                count: 5,
+                subtitle: "What your partner needs if something happens"
+            ) == "Emergency, 5 notes, What your partner needs if something happens"
+        )
+    }
 }
