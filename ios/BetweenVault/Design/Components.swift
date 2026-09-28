@@ -94,7 +94,10 @@ struct NoteRow: View {
 
     /// Board shows "2d ago", "1w ago", "3w ago", then an absolute date ("Jun 12").
     /// The minute and hour ladders are derived, the boards never show them.
-    static func timestampString(for date: Date, now: Date = .now) -> String {
+    ///
+    /// `nonisolated` because `View` is `@MainActor`, which would otherwise pull this pure date
+    /// arithmetic onto the main actor and make it unreachable from a nonisolated test.
+    nonisolated static func timestampString(for date: Date, now: Date = .now) -> String {
         let seconds = now.timeIntervalSince(date)
         let days = Int(seconds / 86_400)
         if seconds < 60 { return "now" }
