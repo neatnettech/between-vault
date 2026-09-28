@@ -5,6 +5,9 @@ struct NotesView: View {
     var filter: NoteState?
     @Environment(AppServices.self) private var services
     @State private var all: [Note] = []
+    @State private var composing = false
+    /// Stand in for note detail (1.9): tapping a row edits it until the detail screen lands.
+    @State private var editing: Note?
 
     private var visible: [Note] {
         guard let filter else { return all }
@@ -18,14 +21,43 @@ struct NotesView: View {
                     .listRowBackground(Theme.Colors.bg)
             }
             ForEach(visible) { note in
-                NoteRow(note: note)
-                    .listRowBackground(Theme.Colors.surface)
+                Button {
+                    editing = note
+                } label: {
+                    NoteRow(note: note)
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(Theme.Colors.surface)
             }
         }
         .scrollContentBackground(.hidden)
         .background(Theme.Colors.bg)
         .navigationTitle(category.name)
-        .task { all = (try? services.noteRepository.notes(in: category.id)) ?? [] }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    composing = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("New note in \(category.name)")
+            }
+        }
+        .sheet(isPresented: $composing, onDismiss: {
+            Task { await reload() }
+        }) {
+            NoteEditorView(defaultCategory: category)
+        }
+        .sheet(item: $editing, onDismiss: {
+            Task { await reload() }
+        }) { note in
+            NoteEditorView(note: note)
+        }
+        .task { await reload() }
+    }
+
+    @Sendable private func reload() async {
+        all = (try? services.noteRepository.notes(in: category.id)) ?? []
     }
 
     /// A category hidden by the filter is not an empty category. Saying "Nothing here yet" over a

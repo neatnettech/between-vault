@@ -7,6 +7,7 @@ struct VaultView: View {
     @State private var filter: NoteState?
     @State private var snapshot = Snapshot()
     @State private var managingCategories = false
+    @State private var composingNote = false
 
     /// Categories, per category counts and the unfiltered total, read in one pass so the two halves
     /// of the screen can never disagree about the same vault.
@@ -46,20 +47,25 @@ struct VaultView: View {
                     }
                     .accessibilityLabel("Lock now")
                 }
-                // The plus stays disabled until 1.8 (note editor).
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button("Edit") { managingCategories = true }
-                    Button {} label: {
+                    Button {
+                        composingNote = true
+                    } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("New note")
-                    .disabled(true)
                 }
             }
             .sheet(isPresented: $managingCategories, onDismiss: {
                 Task { await load() }
             }) {
                 CategoryManagementView()
+            }
+            .sheet(isPresented: $composingNote, onDismiss: {
+                Task { await load() }
+            }) {
+                NoteEditorView(defaultCategory: snapshot.categories.first(where: { $0.builtInKey == .emergency }))
             }
             .task { await load() }
         }
