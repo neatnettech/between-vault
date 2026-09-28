@@ -34,6 +34,7 @@
 		8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */; };
 		99A75C7C8DC1BE88506C44C3 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */; };
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
+		BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000683975CBD7601FC489A79 /* NoteDetailView.swift */; };
 		C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47A3E24A32707DF8716A835 /* VaultView.swift */; };
 		C850845B06B4ED5B7570E0D2 /* PackageSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69EC1B6E9D410C2F67EF2744 /* PackageSerializer.swift */; };
 		CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C45078893A75B5576E623BE /* CategoryManagementView.swift */; };
@@ -58,6 +59,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		000683975CBD7601FC489A79 /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInCategory.swift; sourceTree = "<group>"; };
 		108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
 		1553B454DCDC33314C1A9B83 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
@@ -338,6 +340,7 @@
 		D8CE92B044A2B291EFD11E39 /* Notes */ = {
 			isa = PBXGroup;
 			children = (
+				000683975CBD7601FC489A79 /* NoteDetailView.swift */,
 				7F738238F6615CC5CC47F33E /* NoteEditorView.swift */,
 				6E4019E724CC4067D6FE7112 /* NotesView.swift */,
 			);
@@ -508,6 +511,7 @@
 				6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */,
 				CFD8A955C2AFE144261F24C0 /* Models.swift in Sources */,
 				D09D3E2B9181D763332A00DB /* Note.swift in Sources */,
+				BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */,
 				4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */,
 				E8A141490102176A2745B9C9 /* NoteRepository.swift in Sources */,
 				1F4B62B2222D9E4251854845 /* NoteState.swift in Sources */,

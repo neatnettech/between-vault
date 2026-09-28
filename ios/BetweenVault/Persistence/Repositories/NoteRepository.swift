@@ -23,24 +23,34 @@ final class NoteRepository {
             descriptor.predicate = #Predicate { $0.categoryID == categoryID }
         }
         let records = try context.fetch(descriptor)
-        return records.compactMap { record in
-            guard let plaintext = try? CryptoEngine.decrypt(record.ciphertext, key: key),
-                  let payload = try? JSONDecoder().decode(Payload.self, from: plaintext) else {
-                return nil
-            }
-            return Note(
-                id: record.id,
-                title: payload.title,
-                body: payload.body,
-                state: NoteState(rawValue: record.stateRaw) ?? .private,
-                categoryID: record.categoryID,
-                version: record.version,
-                baseVersion: record.baseVersion,
-                partnerKnownVersion: record.partnerKnownVersion,
-                createdAt: record.createdAt,
-                updatedAt: record.updatedAt
-            )
+        return records.compactMap { map($0, key: key) }
+    }
+
+    func note(id: UUID) throws -> Note? {
+        let key = try vaultKey()
+        let records = try context.fetch(
+            FetchDescriptor<NoteRecord>(predicate: #Predicate { $0.id == id })
+        )
+        return records.first.flatMap { map($0, key: key) }
+    }
+
+    private func map(_ record: NoteRecord, key: Data) -> Note? {
+        guard let plaintext = try? CryptoEngine.decrypt(record.ciphertext, key: key),
+              let payload = try? JSONDecoder().decode(Payload.self, from: plaintext) else {
+            return nil
         }
+        return Note(
+            id: record.id,
+            title: payload.title,
+            body: payload.body,
+            state: NoteState(rawValue: record.stateRaw) ?? .private,
+            categoryID: record.categoryID,
+            version: record.version,
+            baseVersion: record.baseVersion,
+            partnerKnownVersion: record.partnerKnownVersion,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt
+        )
     }
 
     /// Counts per category, optionally filtered by state. Filters in the store and fetches only the

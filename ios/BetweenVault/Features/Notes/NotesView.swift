@@ -6,8 +6,6 @@ struct NotesView: View {
     @Environment(AppServices.self) private var services
     @State private var all: [Note] = []
     @State private var composing = false
-    /// Stand in for note detail (1.9): tapping a row edits it until the detail screen lands.
-    @State private var editing: Note?
 
     private var visible: [Note] {
         guard let filter else { return all }
@@ -21,8 +19,8 @@ struct NotesView: View {
                     .listRowBackground(Theme.Colors.bg)
             }
             ForEach(visible) { note in
-                Button {
-                    editing = note
+                NavigationLink {
+                    NoteDetailView(note: note)
                 } label: {
                     NoteRow(note: note)
                 }
@@ -47,11 +45,6 @@ struct NotesView: View {
             Task { await reload() }
         }) {
             NoteEditorView(defaultCategory: category)
-        }
-        .sheet(item: $editing, onDismiss: {
-            Task { await reload() }
-        }) { note in
-            NoteEditorView(note: note)
         }
         .task { await reload() }
     }
