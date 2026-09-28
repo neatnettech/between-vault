@@ -31,6 +31,42 @@ struct ComponentsTests {
         #expect(text == ago(days: 700).formatted(.dateTime.month(.abbreviated).day().year()))
     }
 
+    // MARK: - Changed since sent
+
+    private func shared(version: Int, partnerKnows: Int, state: NoteState = .shared) -> Note {
+        Note(
+            id: UUID(),
+            title: "Boiler service",
+            body: "Engineer visits every March.",
+            state: state,
+            categoryID: UUID(),
+            version: version,
+            baseVersion: 1,
+            partnerKnownVersion: partnerKnows,
+            createdAt: now,
+            updatedAt: now
+        )
+    }
+
+    /// Reads partnerKnownVersion, not baseVersion. Spec section 16 defines base_version as the
+    /// common ancestor the partner's copy was based on, which is not the same as what we last sent,
+    /// and row 4.8 requires the flag to clear once the update is sent.
+    @Test func changedSinceSentTracksWhatWasLastSent() {
+        #expect(shared(version: 3, partnerKnows: 2).hasChangedSinceSent)
+        #expect(!shared(version: 3, partnerKnows: 3).hasChangedSinceSent)
+    }
+
+    /// A freshly received item is Shared but was never edited by the receiver.
+    @Test func aJustReceivedNoteIsNotFlagged() {
+        #expect(!shared(version: 1, partnerKnows: 1).hasChangedSinceSent)
+    }
+
+    /// U1: the flag belongs to Shared. It is not a fourth state and never appears on the others.
+    @Test func onlySharedNotesCarryTheFlag() {
+        #expect(!shared(version: 3, partnerKnows: 2, state: .private).hasChangedSinceSent)
+        #expect(!shared(version: 3, partnerKnows: 2, state: .sealed).hasChangedSinceSent)
+    }
+
     // MARK: - CategoryTile
 
     @Test func tileLabelInflectsTheNoteCount() {
