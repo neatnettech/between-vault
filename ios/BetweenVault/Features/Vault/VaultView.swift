@@ -5,6 +5,7 @@ struct VaultView: View {
     @Environment(AppServices.self) private var services
     @Environment(LockManager.self) private var lockManager
     @Query(sort: \CategoryRecord.sort) private var categories: [CategoryRecord]
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var filter: NoteState?
     @State private var counts: [UUID: Int] = [:]
 
@@ -85,28 +86,31 @@ struct VaultView: View {
     private var filterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Space.xs) {
-                Button {
+                FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: filter == nil) {
                     filter = nil
                     Task { await refreshCounts() }
-                } label: {
-                    FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: filter == nil)
                 }
-                .buttonStyle(.plain)
                 ForEach(NoteState.allCases, id: \.self) { state in
-                    Button {
+                    let spec = StateBadge.spec(for: state, changedSinceSent: false)
+                    FilterChip(
+                        title: spec.word,
+                        systemImage: spec.outlineSymbol,
+                        isSelected: filter == state
+                    ) {
                         filter = filter == state ? nil : state
                         Task { await refreshCounts() }
-                    } label: {
-                        FilterChip(
-                            title: state.displayName,
-                            systemImage: state.symbolName,
-                            isSelected: filter == state
-                        )
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
+    }
+
+    /// Two up normally. At accessibility sizes a half width tile is narrower than a single word like
+    /// "Documents", which would truncate, so the grid collapses to one column instead.
+    private var tileColumns: [GridItem] {
+        typeSize.isAccessibilitySize
+            ? [GridItem(.flexible())]
+            : [GridItem(.flexible(), spacing: Theme.Space.sm), GridItem(.flexible())]
     }
 
     private var categoryGrid: some View {
@@ -125,7 +129,7 @@ struct VaultView: View {
                 }
                 .buttonStyle(.plain)
             }
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: Theme.Space.sm), GridItem(.flexible())], spacing: Theme.Space.sm) {
+            LazyVGrid(columns: tileColumns, spacing: Theme.Space.sm) {
                 ForEach(regular) { category in
                     NavigationLink {
                         NotesView(category: category, filter: filter)
@@ -162,30 +166,14 @@ struct VaultView: View {
     private var localOnlyFooter: some View {
         HStack(spacing: Theme.Space.xs) {
             Image(systemName: "cloud.slash")
-                .font(.system(size: 14))
+                .imageScale(.small)
             Text("Stored locally on this iPhone. Not in any cloud.")
                 .font(Theme.Typography.footnote)
         }
+        .font(Theme.Typography.footnote)
         .foregroundStyle(Theme.Colors.secondary)
         .padding(.top, Theme.Space.xxs)
         .accessibilityElement(children: .combine)
     }
 }
 
-private extension NoteState {
-    var displayName: String {
-        switch self {
-        case .private: "Private"
-        case .sealed: "Sealed"
-        case .shared: "Shared"
-        }
-    }
-
-    var symbolName: String {
-        switch self {
-        case .private: "lock"
-        case .sealed: "envelope"
-        case .shared: "person.2"
-        }
-    }
-}

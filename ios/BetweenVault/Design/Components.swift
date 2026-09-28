@@ -12,6 +12,10 @@ struct StateBadge: View {
         let word: String
         let symbol: String
         let voiceOver: String
+
+        /// Board 3 draws the filter chips with outline glyphs where the badge uses the filled pair.
+        /// Derived here so the chips and the badge cannot drift into two separate tables.
+        var outlineSymbol: String { symbol.replacingOccurrences(of: ".fill", with: "") }
     }
 
     static func spec(for state: NoteState, changedSinceSent: Bool) -> Spec {
@@ -147,6 +151,18 @@ struct CategoryTile: View {
     var subtitle: String?
     var builtInKey: String?
 
+    @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 24
+
+    /// "Home, 1 note" rather than "1 notes". `inflect:` also hands localisation the plural rule.
+    /// The subtitle is included because `.accessibilityElement(children: .ignore)` would otherwise
+    /// make the Emergency tile's subtitle unreachable to VoiceOver.
+    nonisolated static func accessibilityText(name: String, count: Int, subtitle: String?) -> String {
+        let counted = String(
+            AttributedString(localized: "^[\(count) note](inflect: true)").characters
+        )
+        return [name, counted, subtitle].compactMap { $0 }.joined(separator: ", ")
+    }
+
     /// Board 3 icons, keyed on the built in key first, then the starter names.
     static func symbol(for name: String, builtInKey: String?) -> String {
         switch builtInKey {
@@ -166,7 +182,7 @@ struct CategoryTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: subtitle == nil ? Theme.Space.lg : Theme.Space.sm) {
             Image(systemName: Self.symbol(for: name, builtInKey: builtInKey))
-                .font(.system(size: 24))
+                .font(.system(size: iconSize))
                 .foregroundStyle(Theme.Colors.accent)
             VStack(alignment: .leading, spacing: Theme.Space.xxs) {
                 HStack(alignment: .firstTextBaseline) {
@@ -189,34 +205,43 @@ struct CategoryTile: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(name), \(count) notes")
+        .accessibilityLabel(Self.accessibilityText(name: name, count: count, subtitle: subtitle))
     }
 }
 
 // MARK: - FilterChip
 
 /// Board 3: state filter chips. Selected is a dark fill, not the accent.
+///
+/// The chip owns its `Button`, so the accessibility element and the `.isSelected` trait are the same
+/// view. Wrapping a plain-styled `Button` around a chip instead would put the trait on the label and
+/// leave the button announcing no selection state.
 struct FilterChip: View {
     let title: String
     let systemImage: String
     let isSelected: Bool
+    let action: () -> Void
 
     var body: some View {
-        HStack(spacing: Theme.Space.xs) {
-            Image(systemName: systemImage)
-                .font(.system(size: 12, weight: .semibold))
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-        }
-        .padding(.horizontal, 14)
-        .frame(height: 34)
-        .foregroundStyle(isSelected ? Theme.Colors.bg : Theme.Colors.text)
-        .background(isSelected ? Theme.Colors.text : Theme.Colors.surface, in: Capsule())
-        .overlay {
-            if !isSelected {
-                Capsule().stroke(Theme.Colors.hairline)
+        Button(action: action) {
+            HStack(spacing: Theme.Space.xs) {
+                Image(systemName: systemImage)
+                    .imageScale(.small)
+                Text(title)
+            }
+            .font(Theme.Typography.subheadline)
+            .padding(.horizontal, Theme.Space.sm)
+            .padding(.vertical, Theme.Space.xs)
+            .frame(minHeight: 44)
+            .foregroundStyle(isSelected ? Theme.Colors.bg : Theme.Colors.text)
+            .background(isSelected ? Theme.Colors.text : Theme.Colors.surface, in: Capsule())
+            .overlay {
+                if !isSelected {
+                    Capsule().stroke(Theme.Colors.hairline)
+                }
             }
         }
+        .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -261,14 +286,17 @@ struct CodeDisplay: View {
 
     var body: some View {
         let font = Font.system(size: size, weight: .semibold, design: .monospaced)
+        // Keyed by position, not value: the two halves of a code like "481481" are equal, and
+        // `id: \.self` would give them the same SwiftUI identity.
+        let keyed = Array(groups.enumerated())
         Group {
             if typeSize >= .xxxLarge {
                 VStack(spacing: Theme.Space.xs) {
-                    ForEach(groups, id: \.self) { Text($0).font(font) }
+                    ForEach(keyed, id: \.offset) { Text($0.element).font(font) }
                 }
             } else {
                 HStack(spacing: Theme.Space.sm) {
-                    ForEach(groups, id: \.self) { Text($0).font(font) }
+                    ForEach(keyed, id: \.offset) { Text($0.element).font(font) }
                 }
             }
         }
@@ -475,10 +503,10 @@ private struct ComponentGallery: View {
                 FingerprintDisplay(fingerprint: "5F2A91C07E3B44D8")
 
                 HStack(spacing: Theme.Space.xs) {
-                    FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: true)
-                    FilterChip(title: "Private", systemImage: "lock", isSelected: false)
-                    FilterChip(title: "Sealed", systemImage: "envelope", isSelected: false)
-                    FilterChip(title: "Shared", systemImage: "person.2", isSelected: false)
+                    FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: true) {}
+                    FilterChip(title: "Private", systemImage: "lock", isSelected: false) {}
+                    FilterChip(title: "Sealed", systemImage: "envelope", isSelected: false) {}
+                    FilterChip(title: "Shared", systemImage: "person.2", isSelected: false) {}
                 }
 
                 Button("Encrypt & Share") {}.buttonStyle(.vaultPrimary)

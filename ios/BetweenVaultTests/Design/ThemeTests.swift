@@ -66,13 +66,38 @@ struct ThemeTests {
             == UIColor(hex: 0x4F_B8AE))
     }
 
-    @Test(arguments: NoteState.allCases)
-    func badgeSpecHasWordIconAndLabel(state: NoteState) {
-        let spec = StateBadge.spec(for: state, changedSinceSent: false)
+    /// Row 1.2 fixes the word and the icon per state, so pin the exact triples. The previous version
+    /// of this test asserted only non-emptiness and a prefix, so it could not fail on the mapping.
+    @Test func badgeSpecMatchesTheBoardForEveryState() {
+        #expect(
+            StateBadge.spec(for: .private, changedSinceSent: false)
+                == .init(word: "Private", symbol: "lock.fill", voiceOver: "State: Private.")
+        )
+        #expect(
+            StateBadge.spec(for: .sealed, changedSinceSent: false)
+                == .init(
+                    word: "Sealed",
+                    symbol: "envelope.fill",
+                    voiceOver: "State: Sealed. Ready to send to your partner."
+                )
+        )
+        #expect(
+            StateBadge.spec(for: .shared, changedSinceSent: false)
+                == .init(word: "Shared", symbol: "person.2.fill", voiceOver: "State: Shared.")
+        )
+    }
 
-        #expect(!spec.word.isEmpty)
-        #expect(!spec.symbol.isEmpty)
-        #expect(spec.voiceOver.hasPrefix("State: "))
+    /// The chips take their word from `StateBadge.spec` and only swap the filled glyph for the
+    /// outline one, so the two cannot drift into separate tables again.
+    @Test(arguments: NoteState.allCases)
+    func chipGlyphIsTheOutlineOfTheBadgeGlyph(state: NoteState) {
+        let badge = StateBadge.spec(for: state, changedSinceSent: false).symbol
+
+        #expect(badge.hasSuffix(".fill"))
+        #expect(
+            StateBadge.spec(for: state, changedSinceSent: false).outlineSymbol
+                == badge.replacingOccurrences(of: ".fill", with: "")
+        )
     }
 
     @Test func changedFlagOnlyAffectsShared() {
