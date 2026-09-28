@@ -27,5 +27,7 @@ final class AppServices {
         partnerRepository = PartnerRepository(context: context)
         exchangeLogRepository = ExchangeLogRepository(context: context)
         deviceID = Identity.deviceID()
+
+        try categoryRepository.seedIfNeeded()
     }
 }

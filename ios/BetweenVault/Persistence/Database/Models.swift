@@ -6,11 +6,15 @@ final class CategoryRecord {
     @Attribute(.unique) var id: UUID
     var name: String
     var sort: Int
+    /// Stable identity for the built in categories ("emergency", "other").
+    /// Built in categories can be renamed and reordered, never deleted.
+    var builtInKey: String?
 
-    init(id: UUID = UUID(), name: String, sort: Int) {
+    init(id: UUID = UUID(), name: String, sort: Int, builtInKey: String? = nil) {
         self.id = id
         self.name = name
         self.sort = sort
+        self.builtInKey = builtInKey
     }
 }
 
