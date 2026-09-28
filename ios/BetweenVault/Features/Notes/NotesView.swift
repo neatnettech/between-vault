@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NotesView: View {
     let category: CategoryRecord
+    var filter: NoteState?
     @Environment(AppServices.self) private var services
     @State private var notes: [Note] = []
 
@@ -24,7 +25,8 @@ struct NotesView: View {
         .background(Theme.Colors.bg)
         .navigationTitle(category.name)
         .task {
-            notes = (try? services.noteRepository.notes(in: category.id)) ?? []
+            let all = (try? services.noteRepository.notes(in: category.id)) ?? []
+            notes = filter == nil ? all : all.filter { $0.state == filter }
         }
     }
 }

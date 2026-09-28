@@ -136,26 +136,85 @@ struct NoteRow: View {
 
 // MARK: - CategoryTile
 
+/// Board 3: a card tile, icon plus name and count. The Emergency tile adds a subtitle
+/// and spans the full width.
 struct CategoryTile: View {
     let name: String
     let count: Int
-    /// `CategoryRecord` has no icon field yet, so every tile uses the default.
-    var systemImage: String = "folder"
+    var subtitle: String?
+    var builtInKey: String?
+
+    /// Board 3 icons, keyed on the built in key first, then the starter names.
+    static func symbol(for name: String, builtInKey: String?) -> String {
+        switch builtInKey {
+        case "emergency": return "plus.circle"
+        case "other": return "ellipsis"
+        default: break
+        }
+        switch name {
+        case "Home": return "house"
+        case "Documents": return "doc"
+        case "Finance": return "creditcard"
+        case "Personal": return "person"
+        default: return "folder"
+        }
+    }
 
     var body: some View {
-        HStack(spacing: Theme.Space.sm) {
-            Image(systemName: systemImage)
+        VStack(alignment: .leading, spacing: subtitle == nil ? Theme.Space.lg : Theme.Space.sm) {
+            Image(systemName: Self.symbol(for: name, builtInKey: builtInKey))
+                .font(.system(size: 24))
                 .foregroundStyle(Theme.Colors.accent)
-            Text(name)
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.text)
-            Spacer(minLength: Theme.Space.xs)
-            Text("\(count)")
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.secondary)
+            VStack(alignment: .leading, spacing: Theme.Space.xxs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(name)
+                        .font(Theme.Typography.body.weight(.semibold))
+                        .foregroundStyle(Theme.Colors.text)
+                    Spacer(minLength: Theme.Space.xs)
+                    Text("\(count)")
+                        .font(Theme.Typography.subheadline)
+                        .foregroundStyle(Theme.Colors.secondary)
+                }
+                if let subtitle {
+                    Text(subtitle)
+                        .font(Theme.Typography.footnote)
+                        .foregroundStyle(Theme.Colors.secondary)
+                }
+            }
         }
+        .padding(Theme.Space.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(name), \(count) notes")
+    }
+}
+
+// MARK: - FilterChip
+
+/// Board 3: state filter chips. Selected is a dark fill, not the accent.
+struct FilterChip: View {
+    let title: String
+    let systemImage: String
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: Theme.Space.xs) {
+            Image(systemName: systemImage)
+                .font(.system(size: 12, weight: .semibold))
+            Text(title)
+                .font(.system(size: 15, weight: .medium))
+        }
+        .padding(.horizontal, 14)
+        .frame(height: 34)
+        .foregroundStyle(isSelected ? Theme.Colors.bg : Theme.Colors.text)
+        .background(isSelected ? Theme.Colors.text : Theme.Colors.surface, in: Capsule())
+        .overlay {
+            if !isSelected {
+                Capsule().stroke(Theme.Colors.hairline)
+            }
+        }
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -406,10 +465,18 @@ private struct ComponentGallery: View {
                 StateBadge(state: .shared, changedSinceSent: true)
 
                 NoteRow(note: note)
-                CategoryTile(name: "Emergency", count: 5)
+                CategoryTile(name: "Emergency", count: 5, subtitle: "What your partner needs if something happens", builtInKey: "emergency")
+                CategoryTile(name: "Home", count: 12)
                 ReviewRow(title: "Boiler service", categoryName: "Home")
                 CodeDisplay(code: "481923")
                 FingerprintDisplay(fingerprint: "5F2A91C07E3B44D8")
+
+                HStack(spacing: Theme.Space.xs) {
+                    FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: true)
+                    FilterChip(title: "Private", systemImage: "lock", isSelected: false)
+                    FilterChip(title: "Sealed", systemImage: "envelope", isSelected: false)
+                    FilterChip(title: "Shared", systemImage: "person.2", isSelected: false)
+                }
 
                 Button("Encrypt & Share") {}.buttonStyle(.vaultPrimary)
                 Button("Cancel") {}.buttonStyle(.vaultSecondary)

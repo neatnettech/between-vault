@@ -39,6 +39,19 @@ final class NoteRepository {
         }
     }
 
+    /// Counts per category, optionally filtered by state. Reads state metadata only,
+    /// never decrypts, so the vault home stays fast.
+    func countsByCategory(state: NoteState? = nil) throws -> [UUID: Int] {
+        let records = try context.fetch(FetchDescriptor<NoteRecord>())
+        var result: [UUID: Int] = [:]
+        for record in records {
+            guard let categoryID = record.categoryID else { continue }
+            if let state, record.stateRaw != state.rawValue { continue }
+            result[categoryID, default: 0] += 1
+        }
+        return result
+    }
+
     func save(_ note: Note) throws {
         let key = try vaultKey()
         let payload = Payload(title: note.title, body: note.body)
