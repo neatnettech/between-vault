@@ -1,21 +1,30 @@
-import SwiftData
 import SwiftUI
 
 struct VaultView: View {
     @Environment(AppServices.self) private var services
     @Environment(LockManager.self) private var lockManager
-    @Query(sort: \CategoryRecord.sort) private var categories: [CategoryRecord]
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var filter: NoteState?
-    @State private var counts: [UUID: Int] = [:]
+    @State private var snapshot = Snapshot()
 
-    private var totalNotes: Int { counts.values.reduce(0, +) }
+    /// Categories, per category counts and the unfiltered total, read in one pass so the two halves
+    /// of the screen can never disagree about the same vault.
+    ///
+    /// ponytail: refreshed by hand from `.task` and the filter chips. Once 1.7 and 1.8 add mutation
+    /// sites, move this behind an observed model rather than adding a `load()` call per site.
+    private struct Snapshot {
+        var categories: [Category] = []
+        var counts: [UUID: Int] = [:]
+        /// Every note in the vault, ignoring the filter. A filter that matches nothing is not an
+        /// empty vault, and the first run prompt must tell those two apart.
+        var totalNotes = 0
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Space.md) {
-                    if totalNotes == 0 {
+                    if snapshot.totalNotes == 0 {
                         firstRunPrompt
                     }
                     filterChips
@@ -36,24 +45,27 @@ struct VaultView: View {
                     }
                     .accessibilityLabel("Lock now")
                 }
+                // Disabled rather than silently inert: an enabled control that does nothing on tap
+                // reads as a bug. Enabled by 1.7 (category management) and 1.8 (note editor).
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button("Edit") {
-                        // Category management lands with issue 1.7.
-                    }
-                    Button {
-                        // New note lands with issue 1.8.
-                    } label: {
+                    Button("Edit") {}
+                        .disabled(true)
+                    Button {} label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("New note")
+                    .disabled(true)
                 }
             }
-            .task { await refreshCounts() }
+            .task { await load() }
         }
     }
 
-    private func refreshCounts() async {
-        counts = (try? services.noteRepository.countsByCategory(state: filter)) ?? [:]
+    private func load() async {
+        let categories = (try? services.categoryRepository.categories()) ?? []
+        let counts = (try? services.noteRepository.countsByCategory(state: filter)) ?? [:]
+        let total = (try? services.noteRepository.noteCount()) ?? 0
+        snapshot = Snapshot(categories: categories, counts: counts, totalNotes: total)
     }
 
     private var firstRunPrompt: some View {
@@ -64,7 +76,7 @@ struct VaultView: View {
             Text("If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are.")
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.secondary)
-            if let emergency = categories.first(where: { $0.builtInKey == "emergency" }) {
+            if let emergency = snapshot.categories.first(where: { $0.builtInKey == .emergency }) {
                 NavigationLink {
                     NotesView(category: emergency, filter: filter)
                 } label: {
@@ -88,7 +100,7 @@ struct VaultView: View {
             HStack(spacing: Theme.Space.xs) {
                 FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: filter == nil) {
                     filter = nil
-                    Task { await refreshCounts() }
+                    Task { await load() }
                 }
                 ForEach(NoteState.allCases, id: \.self) { state in
                     let spec = StateBadge.spec(for: state, changedSinceSent: false)
@@ -98,7 +110,7 @@ struct VaultView: View {
                         isSelected: filter == state
                     ) {
                         filter = filter == state ? nil : state
-                        Task { await refreshCounts() }
+                        Task { await load() }
                     }
                 }
             }
@@ -114,17 +126,17 @@ struct VaultView: View {
     }
 
     private var categoryGrid: some View {
-        let regular = categories.filter { $0.builtInKey != "emergency" }
+        let regular = snapshot.categories.filter { $0.builtInKey != .emergency }
         return VStack(spacing: Theme.Space.sm) {
-            if let emergency = categories.first(where: { $0.builtInKey == "emergency" }) {
+            if let emergency = snapshot.categories.first(where: { $0.builtInKey == .emergency }) {
                 NavigationLink {
                     NotesView(category: emergency, filter: filter)
                 } label: {
                     CategoryTile(
                         name: emergency.name,
-                        count: counts[emergency.id] ?? 0,
-                        subtitle: "What your partner needs if something happens",
-                        builtInKey: "emergency"
+                        count: snapshot.counts[emergency.id] ?? 0,
+                        symbol: emergency.symbol,
+                        subtitle: "What your partner needs if something happens"
                     )
                 }
                 .buttonStyle(.plain)
@@ -136,19 +148,18 @@ struct VaultView: View {
                     } label: {
                         CategoryTile(
                             name: category.name,
-                            count: counts[category.id] ?? 0,
-                            builtInKey: category.builtInKey
+                            count: snapshot.counts[category.id] ?? 0,
+                            symbol: category.symbol
                         )
                     }
                     .buttonStyle(.plain)
                 }
-                Button {
-                    // New category lands with issue 1.7.
-                } label: {
+                // New category lands with issue 1.7. Disabled until then, see the toolbar.
+                Button {} label: {
                     HStack(spacing: Theme.Space.xs) {
                         Image(systemName: "plus")
                         Text("New category")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(Theme.Typography.subheadline.weight(.semibold))
                     }
                     .foregroundStyle(Theme.Colors.accent)
                     .frame(maxWidth: .infinity)
@@ -159,6 +170,7 @@ struct VaultView: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .disabled(true)
             }
         }
     }

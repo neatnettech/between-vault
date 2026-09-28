@@ -17,6 +17,8 @@ struct CategoryRepositoryTests {
         return (CategoryRepository(context: container.mainContext), container)
     }
 
+    // MARK: - Seeding
+
     @Test func seedingCreatesSixCategoriesExactlyOnce() throws {
         let setup = try makeRepository()
         let repository = setup.repository
@@ -28,7 +30,85 @@ struct CategoryRepositoryTests {
         #expect(categories.count == 6)
         #expect(categories.map(\.name) == ["Emergency", "Home", "Documents", "Finance", "Personal", "Other"])
         #expect(categories.filter(\.isBuiltIn).map(\.name) == ["Emergency", "Other"])
+        #expect(categories.first?.builtInKey == .emergency)
+        #expect(categories.last?.builtInKey == .other)
     }
+
+    @Test func seedingGivesEveryStarterItsOwnIcon() throws {
+        let setup = try makeRepository()
+        try setup.repository.seedIfNeeded()
+
+        let symbols = try setup.repository.categories().map(\.symbol)
+        #expect(symbols == ["plus.circle", "house", "doc", "creditcard", "person", "ellipsis"])
+    }
+
+    /// A store written before `builtInKey` existed comes back from lightweight migration with the
+    /// attribute nil on every row. Without a backfill the two pins would be lost permanently,
+    /// because the seeding branch only runs on an empty store.
+    @Test func seedingBackfillsBuiltInKeysOnAnOlderStore() throws {
+        let setup = try makeRepository()
+        let context = setup.repository.context
+        for (offset, name) in ["Emergency", "Home", "Documents", "Finance", "Personal", "Other"].enumerated() {
+            context.insert(CategoryRecord(name: name, sort: offset))
+        }
+        try context.save()
+
+        try setup.repository.seedIfNeeded()
+
+        let categories = try setup.repository.categories()
+        #expect(categories.count == 6)
+        #expect(categories.filter(\.isBuiltIn).map(\.builtInKey) == [.emergency, .other])
+    }
+
+    /// The backfill must not touch a store that already carries keys, or a renamed built in
+    /// category would collect a second pin.
+    @Test func backfillLeavesARenamedBuiltInAlone() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        var emergency = try repository.categories().first { $0.builtInKey == .emergency }!
+        emergency.name = "If something happens"
+        try repository.save(emergency)
+
+        try repository.seedIfNeeded()
+
+        let categories = try repository.categories()
+        #expect(categories.count == 6)
+        #expect(categories.filter(\.isBuiltIn).map(\.name) == ["If something happens", "Other"])
+    }
+
+    // MARK: - Domain mapping
+
+    @Test func categoryRoundTripsThroughSaveWithoutLosingItsKeyOrIcon() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        var emergency = try repository.categories().first { $0.builtInKey == .emergency }!
+        emergency.name = "Emergency contacts"
+        try repository.save(emergency)
+
+        let reloaded = try repository.categories().first { $0.id == emergency.id }
+        #expect(reloaded == emergency)
+        #expect(reloaded?.builtInKey == .emergency)
+        #expect(reloaded?.symbol == "plus.circle")
+    }
+
+    @Test func insertingANewCategoryKeepsItsIconAndStaysDeletable() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        let vehicle = Category(id: UUID(), name: "Vehicle", sort: 6, symbol: "car", builtInKey: nil)
+        try repository.save(vehicle)
+
+        let reloaded = try repository.categories().first { $0.id == vehicle.id }
+        #expect(reloaded == vehicle)
+        #expect(reloaded?.isBuiltIn == false)
+    }
+
+    // MARK: - Delete
 
     @Test func deletingACategoryMovesNotesToOther() throws {
         let setup = try makeRepository()
@@ -49,14 +129,45 @@ struct CategoryRepositoryTests {
         #expect(try repository.categories().count == 5)
     }
 
-    @Test func builtInCategoriesAreNeverDeleted() throws {
+    @Test func deletingABuiltInIsRefusedWithATypedError() throws {
         let setup = try makeRepository()
         let repository = setup.repository
         try repository.seedIfNeeded()
 
-        let emergency = try repository.categories().first { $0.name == "Emergency" }!
-        try repository.delete(id: emergency.id)
+        let emergency = try repository.categories().first { $0.builtInKey == .emergency }!
 
+        #expect(throws: CategoryError.builtInCannotBeDeleted) {
+            try repository.delete(id: emergency.id)
+        }
         #expect(try repository.categories().count == 6)
+    }
+
+    @Test func deletingAnUnknownIdIsDistinguishableFromARefusal() throws {
+        let setup = try makeRepository()
+        try setup.repository.seedIfNeeded()
+
+        #expect(throws: CategoryError.notFound) {
+            try setup.repository.delete(id: UUID())
+        }
+    }
+
+    /// Without Other there is nowhere safe to move the notes. Refusing beats the previous
+    /// behaviour, which set categoryID to nil and hid those notes from every screen.
+    @Test func deletingIsRefusedWhenOtherIsMissingAndNoNoteMoves() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        let context = repository.context
+
+        let finance = CategoryRecord(name: "Finance", sort: 0)
+        context.insert(finance)
+        let note = NoteRecord(id: UUID(), categoryID: finance.id, stateRaw: "private", version: 1, baseVersion: 0, ciphertext: Data())
+        context.insert(note)
+        try context.save()
+
+        #expect(throws: CategoryError.otherCategoryMissing) {
+            try repository.delete(id: finance.id)
+        }
+        #expect(note.categoryID == finance.id)
+        #expect(try repository.categories().count == 1)
     }
 }

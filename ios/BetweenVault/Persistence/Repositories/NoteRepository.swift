@@ -18,9 +18,12 @@ final class NoteRepository {
 
     func notes(in categoryID: UUID?) throws -> [Note] {
         let key = try vaultKey()
-        let records = try context.fetch(FetchDescriptor<NoteRecord>())
-        let filtered = categoryID == nil ? records : records.filter { $0.categoryID == categoryID }
-        return filtered.compactMap { record in
+        var descriptor = FetchDescriptor<NoteRecord>()
+        if let categoryID {
+            descriptor.predicate = #Predicate { $0.categoryID == categoryID }
+        }
+        let records = try context.fetch(descriptor)
+        return records.compactMap { record in
             guard let plaintext = try? CryptoEngine.decrypt(record.ciphertext, key: key),
                   let payload = try? JSONDecoder().decode(Payload.self, from: plaintext) else {
                 return nil
@@ -39,17 +42,28 @@ final class NoteRepository {
         }
     }
 
-    /// Counts per category, optionally filtered by state. Reads state metadata only,
-    /// never decrypts, so the vault home stays fast.
+    /// Counts per category, optionally filtered by state. Filters in the store and fetches only the
+    /// two columns it needs, so the ciphertext blobs never leave SQLite and nothing is decrypted.
     func countsByCategory(state: NoteState? = nil) throws -> [UUID: Int] {
-        let records = try context.fetch(FetchDescriptor<NoteRecord>())
+        var descriptor = FetchDescriptor<NoteRecord>()
+        if let state {
+            let raw = state.rawValue
+            descriptor.predicate = #Predicate { $0.stateRaw == raw }
+        }
+        descriptor.propertiesToFetch = [\.categoryID, \.stateRaw]
+
         var result: [UUID: Int] = [:]
-        for record in records {
+        for record in try context.fetch(descriptor) {
             guard let categoryID = record.categoryID else { continue }
-            if let state, record.stateRaw != state.rawValue { continue }
             result[categoryID, default: 0] += 1
         }
         return result
+    }
+
+    /// Every note in the vault, ignoring any state filter. The vault home needs this separately from
+    /// `countsByCategory`: a filter matching nothing must not read as an empty vault.
+    func noteCount() throws -> Int {
+        try context.fetchCount(FetchDescriptor<NoteRecord>())
     }
 
     func save(_ note: Note) throws {
