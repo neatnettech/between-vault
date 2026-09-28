@@ -183,7 +183,7 @@ struct ReviewRow: View {
 
 // MARK: - CodeDisplay
 
-/// Six digits grouped 3 + 3. At accessibility text sizes the groups stack rather than truncate.
+/// Six digits grouped 3 + 3. At XXXL Dynamic Type and beyond the groups stack rather than truncate.
 struct CodeDisplay: View {
     let code: String
 
@@ -200,7 +200,7 @@ struct CodeDisplay: View {
     var body: some View {
         let font = Font.system(size: size, weight: .semibold, design: .monospaced)
         Group {
-            if typeSize.isAccessibilitySize {
+            if typeSize >= .xxxLarge {
                 VStack(spacing: Theme.Space.xs) {
                     ForEach(groups, id: \.self) { Text($0).font(font) }
                 }
@@ -423,6 +423,8 @@ private struct ComponentGallery: View {
                     message: "Seal a note to get it ready for your partner."
                 )
                 Toast(systemImage: "checkmark.circle.fill", text: "3 items imported")
+                Toast(systemImage: "arrow.up.right.circle.fill", text: "Exchange ready")
+                Toast(systemImage: "doc.on.clipboard.fill", text: "Clipboard cleared")
             }
             .padding(Theme.Space.md)
         }
