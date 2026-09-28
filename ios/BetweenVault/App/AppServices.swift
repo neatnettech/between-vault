@@ -20,7 +20,9 @@ final class AppServices {
         container = try ModelContainer(for: schema, configurations: [configuration])
 
         let context = container.mainContext
-        let vaultKey: () throws -> Data = { try KeyManager.loadOrCreate("pcv.vaultKey") }
+        // Keychain account name. Renaming it makes every existing record undecryptable, because the
+        // old key becomes unreachable, so it is frozen from the first TestFlight build onward.
+        let vaultKey: () throws -> Data = { try KeyManager.loadOrCreate("betweenvault.vaultKey") }
 
         noteRepository = NoteRepository(context: context, vaultKey: vaultKey)
         categoryRepository = CategoryRepository(context: context)
