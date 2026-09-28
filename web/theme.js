@@ -8,7 +8,7 @@
    The icons the design specifies (promise strip, form errors) stay inline in the
    HTML instead, because those have to render with JavaScript off. */
 (function () {
-  var KEY = "pcv-theme";
+  var KEY = "betweenvault-theme";
   var SVG_NS = "http://www.w3.org/2000/svg";
   var root = document.documentElement;
   var system = window.matchMedia("(prefers-color-scheme: dark)");

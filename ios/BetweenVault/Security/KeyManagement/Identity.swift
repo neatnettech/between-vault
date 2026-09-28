@@ -1,7 +1,9 @@
 import Foundation
 
 enum Identity {
-    private static let deviceIDKey = "pcv.deviceID"
+    /// Persisted key. Renaming it hands the installation a new device ID, which unpairs it, so it
+    /// is frozen from the first TestFlight build onward.
+    private static let deviceIDKey = "betweenvault.deviceID"
 
     /// Stable per installation random ID. Never leaves the device except inside exchange packages.
     static func deviceID(defaults: UserDefaults = .standard) -> String {
