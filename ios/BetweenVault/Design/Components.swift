@@ -58,9 +58,15 @@ struct StateBadge: View {
                 .imageScale(.small)
             Text(spec.word)
             if isFlagged {
-                Image(systemName: "flag.fill")
-                    .imageScale(.small)
-                    .foregroundStyle(Theme.Colors.changedFlagInk)
+                HStack(spacing: Theme.Space.xxs) {
+                    Image(systemName: "flag.fill")
+                        .imageScale(.small)
+                    Text("Changed since sent")
+                }
+                .padding(.vertical, 2)
+                .padding(.horizontal, 6)
+                .foregroundStyle(Theme.Colors.changedFlagInk)
+                .background(Theme.Colors.changedFlagBG, in: Capsule())
             }
         }
         .font(Theme.Typography.badge)
