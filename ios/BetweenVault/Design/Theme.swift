@@ -36,15 +36,21 @@ enum Theme {
         static var secondary: Color { dyn(0x5B_6066, 0x9B_A1A7) }
         /// derived: light has no tertiary ink, reuse secondary
         static var tertiary: Color { dyn(0x5B_6066, 0x8A_9096) }
+        /// derived: hairline separators, between the board's bg and surface
         static var hairline: Color { dyn(0xE4_E5E3, 0x2A_2D30) }
+        /// derived: strong borders on the secondary button
         static var borderStrong: Color { dyn(0x8E_9398, 0x6B_7076) }
 
         static var accent: Color { dyn(0x0E_6B66, 0x4F_B8AE) }
         /// derived: dark publishes no accent hover, use the bright accent step
         static var accentPressed: Color { dyn(0x09_4C48, 0x7E_D3CA) }
+        /// derived: accent fill for secondary buttons
         static var accentTint: Color { dyn(0xDD_F0EE, 0x1E_2A2A) }
+        /// derived: ink that reads on the accent tint
         static var onAccentTint: Color { dyn(0x0B_5F5A, 0x7E_D3CA) }
+        /// derived: ink on the accent fill
         static var onAccent: Color { dyn(0xFF_FFFF, 0x0F_1A1A) }
+        /// derived: the favicon's dark teal panel, for dark fills in both modes
         static var panel: Color { dyn(0x0F_1A1A, 0x0F_1A1A) }
 
         /// Board 1 specifies #B3261E for both modes, but that is ~4.0:1 on the dark background,
@@ -55,8 +61,10 @@ enum Theme {
         static var destructiveTint: Color { dyn(0xE8_CCC9, 0x5A_3A38) }
         /// derived: dark publishes no disabled fill, use the dark border
         static var disabledFill: Color { dyn(0xD5_D8DA, 0x2A_2D30) }
+        /// derived: ink for disabled controls
         static var disabledInk: Color { dyn(0x6B_7076, 0x6B_7076) }
 
+        /// derived: badge backgrounds and inks (board shows the badges but publishes no hex)
         static var privateBadgeBG: Color { dyn(0xEC_EDEF, 0x26_292C) }
         static var privateBadgeInk: Color { dyn(0x45_4A50, 0xC3_C7CB) }
         static var sealedBadgeBG: Color { dyn(0xFB_EFD6, 0x3A_2A0C) }
@@ -79,9 +87,13 @@ enum Theme {
     }
 
     enum Radius {
+        /// Board publishes 10 for web only. Not used by the app.
         static let control: CGFloat = 10
+        /// derived: between control and panel, for cards
         static let card: CGFloat = 12
+        /// Board publishes 14 for the app. Used by buttons, sheets, and cards.
         static let panel: CGFloat = 14
+        /// derived: pill for toasts
         static let toast: CGFloat = 30
     }
 
@@ -96,5 +108,8 @@ enum Theme {
         static let footnote = Font.footnote
         /// Board says 12 semibold. 13 is the nearest semantic style and keeps Dynamic Type.
         static let badge = Font.footnote.weight(.semibold)
+        /// Board "Hero only": the serif line used on the lock screen and onboarding
+        /// ("Shared by choice."). New York serif, large title size.
+        static let hero = Font.system(.largeTitle, design: .serif).weight(.semibold)
     }
 }

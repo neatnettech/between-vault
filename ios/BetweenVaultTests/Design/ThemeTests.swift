@@ -52,4 +52,12 @@ struct ThemeTests {
                 == StateBadge.spec(for: .sealed, changedSinceSent: false)
         )
     }
+
+    /// Board 1: the Sealed badge reads the full helper to VoiceOver users.
+    @Test func sealedBadgeLabelMatchesTheBoard() {
+        #expect(
+            StateBadge.spec(for: .sealed, changedSinceSent: false).voiceOver
+                == "State: Sealed. Ready to send to your partner."
+        )
+    }
 }

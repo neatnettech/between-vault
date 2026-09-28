@@ -17,15 +17,18 @@ struct StateBadge: View {
     static func spec(for state: NoteState, changedSinceSent: Bool) -> Spec {
         let word: String
         let symbol: String
+        var helper = ""
         switch state {
         case .private: (word, symbol) = ("Private", "lock.fill")
-        case .sealed: (word, symbol) = ("Sealed", "envelope.fill")
+        case .sealed:
+            (word, symbol) = ("Sealed", "envelope.fill")
+            helper = " Ready to send to your partner."
         case .shared: (word, symbol) = ("Shared", "person.2.fill")
         }
         let flagged = changedSinceSent && state == .shared
         let voiceOver = flagged
             ? "State: Shared. Changed since you sent it."
-            : "State: \(word)"
+            : "State: \(word).\(helper)"
         return Spec(word: word, symbol: symbol, voiceOver: voiceOver)
     }
 
@@ -278,7 +281,7 @@ struct PrimaryButtonStyle: ButtonStyle {
                 .padding(.horizontal, Theme.Space.md)
                 .frame(minHeight: 44)
                 .frame(maxWidth: .infinity)
-                .background(fill, in: RoundedRectangle(cornerRadius: Theme.Radius.control))
+                .background(fill, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
         }
 
         private var fill: Color {
@@ -306,10 +309,10 @@ struct SecondaryButtonStyle: ButtonStyle {
                 .frame(maxWidth: .infinity)
                 .background(
                     isEnabled ? Theme.Colors.accentTint : Theme.Colors.disabledFill,
-                    in: RoundedRectangle(cornerRadius: Theme.Radius.control)
+                    in: RoundedRectangle(cornerRadius: Theme.Radius.panel)
                 )
                 .overlay {
-                    RoundedRectangle(cornerRadius: Theme.Radius.control)
+                    RoundedRectangle(cornerRadius: Theme.Radius.panel)
                         .stroke(Theme.Colors.hairline)
                 }
                 .opacity(configuration.isPressed ? 0.7 : 1)
@@ -368,6 +371,9 @@ private struct ComponentGallery: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Space.lg) {
+                Text("Shared by choice.")
+                    .font(Theme.Typography.hero)
+
                 HStack(spacing: Theme.Space.xs) {
                     StateBadge(state: .private)
                     StateBadge(state: .sealed)
