@@ -35,6 +35,7 @@
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
 		C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47A3E24A32707DF8716A835 /* VaultView.swift */; };
 		C850845B06B4ED5B7570E0D2 /* PackageSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69EC1B6E9D410C2F67EF2744 /* PackageSerializer.swift */; };
+		CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C45078893A75B5576E623BE /* CategoryManagementView.swift */; };
 		CA121E7EBC8ED8F48B3EE759 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0AB0C54F88EB3040B8503A /* SettingsView.swift */; };
 		CFD8A955C2AFE144261F24C0 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17BF8FDCD9DA6268D61EFA82 /* Models.swift */; };
 		D09D3E2B9181D763332A00DB /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43E1D64920DB238BA840D24 /* Note.swift */; };
@@ -65,6 +66,7 @@
 		22E156D950FED97901EB412F /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
 		26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BetweenVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
+		3C45078893A75B5576E623BE /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
 		4122C2060ACA4481A1C22926 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
 		4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepositoryTests.swift; sourceTree = "<group>"; };
 		583549427BD529DFF90413C4 /* ExchangePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangePackage.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		498173FE64E5E750DC26E45F /* Vault */ = {
 			isa = PBXGroup;
 			children = (
+				3C45078893A75B5576E623BE /* CategoryManagementView.swift */,
 				C47A3E24A32707DF8716A835 /* VaultView.swift */,
 			);
 			path = Vault;
@@ -490,6 +493,7 @@
 				47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */,
 				73E96A8D5271D1AF5EDF102A /* BuiltInCategory.swift in Sources */,
 				E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */,
+				CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */,
 				E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */,
 				16AF48E3713973E49987F962 /* Components.swift in Sources */,
 				7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */,

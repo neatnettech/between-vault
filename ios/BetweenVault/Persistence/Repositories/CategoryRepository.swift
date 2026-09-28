@@ -99,6 +99,38 @@ final class CategoryRepository {
         try context.save()
     }
 
+    /// Creates a user category appended after the last one.
+    func add(name: String, symbol: String = CategoryRecord.defaultSymbol) throws -> Category {
+        let all = try context.fetch(FetchDescriptor<CategoryRecord>())
+        let nextSort = (all.map(\.sort).max() ?? -1) + 1
+        let record = CategoryRecord(name: name, sort: nextSort, symbol: symbol)
+        context.insert(record)
+        try context.save()
+        return Self.domain(record)
+    }
+
+    /// Renaming is allowed for every category, built in or not.
+    func rename(id: UUID, name: String) throws {
+        let matches = try context.fetch(
+            FetchDescriptor<CategoryRecord>(predicate: #Predicate { $0.id == id })
+        )
+        guard let record = matches.first else { throw CategoryError.notFound }
+        record.name = name
+        try context.save()
+    }
+
+    /// Persists the whole ordering. `orderedIDs` must contain every category id:
+    /// the sort values are rewritten from scratch, so a missing id silently moves
+    /// to the end of the list.
+    func reorder(_ orderedIDs: [UUID]) throws {
+        let records = try context.fetch(FetchDescriptor<CategoryRecord>())
+        let byID = Dictionary(uniqueKeysWithValues: records.map { ($0.id, $0) })
+        for (offset, id) in orderedIDs.enumerated() {
+            byID[id]?.sort = offset
+        }
+        try context.save()
+    }
+
     /// Deletes a user created category. Its notes move to Other, no notes are deleted.
     /// Built in categories are refused: they can be renamed and moved, never deleted.
     func delete(id: UUID) throws {

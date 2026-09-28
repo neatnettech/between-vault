@@ -6,6 +6,7 @@ struct VaultView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var filter: NoteState?
     @State private var snapshot = Snapshot()
+    @State private var managingCategories = false
 
     /// Categories, per category counts and the unfiltered total, read in one pass so the two halves
     /// of the screen can never disagree about the same vault.
@@ -45,17 +46,20 @@ struct VaultView: View {
                     }
                     .accessibilityLabel("Lock now")
                 }
-                // Disabled rather than silently inert: an enabled control that does nothing on tap
-                // reads as a bug. Enabled by 1.7 (category management) and 1.8 (note editor).
+                // The plus stays disabled until 1.8 (note editor).
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button("Edit") {}
-                        .disabled(true)
+                    Button("Edit") { managingCategories = true }
                     Button {} label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("New note")
                     .disabled(true)
                 }
+            }
+            .sheet(isPresented: $managingCategories, onDismiss: {
+                Task { await load() }
+            }) {
+                CategoryManagementView()
             }
             .task { await load() }
         }
@@ -154,8 +158,9 @@ struct VaultView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                // New category lands with issue 1.7. Disabled until then, see the toolbar.
-                Button {} label: {
+                Button {
+                    managingCategories = true
+                } label: {
                     HStack(spacing: Theme.Space.xs) {
                         Image(systemName: "plus")
                         Text("New category")
@@ -170,7 +175,6 @@ struct VaultView: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .disabled(true)
             }
         }
     }

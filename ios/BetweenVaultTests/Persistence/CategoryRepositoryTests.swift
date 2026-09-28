@@ -170,4 +170,50 @@ struct CategoryRepositoryTests {
         #expect(note.categoryID == finance.id)
         #expect(try repository.categories().count == 1)
     }
+
+    // MARK: - Add, rename, reorder
+
+    @Test func addingAppendsAfterTheLastCategory() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        let car = try repository.add(name: "Car")
+
+        #expect(car.isBuiltIn == false)
+        #expect(car.symbol == CategoryRecord.defaultSymbol)
+        let categories = try repository.categories()
+        #expect(categories.last?.id == car.id)
+        #expect(categories.last?.name == "Car")
+        #expect(categories.last?.sort == 6)
+    }
+
+    @Test func renamingKeepsTheIconAndTheBuiltInKey() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        let emergency = try repository.categories().first { $0.builtInKey == .emergency }!
+        try repository.rename(id: emergency.id, name: "If something happens")
+
+        let reloaded = try repository.categories().first { $0.id == emergency.id }
+        #expect(reloaded?.name == "If something happens")
+        #expect(reloaded?.builtInKey == .emergency)
+        #expect(reloaded?.symbol == "plus.circle")
+    }
+
+    @Test func reorderPersistsTheNewOrder() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+
+        var ids = try repository.categories().map(\.id)
+        let moved = ids.removeFirst()
+        ids.append(moved)
+
+        try repository.reorder(ids)
+
+        let names = try repository.categories().map(\.name)
+        #expect(names == ["Home", "Documents", "Finance", "Personal", "Other", "Emergency"])
+    }
 }
