@@ -71,10 +71,12 @@ struct VaultView: View {
         }
     }
 
+    /// Keeps the last good snapshot when a read fails, so an error never shows empty tiles and the
+    /// first run prompt over a full vault.
     private func load() async {
-        let categories = (try? services.categoryRepository.categories()) ?? []
-        let counts = (try? services.noteRepository.countsByCategory(state: filter)) ?? [:]
-        let total = (try? services.noteRepository.noteCount()) ?? 0
+        guard let categories = try? services.categoryRepository.categories(),
+              let counts = try? services.noteRepository.countsByCategory(state: filter),
+              let total = try? services.noteRepository.noteCount() else { return }
         snapshot = Snapshot(categories: categories, counts: counts, totalNotes: total)
     }
 

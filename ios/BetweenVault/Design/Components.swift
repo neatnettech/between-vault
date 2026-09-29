@@ -124,6 +124,8 @@ struct NoteRow: View {
                 .font(Theme.Typography.subheadline)
                 .foregroundStyle(Theme.Colors.secondary)
                 .lineLimit(2)
+                // lineLimit only shortens what is drawn; VoiceOver would read the whole body.
+                .accessibilityLabel(String(note.body.prefix(120)))
             StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
         }
         .padding(.vertical, Theme.Space.sm)
