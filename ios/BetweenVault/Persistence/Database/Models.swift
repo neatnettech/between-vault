@@ -95,3 +95,21 @@ final class ExchangeLogRecord {
         self.importedAt = importedAt
     }
 }
+
+extension ModelContext {
+    /// Saves, or drops every pending change when the store refuses, so a failed write is never
+    /// committed by a later save or autosave. Repositories save right after they mutate, so
+    /// nothing unrelated is pending when this rolls back.
+    ///
+    /// ponytail: on iOS 26.2 the first fetch after the rollback can still return the dropped row;
+    /// it is not tracked, not committed, and gone from the next fetch. Only a refused store write
+    /// (disk full, I/O error) gets here, so the one stale read is accepted.
+    func saveOrRollback() throws {
+        do {
+            try save()
+        } catch {
+            rollback()
+            throw error
+        }
+    }
+}

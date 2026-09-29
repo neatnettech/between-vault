@@ -47,7 +47,7 @@ struct NoteRepositoryTests {
     @Test func saveAndLoadRoundTrip() throws {
         let setup = try makeRepository()
         let repository = setup.repository
-        let note = makeNote(state: .sealed, categoryID: UUID(), version: 3)
+        let note = makeNote(state: .sealed, categoryID: UUID())
 
         try repository.save(note)
 
@@ -56,20 +56,43 @@ struct NoteRepositoryTests {
         #expect(reloaded?.body == note.body)
         #expect(reloaded?.state == .sealed)
         #expect(reloaded?.categoryID == note.categoryID)
-        #expect(reloaded?.version == 3)
+        #expect(reloaded?.version == 4)
         #expect(reloaded?.baseVersion == 2)
         #expect(reloaded?.partnerKnownVersion == 3)
     }
 
-    /// Board 4 lists the most recently edited note first.
-    @Test func notesComeBackNewestFirst() throws {
+    /// Board 4 lists the most recently edited note first. Creation order, edit order and the
+    /// expected order all differ, so neither insertion order nor createdAt can pass for updatedAt.
+    @Test func notesComeBackMostRecentlyEditedFirst() throws {
         let setup = try makeRepository()
         let repository = setup.repository
         let home = UUID()
-        try repository.save(makeNote(title: "Older", categoryID: home, updatedAt: .now.addingTimeInterval(-3_600)))
-        try repository.save(makeNote(title: "Newer", categoryID: home))
+        try repository.save(makeNote(title: "Edited last", categoryID: home))
+        try repository.save(makeNote(title: "Untouched", categoryID: home, updatedAt: .now.addingTimeInterval(-7_200)))
+        try repository.save(makeNote(title: "Edited earlier", categoryID: home, updatedAt: .now.addingTimeInterval(-3_600)))
 
-        #expect(try repository.notes(in: home).map(\.title) == ["Newer", "Older"])
+        #expect(try repository.notes(in: home).map(\.title) == ["Edited last", "Edited earlier", "Untouched"])
+    }
+
+    /// A store that refuses the write must leave nothing pending for a later save or autosave to
+    /// commit. Without the rollback in saveOrRollback the insert stays pending.
+    @Test func aRefusedSaveLeavesNothingPending() throws {
+        // A store file reopened read only refuses every save.
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).store")
+        defer { try? FileManager.default.removeItem(at: url) }
+        _ = try ModelContainer(for: CategoryRecord.self, NoteRecord.self, configurations: ModelConfiguration(url: url))
+        let container = try ModelContainer(
+            for: CategoryRecord.self, NoteRecord.self,
+            configurations: ModelConfiguration(url: url, allowsSave: false)
+        )
+        let key = CryptoEngine.randomKey()
+        let repository = NoteRepository(context: container.mainContext, vaultKey: { key })
+
+        #expect(throws: (any Error).self) {
+            try repository.save(makeNote())
+        }
+        #expect(!container.mainContext.hasChanges)
+        #expect(container.mainContext.insertedModelsArray.isEmpty)
     }
 
     /// The store holds ciphertext, never the plaintext title or body.
@@ -99,24 +122,32 @@ struct NoteRepositoryTests {
 
     // MARK: - Updates
 
-    @Test func updatingKeepsTheHistoryFieldsAndBumpsTheVersion() throws {
+    /// Every field the update branch writes changes to a value distinct from the others, so a
+    /// dropped write or a swapped pair (Seal and Move go through this branch) fails.
+    @Test func updatingWritesEveryEditableField() throws {
         let setup = try makeRepository()
         let repository = setup.repository
-        let original = makeNote(version: 2)
+        let original = makeNote()
         try repository.save(original)
 
         var updated = original
         updated.title = "Boiler service, updated"
-        updated.version = 3
+        updated.state = .sealed
+        updated.categoryID = UUID()
+        updated.version = 7
+        updated.baseVersion = 5
+        updated.partnerKnownVersion = 6
         updated.updatedAt = original.updatedAt.addingTimeInterval(60)
         try repository.save(updated)
 
         let reloaded = try repository.note(id: original.id)
         #expect(reloaded?.title == "Boiler service, updated")
-        #expect(reloaded?.version == 3)
+        #expect(reloaded?.state == .sealed)
+        #expect(reloaded?.categoryID == updated.categoryID)
+        #expect(reloaded?.version == 7)
+        #expect(reloaded?.baseVersion == 5)
+        #expect(reloaded?.partnerKnownVersion == 6)
         #expect(reloaded?.createdAt == original.createdAt)
-        #expect(reloaded?.baseVersion == original.baseVersion)
-        #expect(reloaded?.partnerKnownVersion == original.partnerKnownVersion)
         #expect(reloaded?.updatedAt == updated.updatedAt)
     }
 
