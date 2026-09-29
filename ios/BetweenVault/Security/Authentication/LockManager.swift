@@ -10,7 +10,7 @@ final class LockManager {
     func unlock() async {
         let context = LAContext()
         var error: NSError?
-        let reason = "Unlock your vault."
+        let reason = Copy.unlockReason
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             let granted = (try? await context.evaluatePolicy(
                 .deviceOwnerAuthenticationWithBiometrics,
