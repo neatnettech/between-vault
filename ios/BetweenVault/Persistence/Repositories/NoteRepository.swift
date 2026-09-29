@@ -110,7 +110,7 @@ final class NoteRepository {
                 )
             )
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func delete(id: UUID) throws {
@@ -118,6 +118,6 @@ final class NoteRepository {
         for record in matches {
             context.delete(record)
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 }

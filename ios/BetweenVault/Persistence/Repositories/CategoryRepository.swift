@@ -96,7 +96,7 @@ final class CategoryRepository {
                 )
             )
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     /// Creates a user category. Other is the catch all, so while it is last the new category goes
@@ -110,7 +110,7 @@ final class CategoryRepository {
         }
         let record = CategoryRecord(name: name, sort: sort, symbol: symbol)
         context.insert(record)
-        try context.save()
+        try context.saveOrRollback()
         return Self.domain(record)
     }
 
@@ -121,7 +121,7 @@ final class CategoryRepository {
         )
         guard let record = matches.first else { throw CategoryError.notFound }
         record.name = name
-        try context.save()
+        try context.saveOrRollback()
     }
 
     /// Persists the whole ordering. `orderedIDs` must contain every category id:
@@ -133,7 +133,7 @@ final class CategoryRepository {
         for (offset, id) in orderedIDs.enumerated() {
             byID[id]?.sort = offset
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     /// Deletes a user created category. Its notes move to Other, no notes are deleted.
@@ -160,7 +160,7 @@ final class CategoryRepository {
         }
 
         context.delete(record)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     private static func domain(_ record: CategoryRecord) -> Category {
