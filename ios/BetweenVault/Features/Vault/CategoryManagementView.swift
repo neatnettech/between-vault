@@ -31,7 +31,9 @@ struct CategoryManagementView: View {
                         } label: {
                             row(for: category)
                         }
-                        .buttonStyle(.plain)
+                        // Borderless is a control of its own. A plain style row button acts through
+                        // row selection, which an editing list turns off, so the tap to rename died.
+                        .buttonStyle(.borderless)
                         .accessibilityHint(Copy.renameCategory)
                         .deleteDisabled(category.isBuiltIn)
                     }
