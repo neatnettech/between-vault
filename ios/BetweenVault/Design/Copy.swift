@@ -128,11 +128,16 @@ enum Copy {
         count == 1 ? "1 note" : "\(count) notes"
     }
 
-    static let clearFilterToSeeThem = "Clear the filter on the vault home to see them."
-
     static func filteredEmptyMessage(count: Int) -> String {
-        "This category has \(filteredNoteCount(count)). \(clearFilterToSeeThem)"
+        "This category has \(filteredNoteCount(count)). Clear the filter on the vault home to see \(count == 1 ? "it" : "them")."
     }
+
+    static func hiddenByFilter(_ count: Int, state: String) -> String {
+        count == 1 ? "1 note is hidden by the \(state) filter." : "\(count) notes are hidden by the \(state) filter."
+    }
+
+    static let notesCouldNotOpen = "These notes could not be opened"
+    static let nothingWasDeleted = "Nothing was deleted. Try again in a moment."
 
     // MARK: Exchange
 

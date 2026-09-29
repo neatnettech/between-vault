@@ -24,8 +24,10 @@ struct NoteRepositoryTests {
         body: String = "Engineer's number",
         state: NoteState = .private,
         categoryID: UUID? = nil,
-        version: Int = 1
+        version: Int = 4,
+        updatedAt: Date = .now
     ) -> Note {
+        // Distinct nonzero history fields, so a round trip that drops or swaps them fails.
         Note(
             id: id,
             title: title,
@@ -33,10 +35,10 @@ struct NoteRepositoryTests {
             state: state,
             categoryID: categoryID,
             version: version,
-            baseVersion: 0,
-            partnerKnownVersion: 0,
+            baseVersion: 2,
+            partnerKnownVersion: 3,
             createdAt: .now,
-            updatedAt: .now
+            updatedAt: updatedAt
         )
     }
 
@@ -55,6 +57,19 @@ struct NoteRepositoryTests {
         #expect(reloaded?.state == .sealed)
         #expect(reloaded?.categoryID == note.categoryID)
         #expect(reloaded?.version == 3)
+        #expect(reloaded?.baseVersion == 2)
+        #expect(reloaded?.partnerKnownVersion == 3)
+    }
+
+    /// Board 4 lists the most recently edited note first.
+    @Test func notesComeBackNewestFirst() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        let home = UUID()
+        try repository.save(makeNote(title: "Older", categoryID: home, updatedAt: .now.addingTimeInterval(-3_600)))
+        try repository.save(makeNote(title: "Newer", categoryID: home))
+
+        #expect(try repository.notes(in: home).map(\.title) == ["Newer", "Older"])
     }
 
     /// The store holds ciphertext, never the plaintext title or body.

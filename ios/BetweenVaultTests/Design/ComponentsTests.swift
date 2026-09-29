@@ -100,6 +100,23 @@ struct ComponentsTests {
         #expect(shared(version: 3, partnerKnows: 2, state: .sealed).partnerHasCopy)
     }
 
+    // MARK: - Category list empty states (1.11)
+
+    @MainActor @Test func anEmptyCategoryReadsAsEmpty() {
+        let copy = NotesView.emptyCopy(filter: nil, total: 0, category: "Home")
+        #expect(copy.headline == "Nothing here yet")
+        #expect(NotesView.emptyCopy(filter: .sealed, total: 0, category: "Home").headline == "Nothing here yet")
+    }
+
+    /// A category hidden by a filter must never read as empty.
+    @MainActor @Test func aFilteredCategoryNamesTheFilterAndTheCount() {
+        let copy = NotesView.emptyCopy(filter: .sealed, total: 3, category: "Home")
+        #expect(copy.headline == "No sealed notes in Home")
+        #expect(copy.message == "This category has 3 notes. Clear the filter on the vault home to see them.")
+        #expect(NotesView.emptyCopy(filter: .sealed, total: 1, category: "Home").message
+            == "This category has 1 note. Clear the filter on the vault home to see it.")
+    }
+
     // MARK: - CategoryTile
 
     @Test func tileLabelInflectsTheNoteCount() {
