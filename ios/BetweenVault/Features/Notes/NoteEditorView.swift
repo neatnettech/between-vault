@@ -8,6 +8,7 @@ struct NoteEditorView: View {
     var defaultCategory: Category?
 
     @Environment(AppServices.self) private var services
+    @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var bodyText = ""
@@ -98,6 +99,7 @@ struct NoteEditorView: View {
                 }
             }
         }
+        .privacyCover(lockManager)
     }
 
     private func save() {
