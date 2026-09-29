@@ -38,7 +38,7 @@ struct NoteDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: Theme.Space.md) {
-                    Button("Edit") { editing = true }
+                    Button(Copy.edit) { editing = true }
                     Menu {
                         ForEach(categories) { category in
                             Button(category.name) { move(to: category) }
@@ -47,12 +47,12 @@ struct NoteDetailView: View {
                         Button(role: .destructive) {
                             pendingDelete = true
                         } label: {
-                            Label("Delete note", systemImage: "trash")
+                            Label(Copy.deleteNote, systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
-                    .accessibilityLabel("More actions")
+                    .accessibilityLabel(Copy.moreActions)
                 }
             }
         }
@@ -62,14 +62,14 @@ struct NoteDetailView: View {
             NoteEditorView(note: note)
         }
         .confirmationDialog(
-            "Delete \"\(note.title)\"?",
+            Copy.deleteNoteTitle(note.title),
             isPresented: $pendingDelete,
             titleVisibility: .visible
         ) {
-            Button("Delete note", role: .destructive) { deleteNote() }
-            Button("Cancel", role: .cancel) {}
+            Button(Copy.deleteNote, role: .destructive) { deleteNote() }
+            Button(Copy.cancel, role: .cancel) {}
         } message: {
-            Text("It is removed from this iPhone. Your partner's copy stays on their phone. Deleting is never sent.")
+            Text(Copy.deleteNoteMessage)
         }
         .task {
             categories = (try? services.categoryRepository.categories()) ?? []
@@ -83,7 +83,7 @@ struct NoteDetailView: View {
                 Text(categoryName)
                 Text("·")
             }
-            Text("Edited \(NoteRow.timestampString(for: note.updatedAt))")
+            Text(Copy.edited(NoteRow.timestampString(for: note.updatedAt)))
         }
         .font(Theme.Typography.footnote)
         .foregroundStyle(Theme.Colors.secondary)
@@ -94,11 +94,11 @@ struct NoteDetailView: View {
             Button {
                 seal()
             } label: {
-                Text("Seal for partner")
+                Text(Copy.sealForPartner)
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.vaultPrimary)
-            Text("Sealed notes wait in Exchange until you send them.")
+            Text(Copy.sealedNotesWait)
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.tertiary)
         }

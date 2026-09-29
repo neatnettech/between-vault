@@ -16,10 +16,10 @@ struct PrivacyOverlayView: View {
                 Image(systemName: "lock.fill")
                     .font(Theme.Typography.largeTitle)
                     .foregroundStyle(Theme.Colors.accent)
-                Text("Locked")
+                Text(Copy.locked)
                     .font(Theme.Typography.title3)
                     .foregroundStyle(Theme.Colors.text)
-                Button("Unlock with Face ID") {
+                Button(Copy.unlockWithFaceID) {
                     Task { await unlock() }
                 }
                 .buttonStyle(.vaultPrimary)

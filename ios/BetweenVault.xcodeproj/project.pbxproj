@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02409F9A40BE4D676A3638EF /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBB490200F8E6648A9E6A29 /* Copy.swift */; };
 		0644DBDA971BA5283CEAFF41 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */; };
 		0E8837E4A0B21CA8E88C7339 /* Partner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF0A0F45F745836889C862F /* Partner.swift */; };
 		16AF48E3713973E49987F962 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6401CB8B0F4ABD25CF32B09 /* Components.swift */; };
@@ -90,6 +91,7 @@
 		C67C3E039C7E5333270671E1 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		C6DD283DBA80128A707436C5 /* LockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManager.swift; sourceTree = "<group>"; };
 		CC529AE18B505426C1456254 /* PackageValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageValidator.swift; sourceTree = "<group>"; };
+		CCBB490200F8E6648A9E6A29 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Copy.swift; sourceTree = "<group>"; };
 		D0E3AEA809ED556F3068F402 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		DA0AB0C54F88EB3040B8503A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E1C7B6BEDBBE67B3F669C113 /* ComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsTests.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				E6401CB8B0F4ABD25CF32B09 /* Components.swift */,
+				CCBB490200F8E6648A9E6A29 /* Copy.swift */,
 				EB278D67828CA7BA78523340 /* Theme.swift */,
 			);
 			path = Design;
@@ -502,6 +505,7 @@
 				CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */,
 				E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */,
 				16AF48E3713973E49987F962 /* Components.swift in Sources */,
+				02409F9A40BE4D676A3638EF /* Copy.swift in Sources */,
 				7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */,
 				19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */,
 				FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */,

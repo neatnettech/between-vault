@@ -4,34 +4,34 @@ struct ExchangeView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Ready to send") {
+                Section(Copy.readyToSend) {
                     EmptyState(
                         systemImage: "tray",
-                        headline: "Nothing sealed yet",
-                        message: "Seal a note to get it ready for your partner."
+                        headline: Copy.nothingSealedYet,
+                        message: Copy.sealANote
                     )
                     .listRowBackground(Theme.Colors.bg)
                 }
-                Section("Waiting for me") {
+                Section(Copy.waitingForMe) {
                     EmptyState(
                         systemImage: "tray.and.arrow.down",
-                        headline: "Nothing waiting",
-                        message: "When your partner sends you a file, open it here."
+                        headline: Copy.nothingWaiting,
+                        message: Copy.openPartnerFile
                     )
                     .listRowBackground(Theme.Colors.bg)
                 }
-                Section("Recently exchanged") {
+                Section(Copy.recentlyExchanged) {
                     EmptyState(
                         systemImage: "clock.arrow.circlepath",
-                        headline: "No exchanges yet",
-                        message: "Sent and received items show up here."
+                        headline: Copy.noExchangesYet,
+                        message: Copy.exchangeHistoryHint
                     )
                     .listRowBackground(Theme.Colors.bg)
                 }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.Colors.bg)
-            .navigationTitle("Exchange")
+            .navigationTitle(Copy.tabExchange)
         }
     }
 }

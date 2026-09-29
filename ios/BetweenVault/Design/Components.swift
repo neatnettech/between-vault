@@ -21,18 +21,15 @@ struct StateBadge: View {
     static func spec(for state: NoteState, changedSinceSent: Bool) -> Spec {
         let word: String
         let symbol: String
-        var helper = ""
         switch state {
-        case .private: (word, symbol) = ("Private", "lock.fill")
-        case .sealed:
-            (word, symbol) = ("Sealed", "envelope.fill")
-            helper = " Ready to send to your partner."
-        case .shared: (word, symbol) = ("Shared", "person.2.fill")
+        case .private: (word, symbol) = (Copy.statePrivate, "lock.fill")
+        case .sealed: (word, symbol) = (Copy.stateSealed, "envelope.fill")
+        case .shared: (word, symbol) = (Copy.stateShared, "person.2.fill")
         }
         let flagged = changedSinceSent && state == .shared
         let voiceOver = flagged
-            ? "State: Shared. Changed since you sent it."
-            : "State: \(word).\(helper)"
+            ? Copy.sharedChangedVoiceOver
+            : state == .sealed ? Copy.sealedVoiceOver : Copy.stateVoiceOver(word)
         return Spec(word: word, symbol: symbol, voiceOver: voiceOver)
     }
 
@@ -65,7 +62,7 @@ struct StateBadge: View {
                 HStack(spacing: Theme.Space.xxs) {
                     Image(systemName: "flag.fill")
                         .imageScale(.small)
-                    Text("Changed since sent")
+                    Text(Copy.changedSinceSent)
                 }
                 .padding(.vertical, Theme.Space.xxs / 2)
                 .padding(.horizontal, Theme.Space.xs)

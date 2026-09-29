@@ -38,7 +38,7 @@ struct NotesView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("New note in \(category.name)")
+                .accessibilityLabel(Copy.newNoteIn(category.name))
             }
         }
         .sheet(isPresented: $composing, onDismiss: {
@@ -59,17 +59,17 @@ struct NotesView: View {
     @ViewBuilder
     private var emptyState: some View {
         if let filter, !all.isEmpty {
-            let word = StateBadge.spec(for: filter, changedSinceSent: false).word.lowercased()
+            let word = StateBadge.spec(for: filter, changedSinceSent: false).word
             EmptyState(
                 systemImage: "line.3.horizontal.decrease.circle",
-                headline: "No \(word) notes in \(category.name)",
-                message: "This category has \(all.count == 1 ? "1 note" : "\(all.count) notes"). Clear the filter on the vault home to see them."
+                headline: Copy.noFilteredNotes(state: word, category: category.name),
+                message: Copy.filteredEmptyMessage(count: all.count)
             )
         } else {
             EmptyState(
                 systemImage: "note.text",
-                headline: "Nothing here yet",
-                message: "Add a note to this category."
+                headline: Copy.nothingHereYet,
+                message: Copy.addANoteToThisCategory
             )
         }
     }

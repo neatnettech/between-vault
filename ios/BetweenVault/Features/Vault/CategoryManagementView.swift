@@ -29,7 +29,7 @@ struct CategoryManagementView: View {
                                 Button(role: .destructive) {
                                     deleting = category
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label(Copy.delete, systemImage: "trash")
                                 }
                             }
                         }
@@ -39,48 +39,48 @@ struct CategoryManagementView: View {
                         persistOrder()
                     }
                 } footer: {
-                    Text("Category changes stay on this iPhone; your partner sees the category only on notes you send.")
+                    Text(Copy.categoryChangesStayLocal)
                 }
             }
-            .navigationTitle("Categories")
+            .navigationTitle(Copy.categoriesTitle)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Add") { adding = true }
+                    Button(Copy.add) { adding = true }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(Copy.done) { dismiss() }
                 }
             }
             .task { await load() }
             .alert(
-                "Rename category",
+                Copy.renameCategory,
                 isPresented: Binding(
                     get: { renaming != nil },
                     set: { if !$0 { renaming = nil } }
                 )
             ) {
-                TextField("Name", text: $draftName)
-                Button("Cancel", role: .cancel) {}
-                Button("Save") { saveRename() }
+                TextField(Copy.name, text: $draftName)
+                Button(Copy.cancel, role: .cancel) {}
+                Button(Copy.save) { saveRename() }
             }
-            .alert("New category", isPresented: $adding) {
-                TextField("Name", text: $draftName)
-                Button("Cancel", role: .cancel) { draftName = "" }
-                Button("Add") { addCategory() }
+            .alert(Copy.newCategoryPrompt, isPresented: $adding) {
+                TextField(Copy.name, text: $draftName)
+                Button(Copy.cancel, role: .cancel) { draftName = "" }
+                Button(Copy.add) { addCategory() }
             }
             .confirmationDialog(
-                deleting.map { "Delete \"\($0.name)\"?" } ?? "Delete category?",
+                deleting.map { Copy.deleteCategoryTitle($0.name) } ?? Copy.newCategoryPrompt,
                 isPresented: Binding(
                     get: { deleting != nil },
                     set: { if !$0 { deleting = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) { deleteSelected() }
-                Button("Cancel", role: .cancel) {}
+                Button(Copy.delete, role: .destructive) { deleteSelected() }
+                Button(Copy.cancel, role: .cancel) {}
             } message: {
                 if let deleting {
-                    Text("Its \(counts[deleting.id] ?? 0) notes move to Other. No notes are deleted.")
+                    Text(Copy.deleteCategoryMessage(counts[deleting.id] ?? 0))
                 }
             }
         }
@@ -96,7 +96,7 @@ struct CategoryManagementView: View {
                 .foregroundStyle(Theme.Colors.text)
             Spacer()
             if category.isBuiltIn {
-                Text("Built in")
+                Text(Copy.builtIn)
                     .font(Theme.Typography.footnote)
                     .foregroundStyle(Theme.Colors.secondary)
             } else {

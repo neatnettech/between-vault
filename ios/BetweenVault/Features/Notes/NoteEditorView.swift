@@ -25,18 +25,18 @@ struct NoteEditorView: View {
             || !bodyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private var navigationTitle: String { note == nil ? "New note" : "Edit note" }
+    private var navigationTitle: String { note == nil ? Copy.newNoteTitle : Copy.editNoteTitle }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Title", text: $title, axis: .vertical)
+                    TextField(Copy.title, text: $title, axis: .vertical)
                         .font(Theme.Typography.body)
                     TextEditor(text: $bodyText)
                         .font(Theme.Typography.body)
                         .frame(minHeight: 140)
-                        .accessibilityLabel("Body")
+                        .accessibilityLabel(Copy.body)
                 }
                 Section {
                     Menu {
@@ -45,32 +45,32 @@ struct NoteEditorView: View {
                         }
                     } label: {
                         HStack {
-                            Text("Category")
+                            Text(Copy.category)
                             Spacer()
-                            Text(category?.name ?? "None")
+                            Text(category?.name ?? Copy.none)
                                 .foregroundStyle(Theme.Colors.secondary)
                         }
                     }
                     HStack {
-                        Label("Add attachment", systemImage: "paperclip")
+                        Label(Copy.addAttachment, systemImage: "paperclip")
                         Spacer()
-                        Label("Unlock", systemImage: "lock.fill")
+                        Label(Copy.unlock, systemImage: "lock.fill")
                             .labelStyle(.titleAndIcon)
                             .foregroundStyle(Theme.Colors.secondary)
                     }
                     .foregroundStyle(Theme.Colors.secondary)
-                    .accessibilityHint("Attachments arrive in a later update.")
+                    .accessibilityHint(Copy.attachmentsArriveLater)
                 }
                 Section {
-                    Picker("State", selection: $state) {
-                        Text("Private").tag(NoteState.private)
-                        Text("Sealed").tag(NoteState.sealed)
+                    Picker(Copy.state, selection: $state) {
+                        Text(Copy.statePrivate).tag(NoteState.private)
+                        Text(Copy.stateSealed).tag(NoteState.sealed)
                         if note?.state == .shared {
-                            Text("Shared").tag(NoteState.shared)
+                            Text(Copy.stateShared).tag(NoteState.shared)
                         }
                     }
                     .pickerStyle(.segmented)
-                    Text("Shared is set automatically after you send it. Nothing is shared by editing.")
+                    Text(Copy.sharedSetBySending)
                         .font(Theme.Typography.footnote)
                         .foregroundStyle(Theme.Colors.tertiary)
                 }
@@ -79,10 +79,10 @@ struct NoteEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button(Copy.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { save() }
+                    Button(Copy.done) { save() }
                         .disabled(!canSave)
                 }
             }
