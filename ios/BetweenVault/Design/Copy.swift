@@ -25,13 +25,24 @@ enum Copy {
     static let sealedVoiceOver = "State: Sealed. Ready to send to your partner."
     static let sharedChangedVoiceOver = "State: Shared. Changed since you sent it."
 
+    // MARK: Dates
+
+    /// The compact ladder on note rows (boards 4 and U1).
+    static let justNow = "Just now"
+    static func minutesAgo(_ count: Int) -> String { "\(count)m ago" }
+    static func hoursAgo(_ count: Int) -> String { "\(count)h ago" }
+    static func daysAgo(_ count: Int) -> String { "\(count)d ago" }
+    static func weeksAgo(_ count: Int) -> String { "\(count)w ago" }
+
     // MARK: Vault home
 
     static let startWithEmergency = "Start with Emergency"
     static let emergencyPrompt = "If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are."
     static let writeTheFirstNote = "Write the first note"
     static let starterCategoriesNote = "Six starter categories are created with the vault. Emergency and Other always exist, so the vault is never without a category."
-    static let localOnlyFooter = "Stored locally on this iPhone. Not in any cloud."
+    /// True for iCloud Backup users too: a device backup may hold the store, but the app itself
+    /// never uploads anything (spec 24).
+    static let localOnlyFooter = "Stored on this iPhone. This app never uploads it."
     static let filterAll = "All"
     static let newCategory = "New category"
     static let lockNow = "Lock now"
@@ -51,15 +62,38 @@ enum Copy {
     static let cancel = "Cancel"
     static let delete = "Delete"
     static let name = "Name"
-    static let categoryChangesStayLocal = "Category changes stay on this iPhone; your partner sees the category only on notes you send."
+    static let builtInsCannotBeDeleted = "Emergency and Other can be renamed and moved, not deleted."
+    static let categoriesFooter = "Tap a name to rename it. \(builtInsCannotBeDeleted) Category changes stay on this iPhone; your partner sees the category only on notes you send."
+    static let deleteCategoryFallback = "Delete category?"
 
     static func deleteCategoryTitle(_ name: String) -> String {
         "Delete \"\(name)\"?"
     }
 
-    static func deleteCategoryMessage(_ count: Int) -> String {
-        "Its \(count) notes move to Other. No notes are deleted."
+    /// `destination` is Other under its current name: it can be renamed, and notes follow the key.
+    static func deleteCategoryMessage(_ count: Int, movingTo destination: String) -> String {
+        switch count {
+        case 0: "It has no notes."
+        case 1: "Its 1 note moves to \(destination). No notes are deleted."
+        default: "Its \(count) notes move to \(destination). No notes are deleted."
+        }
     }
+
+    static func categoryFailure(_ error: any Error) -> String {
+        switch error as? CategoryError {
+        case .builtInCannotBeDeleted: builtInsCannotBeDeleted
+        case .notFound: "This category no longer exists."
+        case .otherCategoryMissing: "Other is missing, so its notes would have nowhere to go. Nothing was deleted."
+        case nil: changeNotSaved
+        }
+    }
+
+    // MARK: Failures
+
+    static let notSaved = "Not saved"
+    static let ok = "OK"
+    static let changeNotSaved = "The change could not be saved. Nothing was changed."
+    static let noteNotSaved = "The note could not be saved. Your text is still here."
 
     // MARK: Notes
 
@@ -79,6 +113,7 @@ enum Copy {
     static let sealForPartner = "Seal for partner"
     static let sealedNotesWait = "Sealed notes wait in Exchange until you send them."
     static let moreActions = "More actions"
+    static let moveToCategory = "Move to category"
     static let deleteNote = "Delete note"
 
     static func newNoteIn(_ category: String) -> String {
@@ -86,6 +121,7 @@ enum Copy {
     }
 
     static let deleteNoteMessage = "It is removed from this iPhone. Your partner's copy stays on their phone. Deleting is never sent."
+    static let deleteNeverSentMessage = "It is removed from this iPhone. It was never sent, so your partner has no copy."
 
     static func deleteNoteTitle(_ title: String) -> String {
         "Delete \"\(title)\"?"
@@ -103,11 +139,16 @@ enum Copy {
         count == 1 ? "1 note" : "\(count) notes"
     }
 
-    static let clearFilterToSeeThem = "Clear the filter on the vault home to see them."
-
     static func filteredEmptyMessage(count: Int) -> String {
-        "This category has \(filteredNoteCount(count)). \(clearFilterToSeeThem)"
+        "This category has \(filteredNoteCount(count)). Clear the filter on the vault home to see \(count == 1 ? "it" : "them")."
     }
+
+    static func hiddenByFilter(_ count: Int, state: String) -> String {
+        count == 1 ? "1 note is hidden by the \(state) filter." : "\(count) notes are hidden by the \(state) filter."
+    }
+
+    static let notesCouldNotOpen = "These notes could not be opened"
+    static let nothingWasDeleted = "Nothing was deleted. Try again in a moment."
 
     // MARK: Exchange
 
@@ -130,7 +171,9 @@ enum Copy {
     static let fingerprint = "Fingerprint"
     static let partnerCanRecover = "Your partner can recover your vault. This is by design."
     static let unpairPartner = "Unpair partner"
-    static let noPartnerPaired = "No partner paired yet."
+    static let noPartnerPaired = "No partner paired yet"
+    static let pairedPartner = "Paired partner"
+    static let pairingLandsLater = "Pairing lands with the exchange work."
     static let pairWithPartner = "Pair with partner"
 
     // MARK: Lock
@@ -139,7 +182,9 @@ enum Copy {
     static let unlockWithFaceID = "Unlock with Face ID"
     static let usePasscode = "Use passcode"
     static let vaultUnavailable = "Vault unavailable"
-    static let storeCouldNotOpen = "The local store could not be opened. Your data is safe, but the app cannot start."
+    /// States only what is known: after a failed open the app cannot tell whether the data is intact.
+    static let storeCouldNotOpen = "The local store could not be opened, so the app cannot start. Do not delete the app."
+    static let unlockReason = "Unlock your vault."
 
     // MARK: Settings
 
@@ -153,6 +198,7 @@ enum Copy {
     static let data = "Data"
     static let exportBackup = "Export backup"
     static let attachmentsUnlock = "Attachments unlock"
+    static let comingIn11 = "1.1"
     static let about = "About"
     static let version = "Version"
     static let collectsNothing = "This app collects nothing and has no server to send it to."

@@ -1,4 +1,5 @@
 import Foundation
+import Security
 import Testing
 
 @testable import BetweenVault
@@ -37,6 +38,17 @@ struct CryptoEngineTests {
         let box = try CryptoEngine.encrypt(Data("secret".utf8), key: key, aad: Data("a".utf8))
         #expect(throws: CryptoEngine.CryptoError.self) {
             _ = try CryptoEngine.decrypt(box, key: key, aad: Data("b".utf8))
+        }
+    }
+
+    /// Only "not found" may lead to a new vault key. Any other Keychain failure has to surface,
+    /// because minting a key over the real one makes every stored note unreadable.
+    @Test func onlyAMissingKeyReadsAsAbsent() throws {
+        let key = CryptoEngine.randomKey()
+        #expect(try KeyManager.storedKey(status: errSecSuccess, result: key as NSData) == key)
+        #expect(try KeyManager.storedKey(status: errSecItemNotFound, result: nil) == nil)
+        #expect(throws: KeyManager.KeyError.self) {
+            _ = try KeyManager.storedKey(status: errSecInteractionNotAllowed, result: nil)
         }
     }
 

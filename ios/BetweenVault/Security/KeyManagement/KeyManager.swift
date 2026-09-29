@@ -8,25 +8,39 @@ enum KeyManager {
 
     private static let service = "tech.neatnet.betweenvault.keys"
 
-    /// Returns the stored key for the account, creating and persisting one if absent.
+    /// Returns the stored key for the account, creating and persisting one only if none is stored.
     static func loadOrCreate(_ account: String) throws -> Data {
-        if let existing = load(account) { return existing }
+        if let existing = try load(account) { return existing }
         let key = CryptoEngine.randomKey()
         try save(key, account: account)
         return key
     }
 
-    static func load(_ account: String) -> Data? {
+    static func load(_ account: String) throws -> Data? {
         var query = baseQuery(account)
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-        return status == errSecSuccess ? result as? Data : nil
+        return try storedKey(status: status, result: result)
     }
 
+    /// `nil` only when nothing is stored. Every other failure throws: reading it as "absent" would
+    /// mint a new key over the real one and leave every stored note unreadable.
+    static func storedKey(status: OSStatus, result: AnyObject?) throws -> Data? {
+        switch status {
+        case errSecSuccess:
+            guard let data = result as? Data else { throw KeyError.keychainFailure(status) }
+            return data
+        case errSecItemNotFound:
+            return nil
+        default:
+            throw KeyError.keychainFailure(status)
+        }
+    }
+
+    /// Adds, never replaces: a duplicate fails instead of overwriting a key that still decrypts the vault.
     static func save(_ data: Data, account: String) throws {
-        SecItemDelete(baseQuery(account) as CFDictionary)
         var query = baseQuery(account)
         query[kSecValueData as String] = data
         query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly

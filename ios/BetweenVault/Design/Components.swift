@@ -87,19 +87,19 @@ struct StateBadge: View {
 struct NoteRow: View {
     let note: Note
 
-    /// Board shows "2d ago", "1w ago", "3w ago", then an absolute date ("Jun 12").
-    /// The minute and hour ladders are derived, the boards never show them.
+    /// Board 4 shows "2d ago", "1w ago", "3w ago", then an absolute date ("Jun 12"), and U1 shows
+    /// "Just now". The minute and hour rungs are derived, the boards never show them.
     ///
     /// `nonisolated` because `View` is `@MainActor`, which would otherwise pull this pure date
     /// arithmetic onto the main actor and make it unreachable from a nonisolated test.
     nonisolated static func timestampString(for date: Date, now: Date = .now) -> String {
         let seconds = now.timeIntervalSince(date)
         let days = Int(seconds / 86_400)
-        if seconds < 60 { return "now" }
-        if seconds < 3_600 { return "\(Int(seconds / 60))m ago" }
-        if seconds < 86_400 { return "\(Int(seconds / 3_600))h ago" }
-        if days < 7 { return "\(days)d ago" }
-        if days < 28 { return "\(days / 7)w ago" }
+        if seconds < 60 { return Copy.justNow }
+        if seconds < 3_600 { return Copy.minutesAgo(Int(seconds / 60)) }
+        if seconds < 86_400 { return Copy.hoursAgo(Int(seconds / 3_600)) }
+        if days < 7 { return Copy.daysAgo(days) }
+        if days < 28 { return Copy.weeksAgo(days / 7) }
         var style = Date.FormatStyle()
             .month(.abbreviated)
             .day()
@@ -124,6 +124,8 @@ struct NoteRow: View {
                 .font(Theme.Typography.subheadline)
                 .foregroundStyle(Theme.Colors.secondary)
                 .lineLimit(2)
+                // lineLimit only shortens what is drawn; VoiceOver would read the whole body.
+                .accessibilityLabel(String(note.body.prefix(120)))
             StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
         }
         .padding(.vertical, Theme.Space.sm)
@@ -305,7 +307,7 @@ struct FingerprintDisplay: View {
         Text(groups.joined(separator: " "))
             .font(.system(size: size, weight: .regular, design: .monospaced))
             .foregroundStyle(Theme.Colors.text)
-            .accessibilityLabel("Fingerprint \(groups.joined(separator: ", "))")
+            .accessibilityLabel("\(Copy.fingerprint) \(groups.joined(separator: ", "))")
     }
 }
 
@@ -479,7 +481,7 @@ private struct ComponentGallery: View {
                     name: "Emergency",
                     count: 5,
                     symbol: "plus.circle",
-                    subtitle: "What your partner needs if something happens"
+                    subtitle: Copy.emergencyTileSubtitle
                 )
                 CategoryTile(name: "Home", count: 1, symbol: "house")
                 ReviewRow(title: "Boiler service", categoryName: "Home")
@@ -487,26 +489,26 @@ private struct ComponentGallery: View {
                 FingerprintDisplay(fingerprint: "5F2A91C07E3B44D8")
 
                 HStack(spacing: Theme.Space.xs) {
-                    FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: true) {}
-                    FilterChip(title: "Private", systemImage: "lock", isSelected: false) {}
-                    FilterChip(title: "Sealed", systemImage: "envelope", isSelected: false) {}
-                    FilterChip(title: "Shared", systemImage: "person.2", isSelected: false) {}
+                    FilterChip(title: Copy.filterAll, systemImage: "square.stack.3d.up", isSelected: true) {}
+                    FilterChip(title: Copy.statePrivate, systemImage: "lock", isSelected: false) {}
+                    FilterChip(title: Copy.stateSealed, systemImage: "envelope", isSelected: false) {}
+                    FilterChip(title: Copy.stateShared, systemImage: "person.2", isSelected: false) {}
                 }
 
-                Button("Encrypt & Share") {}.buttonStyle(.vaultPrimary)
-                Button("Cancel") {}.buttonStyle(.vaultSecondary)
-                Button("Unpair partner") {}.buttonStyle(.vaultDestructive)
-                Button("Encrypt & Share") {}.buttonStyle(.vaultPrimary).disabled(true)
-                Button("Cancel") {}.buttonStyle(.vaultSecondary).disabled(true)
+                Button(Copy.encryptAndShare) {}.buttonStyle(.vaultPrimary)
+                Button(Copy.cancel) {}.buttonStyle(.vaultSecondary)
+                Button(Copy.unpairPartner) {}.buttonStyle(.vaultDestructive)
+                Button(Copy.encryptAndShare) {}.buttonStyle(.vaultPrimary).disabled(true)
+                Button(Copy.cancel) {}.buttonStyle(.vaultSecondary).disabled(true)
 
                 EmptyState(
                     systemImage: "tray",
-                    headline: "Nothing sealed yet",
-                    message: "Seal a note to get it ready for your partner."
+                    headline: Copy.nothingSealedYet,
+                    message: Copy.sealANote
                 )
-                Toast(systemImage: "checkmark.circle.fill", text: "3 items imported")
-                Toast(systemImage: "arrow.up.right.circle.fill", text: "Exchange ready")
-                Toast(systemImage: "doc.on.clipboard.fill", text: "Clipboard cleared")
+                Toast(systemImage: "checkmark.circle.fill", text: Copy.toastItemsImported)
+                Toast(systemImage: "arrow.up.right.circle.fill", text: Copy.toastExchangeReady)
+                Toast(systemImage: "doc.on.clipboard.fill", text: Copy.toastClipboardCleared)
             }
             .padding(Theme.Space.md)
         }

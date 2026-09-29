@@ -96,16 +96,21 @@ final class CategoryRepository {
                 )
             )
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
-    /// Creates a user category appended after the last one.
+    /// Creates a user category. Other is the catch all, so while it is last the new category goes
+    /// above it (board 3b); once the user has moved Other elsewhere, the new one is appended.
     func add(name: String, symbol: String = CategoryRecord.defaultSymbol) throws -> Category {
-        let all = try context.fetch(FetchDescriptor<CategoryRecord>())
-        let nextSort = (all.map(\.sort).max() ?? -1) + 1
-        let record = CategoryRecord(name: name, sort: nextSort, symbol: symbol)
+        let all = try context.fetch(FetchDescriptor<CategoryRecord>(sortBy: [SortDescriptor(\.sort)]))
+        var sort = (all.last?.sort ?? -1) + 1
+        if let last = all.last, last.builtInKey == BuiltInCategory.other.rawValue {
+            sort = last.sort
+            last.sort += 1
+        }
+        let record = CategoryRecord(name: name, sort: sort, symbol: symbol)
         context.insert(record)
-        try context.save()
+        try context.saveOrRollback()
         return Self.domain(record)
     }
 
@@ -116,7 +121,7 @@ final class CategoryRepository {
         )
         guard let record = matches.first else { throw CategoryError.notFound }
         record.name = name
-        try context.save()
+        try context.saveOrRollback()
     }
 
     /// Persists the whole ordering. `orderedIDs` must contain every category id:
@@ -128,7 +133,7 @@ final class CategoryRepository {
         for (offset, id) in orderedIDs.enumerated() {
             byID[id]?.sort = offset
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     /// Deletes a user created category. Its notes move to Other, no notes are deleted.
@@ -155,7 +160,7 @@ final class CategoryRepository {
         }
 
         context.delete(record)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     private static func domain(_ record: CategoryRecord) -> Category {

@@ -8,7 +8,7 @@ struct PartnerView: View {
         NavigationStack {
             List {
                 if let partner {
-                    Section("Paired partner") {
+                    Section(Copy.pairedPartner) {
                         VStack(alignment: .leading, spacing: Theme.Space.xs) {
                             Text(Copy.fingerprint)
                                 .font(Theme.Typography.footnote)
@@ -25,7 +25,7 @@ struct PartnerView: View {
                         EmptyState(
                             systemImage: "person.2",
                             headline: Copy.noPartnerPaired,
-                            message: "Pairing lands with the exchange work."
+                            message: Copy.pairingLandsLater
                         )
                         Button(Copy.pairWithPartner) {
                             // Pairing flow lands with the exchange work item.

@@ -8,21 +8,24 @@ struct NoteEditorView: View {
     var defaultCategory: Category?
 
     @Environment(AppServices.self) private var services
+    @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var bodyText = ""
     @State private var state: NoteState = .private
     @State private var category: Category?
     @State private var categories: [Category] = []
+    @State private var saveFailed = false
 
     init(note: Note? = nil, defaultCategory: Category? = nil) {
         self.note = note
         self.defaultCategory = defaultCategory
     }
 
+    /// A title is required: the list row, the detail title, the delete dialog and the exchange
+    /// review all name a note by it.
     private var canSave: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !bodyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var navigationTitle: String { note == nil ? Copy.newNoteTitle : Copy.editNoteTitle }
@@ -33,10 +36,9 @@ struct NoteEditorView: View {
                 Section {
                     TextField(Copy.title, text: $title, axis: .vertical)
                         .font(Theme.Typography.body)
-                    TextEditor(text: $bodyText)
+                    TextField(Copy.body, text: $bodyText, axis: .vertical)
                         .font(Theme.Typography.body)
-                        .frame(minHeight: 140)
-                        .accessibilityLabel(Copy.body)
+                        .lineLimit(6...)
                 }
                 Section {
                     Menu {
@@ -61,18 +63,19 @@ struct NoteEditorView: View {
                     .foregroundStyle(Theme.Colors.secondary)
                     .accessibilityHint(Copy.attachmentsArriveLater)
                 }
-                Section {
-                    Picker(Copy.state, selection: $state) {
-                        Text(Copy.statePrivate).tag(NoteState.private)
-                        Text(Copy.stateSealed).tag(NoteState.sealed)
-                        if note?.state == .shared {
-                            Text(Copy.stateShared).tag(NoteState.shared)
+                // Once the partner holds a copy, Private would be false and resealing is the detail
+                // screen's Seal update (U2), so editing keeps the state as it is (U1).
+                if !(note?.partnerHasCopy ?? false) {
+                    Section {
+                        Picker(Copy.state, selection: $state) {
+                            Text(Copy.statePrivate).tag(NoteState.private)
+                            Text(Copy.stateSealed).tag(NoteState.sealed)
                         }
+                        .pickerStyle(.segmented)
+                        Text(Copy.sharedSetBySending)
+                            .font(Theme.Typography.footnote)
+                            .foregroundStyle(Theme.Colors.tertiary)
                     }
-                    .pickerStyle(.segmented)
-                    Text(Copy.sharedSetBySending)
-                        .font(Theme.Typography.footnote)
-                        .foregroundStyle(Theme.Colors.tertiary)
                 }
             }
             .navigationTitle(navigationTitle)
@@ -97,7 +100,15 @@ struct NoteEditorView: View {
                     category = defaultCategory ?? categories.first
                 }
             }
+            .alert(Copy.notSaved, isPresented: $saveFailed) {
+                Button(Copy.ok, role: .cancel) {}
+            } message: {
+                Text(Copy.noteNotSaved)
+            }
         }
+        // A swipe down would drop a draft without a word; Cancel stays the explicit way out.
+        .interactiveDismissDisabled(title != (note?.title ?? "") || bodyText != (note?.body ?? ""))
+        .privacyCover(lockManager)
     }
 
     private func save() {
@@ -105,20 +116,18 @@ struct NoteEditorView: View {
         let trimmedBody = bodyText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard canSave else { return }
 
-        let saved: Note
+        var saved: Note
         if let note {
-            saved = Note(
-                id: note.id,
+            saved = note.edited(
                 title: trimmedTitle,
                 body: trimmedBody,
-                state: state,
-                categoryID: category?.id ?? note.categoryID,
-                version: note.version + 1,
-                baseVersion: note.baseVersion,
-                partnerKnownVersion: note.partnerKnownVersion,
-                createdAt: note.createdAt,
-                updatedAt: .now
+                categoryID: category?.id ?? note.categoryID
             )
+            saved.state = state
+            guard saved != note else {
+                dismiss()
+                return
+            }
         } else {
             saved = Note(
                 id: UUID(),
@@ -133,7 +142,12 @@ struct NoteEditorView: View {
                 updatedAt: .now
             )
         }
-        try? services.noteRepository.save(saved)
-        dismiss()
+        // Dismiss only once the note is stored: a failed save keeps the sheet and the typed text.
+        do {
+            try services.noteRepository.save(saved)
+            dismiss()
+        } catch {
+            saveFailed = true
+        }
     }
 }

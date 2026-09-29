@@ -11,7 +11,7 @@ struct ComponentsTests {
     }
 
     @Test func timestampCompactLadder() {
-        #expect(NoteRow.timestampString(for: now.addingTimeInterval(-30), now: now) == "now")
+        #expect(NoteRow.timestampString(for: now.addingTimeInterval(-30), now: now) == "Just now")
         #expect(NoteRow.timestampString(for: now.addingTimeInterval(-60 * 42), now: now) == "42m ago")
         #expect(NoteRow.timestampString(for: now.addingTimeInterval(-3_600 * 5), now: now) == "5h ago")
         #expect(NoteRow.timestampString(for: ago(days: 2), now: now) == "2d ago")
@@ -65,6 +65,56 @@ struct ComponentsTests {
     @Test func onlySharedNotesCarryTheFlag() {
         #expect(!shared(version: 3, partnerKnows: 2, state: .private).hasChangedSinceSent)
         #expect(!shared(version: 3, partnerKnows: 2, state: .sealed).hasChangedSinceSent)
+    }
+
+    // MARK: - Editing
+
+    /// Done on an untouched note writes nothing new: no version, so no false "Changed since sent".
+    @Test func anUntouchedEditKeepsTheVersion() {
+        let note = shared(version: 3, partnerKnows: 3)
+        let saved = note.edited(title: note.title, body: note.body, categoryID: note.categoryID)
+        #expect(saved == note)
+        #expect(!saved.hasChangedSinceSent)
+    }
+
+    /// What the partner would receive changed, so the version moves and a Shared note is flagged.
+    /// A move to another category counts too: the category travels in the package.
+    @Test func aRealEditBumpsTheVersionAndFlagsASharedNote() {
+        let note = shared(version: 3, partnerKnows: 3)
+        let later = now.addingTimeInterval(60)
+
+        let rewritten = note.edited(title: note.title, body: "Engineer visits every April.", categoryID: note.categoryID, now: later)
+        #expect(rewritten.version == 4)
+        #expect(rewritten.updatedAt == later)
+        #expect(rewritten.hasChangedSinceSent)
+
+        let moved = note.edited(title: note.title, body: note.body, categoryID: UUID(), now: later)
+        #expect(moved.version == 4)
+    }
+
+    /// Only a note that left the phone may claim a partner copy, and only then is Private untrue.
+    @Test func partnerHasACopyOnceAVersionLeftThePhone() {
+        #expect(!shared(version: 1, partnerKnows: 0, state: .private).partnerHasCopy)
+        #expect(!shared(version: 1, partnerKnows: 0, state: .sealed).partnerHasCopy)
+        #expect(shared(version: 1, partnerKnows: 0).partnerHasCopy)
+        #expect(shared(version: 3, partnerKnows: 2, state: .sealed).partnerHasCopy)
+    }
+
+    // MARK: - Category list empty states (1.11)
+
+    @MainActor @Test func anEmptyCategoryReadsAsEmpty() {
+        let copy = NotesView.emptyCopy(filter: nil, total: 0, category: "Home")
+        #expect(copy.headline == "Nothing here yet")
+        #expect(NotesView.emptyCopy(filter: .sealed, total: 0, category: "Home").headline == "Nothing here yet")
+    }
+
+    /// A category hidden by a filter must never read as empty.
+    @MainActor @Test func aFilteredCategoryNamesTheFilterAndTheCount() {
+        let copy = NotesView.emptyCopy(filter: .sealed, total: 3, category: "Home")
+        #expect(copy.headline == "No sealed notes in Home")
+        #expect(copy.message == "This category has 3 notes. Clear the filter on the vault home to see them.")
+        #expect(NotesView.emptyCopy(filter: .sealed, total: 1, category: "Home").message
+            == "This category has 1 note. Clear the filter on the vault home to see it.")
     }
 
     // MARK: - CategoryTile

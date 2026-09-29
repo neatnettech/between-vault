@@ -5,6 +5,7 @@ struct NotesView: View {
     var filter: NoteState?
     @Environment(AppServices.self) private var services
     @State private var all: [Note] = []
+    @State private var loadFailed = false
     @State private var composing = false
 
     private var visible: [Note] {
@@ -14,7 +15,14 @@ struct NotesView: View {
 
     var body: some View {
         List {
-            if visible.isEmpty {
+            if loadFailed {
+                EmptyState(
+                    systemImage: "exclamationmark.triangle",
+                    headline: Copy.notesCouldNotOpen,
+                    message: Copy.nothingWasDeleted
+                )
+                .listRowBackground(Theme.Colors.bg)
+            } else if visible.isEmpty {
                 emptyState
                     .listRowBackground(Theme.Colors.bg)
             }
@@ -26,6 +34,13 @@ struct NotesView: View {
                 }
                 .buttonStyle(.plain)
                 .listRowBackground(Theme.Colors.surface)
+            }
+            // A filter hiding some notes is said out loud too, not only one hiding all of them.
+            if let filter, !visible.isEmpty, visible.count < all.count {
+                Text(Copy.hiddenByFilter(all.count - visible.count, state: StateBadge.spec(for: filter, changedSinceSent: false).word))
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.secondary)
+                    .listRowBackground(Theme.Colors.bg)
             }
         }
         .scrollContentBackground(.hidden)
@@ -49,28 +64,34 @@ struct NotesView: View {
         .task { await reload() }
     }
 
+    /// A failed read is shown as a failure, never as an empty category.
     @Sendable private func reload() async {
-        all = (try? services.noteRepository.notes(in: category.id)) ?? []
+        do {
+            all = try services.noteRepository.notes(in: category.id)
+            loadFailed = false
+        } catch {
+            all = []
+            loadFailed = true
+        }
     }
 
     /// A category hidden by the filter is not an empty category. Saying "Nothing here yet" over a
     /// full category, with nothing on screen admitting a filter is on, is the kind of quiet
     /// dishonesty the product promises not to ship.
-    @ViewBuilder
-    private var emptyState: some View {
-        if let filter, !all.isEmpty {
-            let word = StateBadge.spec(for: filter, changedSinceSent: false).word
-            EmptyState(
-                systemImage: "line.3.horizontal.decrease.circle",
-                headline: Copy.noFilteredNotes(state: word, category: category.name),
-                message: Copy.filteredEmptyMessage(count: all.count)
-            )
-        } else {
-            EmptyState(
-                systemImage: "note.text",
-                headline: Copy.nothingHereYet,
-                message: Copy.addANoteToThisCategory
-            )
+    static func emptyCopy(filter: NoteState?, total: Int, category: String) -> (headline: String, message: String) {
+        guard let filter, total > 0 else {
+            return (Copy.nothingHereYet, Copy.addANoteToThisCategory)
         }
+        let word = StateBadge.spec(for: filter, changedSinceSent: false).word
+        return (Copy.noFilteredNotes(state: word, category: category), Copy.filteredEmptyMessage(count: total))
+    }
+
+    private var emptyState: some View {
+        let copy = Self.emptyCopy(filter: filter, total: all.count, category: category.name)
+        return EmptyState(
+            systemImage: filter != nil && !all.isEmpty ? "line.3.horizontal.decrease.circle" : "note.text",
+            headline: copy.headline,
+            message: copy.message
+        )
     }
 }

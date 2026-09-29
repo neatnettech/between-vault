@@ -16,9 +16,10 @@ final class NoteRepository {
         self.vaultKey = vaultKey
     }
 
+    /// Newest first, as board 4 lists them. `updatedAt` is a plain column, so the store sorts.
     func notes(in categoryID: UUID?) throws -> [Note] {
         let key = try vaultKey()
-        var descriptor = FetchDescriptor<NoteRecord>()
+        var descriptor = FetchDescriptor<NoteRecord>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
         if let categoryID {
             descriptor.predicate = #Predicate { $0.categoryID == categoryID }
         }
@@ -109,7 +110,7 @@ final class NoteRepository {
                 )
             )
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func delete(id: UUID) throws {
@@ -117,6 +118,6 @@ final class NoteRepository {
         for record in matches {
             context.delete(record)
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 }

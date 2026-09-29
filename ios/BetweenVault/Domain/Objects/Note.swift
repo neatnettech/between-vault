@@ -22,4 +22,23 @@ struct Note: Identifiable, Equatable, Sendable {
     var hasChangedSinceSent: Bool {
         state == .shared && version > partnerKnownVersion
     }
+
+    /// The partner holds a copy once any version of this note left the phone, whatever the state
+    /// says now. Only then may the app say so, and only then is Private no longer true.
+    var partnerHasCopy: Bool {
+        state == .shared || partnerKnownVersion > 0
+    }
+
+    /// Applies an edit. Only a change the partner would receive (title, body, category) makes a
+    /// new version, so saving an untouched note never raises "Changed since sent".
+    func edited(title: String, body: String, categoryID: UUID?, now: Date = .now) -> Note {
+        var copy = self
+        copy.title = title
+        copy.body = body
+        copy.categoryID = categoryID
+        guard copy != self else { return self }
+        copy.version += 1
+        copy.updatedAt = now
+        return copy
+    }
 }
