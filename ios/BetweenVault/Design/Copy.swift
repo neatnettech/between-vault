@@ -82,6 +82,7 @@ enum Copy {
     static let notSaved = "Not saved"
     static let ok = "OK"
     static let changeNotSaved = "The change could not be saved. Nothing was changed."
+    static let noteNotSaved = "The note could not be saved. Your text is still here."
 
     // MARK: Notes
 

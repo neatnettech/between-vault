@@ -67,6 +67,39 @@ struct ComponentsTests {
         #expect(!shared(version: 3, partnerKnows: 2, state: .sealed).hasChangedSinceSent)
     }
 
+    // MARK: - Editing
+
+    /// Done on an untouched note writes nothing new: no version, so no false "Changed since sent".
+    @Test func anUntouchedEditKeepsTheVersion() {
+        let note = shared(version: 3, partnerKnows: 3)
+        let saved = note.edited(title: note.title, body: note.body, categoryID: note.categoryID)
+        #expect(saved == note)
+        #expect(!saved.hasChangedSinceSent)
+    }
+
+    /// What the partner would receive changed, so the version moves and a Shared note is flagged.
+    /// A move to another category counts too: the category travels in the package.
+    @Test func aRealEditBumpsTheVersionAndFlagsASharedNote() {
+        let note = shared(version: 3, partnerKnows: 3)
+        let later = now.addingTimeInterval(60)
+
+        let rewritten = note.edited(title: note.title, body: "Engineer visits every April.", categoryID: note.categoryID, now: later)
+        #expect(rewritten.version == 4)
+        #expect(rewritten.updatedAt == later)
+        #expect(rewritten.hasChangedSinceSent)
+
+        let moved = note.edited(title: note.title, body: note.body, categoryID: UUID(), now: later)
+        #expect(moved.version == 4)
+    }
+
+    /// Only a note that left the phone may claim a partner copy, and only then is Private untrue.
+    @Test func partnerHasACopyOnceAVersionLeftThePhone() {
+        #expect(!shared(version: 1, partnerKnows: 0, state: .private).partnerHasCopy)
+        #expect(!shared(version: 1, partnerKnows: 0, state: .sealed).partnerHasCopy)
+        #expect(shared(version: 1, partnerKnows: 0).partnerHasCopy)
+        #expect(shared(version: 3, partnerKnows: 2, state: .sealed).partnerHasCopy)
+    }
+
     // MARK: - CategoryTile
 
     @Test func tileLabelInflectsTheNoteCount() {
