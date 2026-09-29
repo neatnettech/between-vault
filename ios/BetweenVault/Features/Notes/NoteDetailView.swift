@@ -92,21 +92,24 @@ struct NoteDetailView: View {
         }
     }
 
-    /// Board 5: the badge, then "Home · Edited 3 weeks ago" as one line of text, so it wraps at
-    /// accessibility sizes and VoiceOver reads it in one stop.
+    /// Board 5: the badge and "Home · Edited 3 weeks ago" on one row, stacked when the row does not
+    /// fit (accessibility sizes, a long category). The text is one Text, so VoiceOver reads it in
+    /// one stop.
     private var metaLine: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.xs) {
-            StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
-            Text(
-                [
-                    categoryName,
-                    Copy.edited(note.updatedAt.formatted(.relative(presentation: .named, unitsStyle: .wide))),
-                ]
-                .compactMap { $0 }
-                .joined(separator: " · ")
-            )
-            .font(Theme.Typography.footnote)
-            .foregroundStyle(Theme.Colors.secondary)
+        let badge = StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
+        let meta = Text(
+            [
+                categoryName,
+                Copy.edited(note.updatedAt.formatted(.relative(presentation: .named, unitsStyle: .wide))),
+            ]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+        )
+        .font(Theme.Typography.footnote)
+        .foregroundStyle(Theme.Colors.secondary)
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: Theme.Space.xs) { badge; meta }
+            VStack(alignment: .leading, spacing: Theme.Space.xs) { badge; meta }
         }
     }
 

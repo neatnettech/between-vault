@@ -70,6 +70,7 @@ struct NotesView: View {
             all = try services.noteRepository.notes(in: category.id)
             loadFailed = false
         } catch {
+            all = []
             loadFailed = true
         }
     }
