@@ -80,13 +80,13 @@ struct CategoryManagementView: View {
                 Button(Copy.cancel, role: .cancel) {}
                 Button(Copy.add) { addCategory() }
             }
-            .confirmationDialog(
+            // Board 3c is a centered alert (the note delete on 5a is the action sheet).
+            .alert(
                 deleting.map { Copy.deleteCategoryTitle($0.name) } ?? Copy.deleteCategoryFallback,
                 isPresented: Binding(
                     get: { deleting != nil },
                     set: { if !$0 { deleting = nil } }
                 ),
-                titleVisibility: .visible,
                 presenting: deleting
             ) { category in
                 Button(Copy.delete, role: .destructive) {

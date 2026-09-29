@@ -106,8 +106,8 @@ struct NoteEditorView: View {
                 Text(Copy.noteNotSaved)
             }
         }
-        // A swipe down would drop the draft without a word; Cancel stays the explicit way out.
-        .interactiveDismissDisabled(!title.isEmpty || !bodyText.isEmpty)
+        // A swipe down would drop a draft without a word; Cancel stays the explicit way out.
+        .interactiveDismissDisabled(title != (note?.title ?? "") || bodyText != (note?.body ?? ""))
         .privacyCover(lockManager)
     }
 

@@ -40,8 +40,8 @@ enum Copy {
     static let emergencyPrompt = "If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are."
     static let writeTheFirstNote = "Write the first note"
     static let starterCategoriesNote = "Six starter categories are created with the vault. Emergency and Other always exist, so the vault is never without a category."
-    /// True for iCloud Backup users too: a device backup may hold the encrypted store, the app
-    /// itself never uploads anything (spec 24).
+    /// True for iCloud Backup users too: a device backup may hold the store, but the app itself
+    /// never uploads anything (spec 24).
     static let localOnlyFooter = "Stored on this iPhone. This app never uploads it."
     static let filterAll = "All"
     static let newCategory = "New category"
