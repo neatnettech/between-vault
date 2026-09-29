@@ -9,6 +9,7 @@ struct NoteDetailView: View {
     @State private var categories: [Category] = []
     @State private var editing = false
     @State private var pendingDelete = false
+    @State private var actionFailed = false
 
     init(note: Note) {
         _note = State(initialValue: note)
@@ -40,10 +41,19 @@ struct NoteDetailView: View {
                 HStack(spacing: Theme.Space.md) {
                     Button(Copy.edit) { editing = true }
                     Menu {
-                        ForEach(categories) { category in
-                            Button(category.name) { move(to: category) }
+                        Menu(Copy.moveToCategory) {
+                            ForEach(categories) { category in
+                                Button {
+                                    move(to: category)
+                                } label: {
+                                    if category.id == note.categoryID {
+                                        Label(category.name, systemImage: "checkmark")
+                                    } else {
+                                        Text(category.name)
+                                    }
+                                }
+                            }
                         }
-                        Divider()
                         Button(role: .destructive) {
                             pendingDelete = true
                         } label: {
@@ -69,24 +79,35 @@ struct NoteDetailView: View {
             Button(Copy.deleteNote, role: .destructive) { deleteNote() }
             Button(Copy.cancel, role: .cancel) {}
         } message: {
-            Text(Copy.deleteNoteMessage)
+            // A note that never left this phone has no partner copy to mention.
+            Text(note.partnerHasCopy ? Copy.deleteNoteMessage : Copy.deleteNeverSentMessage)
+        }
+        .alert(Copy.notSaved, isPresented: $actionFailed) {
+            Button(Copy.ok, role: .cancel) {}
+        } message: {
+            Text(Copy.changeNotSaved)
         }
         .task {
             categories = (try? services.categoryRepository.categories()) ?? []
         }
     }
 
+    /// Board 5: the badge, then "Home · Edited 3 weeks ago" as one line of text, so it wraps at
+    /// accessibility sizes and VoiceOver reads it in one stop.
     private var metaLine: some View {
-        HStack(spacing: Theme.Space.xs) {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
             StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
-            if let categoryName {
-                Text(categoryName)
-                Text("·")
-            }
-            Text(Copy.edited(NoteRow.timestampString(for: note.updatedAt)))
+            Text(
+                [
+                    categoryName,
+                    Copy.edited(note.updatedAt.formatted(.relative(presentation: .named, unitsStyle: .wide))),
+                ]
+                .compactMap { $0 }
+                .joined(separator: " · ")
+            )
+            .font(Theme.Typography.footnote)
+            .foregroundStyle(Theme.Colors.secondary)
         }
-        .font(Theme.Typography.footnote)
-        .foregroundStyle(Theme.Colors.secondary)
     }
 
     private var sealSection: some View {
@@ -105,25 +126,46 @@ struct NoteDetailView: View {
     }
 
     private func seal() {
-        note.state = .sealed
-        try? services.noteRepository.save(note)
-        Task { await reload() }
+        var sealed = note
+        sealed.state = .sealed
+        store(sealed)
     }
 
+    /// Goes through `edited`, like the editor, so a move makes a new version on both paths.
     private func move(to category: Category) {
         guard category.id != note.categoryID else { return }
-        note.categoryID = category.id
-        try? services.noteRepository.save(note)
-        Task { await reload() }
+        store(note.edited(title: note.title, body: note.body, categoryID: category.id))
+    }
+
+    /// The screen shows the change only once it is stored.
+    private func store(_ changed: Note) {
+        do {
+            try services.noteRepository.save(changed)
+            note = changed
+        } catch {
+            actionFailed = true
+        }
     }
 
     private func deleteNote() {
-        try? services.noteRepository.delete(id: note.id)
-        dismiss()
+        do {
+            try services.noteRepository.delete(id: note.id)
+            dismiss()
+        } catch {
+            actionFailed = true
+        }
     }
 
+    /// Pops only when the note is gone. A failed read keeps what is on screen: nothing was lost,
+    /// the editor already stored the note or said it could not.
     private func reload() async {
-        guard let fresh = try? services.noteRepository.note(id: note.id) else {
+        let fresh: Note?
+        do {
+            fresh = try services.noteRepository.note(id: note.id)
+        } catch {
+            return
+        }
+        guard let fresh else {
             dismiss()
             return
         }

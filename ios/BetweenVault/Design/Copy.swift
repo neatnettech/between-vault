@@ -102,6 +102,7 @@ enum Copy {
     static let sealForPartner = "Seal for partner"
     static let sealedNotesWait = "Sealed notes wait in Exchange until you send them."
     static let moreActions = "More actions"
+    static let moveToCategory = "Move to category"
     static let deleteNote = "Delete note"
 
     static func newNoteIn(_ category: String) -> String {
@@ -109,6 +110,7 @@ enum Copy {
     }
 
     static let deleteNoteMessage = "It is removed from this iPhone. Your partner's copy stays on their phone. Deleting is never sent."
+    static let deleteNeverSentMessage = "It is removed from this iPhone. It was never sent, so your partner has no copy."
 
     static func deleteNoteTitle(_ title: String) -> String {
         "Delete \"\(title)\"?"
