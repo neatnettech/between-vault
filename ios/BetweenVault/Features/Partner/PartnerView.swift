@@ -10,12 +10,12 @@ struct PartnerView: View {
                 if let partner {
                     Section("Paired partner") {
                         VStack(alignment: .leading, spacing: Theme.Space.xs) {
-                            Text("Fingerprint")
+                            Text(Copy.fingerprint)
                                 .font(Theme.Typography.footnote)
                                 .foregroundStyle(Theme.Colors.secondary)
                             FingerprintDisplay(fingerprint: partner.fingerprint)
                         }
-                        Text("Your partner can recover your vault. This is by design.")
+                        Text(Copy.partnerCanRecover)
                             .font(Theme.Typography.footnote)
                             .foregroundStyle(Theme.Colors.secondary)
                     }
@@ -24,10 +24,10 @@ struct PartnerView: View {
                     Section {
                         EmptyState(
                             systemImage: "person.2",
-                            headline: "No partner paired yet",
+                            headline: Copy.noPartnerPaired,
                             message: "Pairing lands with the exchange work."
                         )
-                        Button("Pair with partner") {
+                        Button(Copy.pairWithPartner) {
                             // Pairing flow lands with the exchange work item.
                         }
                         .buttonStyle(.vaultPrimary)
@@ -37,7 +37,7 @@ struct PartnerView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Theme.Colors.bg)
-            .navigationTitle("Partner")
+            .navigationTitle(Copy.tabPartner)
             .task {
                 partner = try? services.partnerRepository.partner()
             }

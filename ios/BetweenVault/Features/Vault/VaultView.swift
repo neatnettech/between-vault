@@ -37,7 +37,7 @@ struct VaultView: View {
                 .padding(.bottom, Theme.Space.md)
             }
             .background(Theme.Colors.bg)
-            .navigationTitle("Vault")
+            .navigationTitle(Copy.tabVault)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -45,16 +45,16 @@ struct VaultView: View {
                     } label: {
                         Image(systemName: "lock")
                     }
-                    .accessibilityLabel("Lock now")
+                    .accessibilityLabel(Copy.lockNow)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button("Edit") { managingCategories = true }
+                    Button(Copy.edit) { managingCategories = true }
                     Button {
                         composingNote = true
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel("New note")
+                    .accessibilityLabel(Copy.newNote)
                 }
             }
             .sheet(isPresented: $managingCategories, onDismiss: {
@@ -80,23 +80,23 @@ struct VaultView: View {
 
     private var firstRunPrompt: some View {
         VStack(alignment: .leading, spacing: Theme.Space.xs) {
-            Text("Start with Emergency")
+            Text(Copy.startWithEmergency)
                 .font(Theme.Typography.title3)
                 .foregroundStyle(Theme.Colors.text)
-            Text("If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are.")
+            Text(Copy.emergencyPrompt)
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.secondary)
             if let emergency = snapshot.categories.first(where: { $0.builtInKey == .emergency }) {
                 NavigationLink {
                     NotesView(category: emergency, filter: filter)
                 } label: {
-                    Text("Write the first note")
+                    Text(Copy.writeTheFirstNote)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.vaultPrimary)
                 .padding(.top, Theme.Space.xs)
             }
-            Text("Six starter categories are created with the vault. Emergency and Other always exist, so the vault is never without a category.")
+            Text(Copy.starterCategoriesNote)
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.tertiary)
                 .padding(.top, Theme.Space.xxs)
@@ -108,7 +108,7 @@ struct VaultView: View {
     private var filterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Space.xs) {
-                FilterChip(title: "All", systemImage: "square.stack.3d.up", isSelected: filter == nil) {
+                FilterChip(title: Copy.filterAll, systemImage: "square.stack.3d.up", isSelected: filter == nil) {
                     filter = nil
                     Task { await load() }
                 }
@@ -146,7 +146,7 @@ struct VaultView: View {
                         name: emergency.name,
                         count: snapshot.counts[emergency.id] ?? 0,
                         symbol: emergency.symbol,
-                        subtitle: "What your partner needs if something happens"
+                        subtitle: Copy.emergencyTileSubtitle
                     )
                 }
                 .buttonStyle(.plain)
@@ -169,7 +169,7 @@ struct VaultView: View {
                 } label: {
                     HStack(spacing: Theme.Space.xs) {
                         Image(systemName: "plus")
-                        Text("New category")
+                        Text(Copy.newCategory)
                             .font(Theme.Typography.subheadline.weight(.semibold))
                     }
                     .foregroundStyle(Theme.Colors.accent)
@@ -189,7 +189,7 @@ struct VaultView: View {
         HStack(spacing: Theme.Space.xs) {
             Image(systemName: "cloud.slash")
                 .imageScale(.small)
-            Text("Stored locally on this iPhone. Not in any cloud.")
+            Text(Copy.localOnlyFooter)
                 .font(Theme.Typography.footnote)
         }
         .font(Theme.Typography.footnote)

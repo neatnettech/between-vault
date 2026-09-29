@@ -20,9 +20,9 @@ struct BetweenVaultApp: App {
                         .modelContainer(services.container)
                 } else {
                     ContentUnavailableView(
-                        "Vault unavailable",
+                        Copy.vaultUnavailable,
                         systemImage: "exclamationmark.triangle",
-                        description: Text("The local store could not be opened. Your data is safe, but the app cannot start.")
+                        description: Text(Copy.storeCouldNotOpen)
                     )
                 }
             }

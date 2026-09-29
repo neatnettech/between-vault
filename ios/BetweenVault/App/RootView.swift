@@ -6,19 +6,19 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $tab) {
             VaultView()
-                .tabItem { Label("Vault", systemImage: "tray.full") }
+                .tabItem { Label(Copy.tabVault, systemImage: "tray.full") }
                 .tag(AppTab.vault)
 
             ExchangeView()
-                .tabItem { Label("Exchange", systemImage: "arrow.left.arrow.right") }
+                .tabItem { Label(Copy.tabExchange, systemImage: "arrow.left.arrow.right") }
                 .tag(AppTab.exchange)
 
             PartnerView()
-                .tabItem { Label("Partner", systemImage: "person.2") }
+                .tabItem { Label(Copy.tabPartner, systemImage: "person.2") }
                 .tag(AppTab.partner)
 
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tabItem { Label(Copy.tabSettings, systemImage: "gearshape") }
                 .tag(AppTab.settings)
         }
         .tint(Theme.Colors.accent)
