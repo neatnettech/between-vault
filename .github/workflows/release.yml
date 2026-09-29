@@ -71,6 +71,7 @@ jobs:
             -project BetweenVault.xcodeproj \
             -scheme BetweenVault \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination-timeout 180 \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions
 
