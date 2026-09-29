@@ -5,6 +5,7 @@ import SwiftUI
 /// category moves its notes to Other, no notes are deleted.
 struct CategoryManagementView: View {
     @Environment(AppServices.self) private var services
+    @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var categories: [Category] = []
     @State private var counts: [UUID: Int] = [:]
@@ -84,6 +85,7 @@ struct CategoryManagementView: View {
                 }
             }
         }
+        .privacyCover(lockManager)
     }
 
     private func row(for category: Category) -> some View {

@@ -27,11 +27,7 @@ struct BetweenVaultApp: App {
                 }
             }
             .environment(lockManager)
-            .overlay {
-                if lockManager.isLocked {
-                    PrivacyOverlayView(lockManager: lockManager)
-                }
-            }
+            .privacyCover(lockManager)
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active {
