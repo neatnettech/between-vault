@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 
 /// Handoff A3 and Part D item 2: one strings file, English only, centralized for future
 /// localization. Every user facing literal lives here, including VoiceOver labels and the
@@ -178,8 +179,25 @@ enum Copy {
 
     // MARK: Lock
 
+    /// The wordmark. The handoff keeps it trivially changeable, so it lives in one place.
+    static let productName = "Between Vault"
     static let locked = "Locked"
     static let unlockWithFaceID = "Unlock with Face ID"
+    static let unlockWithTouchID = "Unlock with Touch ID"
+    static let faceID = "Face ID"
+    static let touchID = "Touch ID"
+    static let openSettings = "Open Settings"
+
+    /// Why biometrics cannot open the vault right now, and what fixes it. Until the vault
+    /// passcode (2.3) there is no other way in.
+    static func biometryBlocked(_ code: LAError.Code, name: String) -> String? {
+        switch code {
+        case .biometryNotAvailable: "\(name) is turned off for \(productName). Turn it on in Settings to open the vault."
+        case .biometryNotEnrolled, .passcodeNotSet: "Set up \(name) on this iPhone to open the vault."
+        case .biometryLockout: "\(name) is locked after too many tries. Unlock your iPhone with its passcode, then try again."
+        default: nil
+        }
+    }
     static let usePasscode = "Use passcode"
     static let vaultUnavailable = "Vault unavailable"
     /// States only what is known: after a failed open the app cannot tell whether the data is intact.

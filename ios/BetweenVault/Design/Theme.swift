@@ -32,6 +32,11 @@ private func dyn(_ light: UInt32, _ dark: UInt32) -> Color {
 enum Theme {
     enum Colors {
         static var bg: Color { dyn(0xFA_FAF8, 0x0F_1112) }
+        /// Board 1: the lock screen stays dark in both modes.
+        static var lockScreen: Color { dyn(0x0F_1A1A, 0x0F_1A1A) }
+        /// The vault mark's two strokes, as on board 1, the app icon and web/favicon.svg.
+        static var markTeal: Color { dyn(0x5C_C2B8, 0x5C_C2B8) }
+        static var markLight: Color { dyn(0xF4_F4F2, 0xF4_F4F2) }
         static var surface: Color { dyn(0xFF_FFFF, 0x1B_1E20) }
         static var text: Color { dyn(0x15_171A, 0xEC_EDEE) }
         static var secondary: Color { dyn(0x5B_6066, 0x9B_A1A7) }

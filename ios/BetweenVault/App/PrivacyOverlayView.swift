@@ -1,43 +1,83 @@
+import LocalAuthentication
 import SwiftUI
-import UIKit
 
-/// Full screen cover shown whenever the vault is locked, including the app switcher
-/// snapshot. Applied through `privacyCover` at the app root and at every sheet root.
+/// Board 1: the lock screen. Covers everything whenever the vault is locked, including the app
+/// switcher snapshot. Applied through `privacyCover` at the app root and at every sheet root.
 struct PrivacyOverlayView: View {
     let lockManager: LockManager
 
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.regularMaterial)
-                .ignoresSafeArea()
+    /// Every iPhone on iOS 17 has Face ID or Touch ID.
+    private var hasTouchID: Bool { lockManager.biometry == .touchID }
 
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
             VStack(spacing: Theme.Space.md) {
-                Image(systemName: "lock.fill")
-                    .font(Theme.Typography.largeTitle)
-                    .foregroundStyle(Theme.Colors.accent)
-                Text(Copy.locked)
-                    .font(Theme.Typography.title3)
+                VaultMark()
+                Text(Copy.productName)
+                    .font(.system(.title2, design: .serif).weight(.semibold))
+                    .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.Colors.text)
-                Button(Copy.unlockWithFaceID) {
-                    Task { await unlock() }
-                }
-                .buttonStyle(.vaultPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                Text(Copy.locked)
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.secondary)
             }
-            .padding(Theme.Space.lg)
-            .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-            .padding(Theme.Space.lg)
+            Spacer()
+            if let blocked = lockManager.blocked,
+               let reason = Copy.biometryBlocked(blocked, name: hasTouchID ? Copy.touchID : Copy.faceID) {
+                VStack(spacing: Theme.Space.xs) {
+                    Text(reason)
+                    // Only this case is fixed on the app's own Settings page.
+                    if blocked == .biometryNotAvailable, let settings = URL(string: UIApplication.openSettingsURLString) {
+                        Link(Copy.openSettings, destination: settings)
+                    }
+                }
+                .font(Theme.Typography.footnote)
+                .foregroundStyle(Theme.Colors.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, Theme.Space.md)
+            }
+            Button {
+                Task { await lockManager.unlock() }
+            } label: {
+                Label(
+                    hasTouchID ? Copy.unlockWithTouchID : Copy.unlockWithFaceID,
+                    systemImage: hasTouchID ? "touchid" : "faceid"
+                )
+                .multilineTextAlignment(.center)
+            }
+            .buttonStyle(.vaultPrimary)
         }
+        .padding(.horizontal, Theme.Space.lg)
+        .padding(.bottom, Theme.Space.xxl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.Colors.lockScreen.ignoresSafeArea())
+        // The board draws the lock screen dark in both modes. A preference, not an environment
+        // value, so it reaches the presentation too and the status bar turns light in Light mode.
+        .preferredColorScheme(.dark)
         .accessibilityElement(children: .contain)
         // Modal, so VoiceOver cannot swipe past the lock into the vault drawn underneath.
         .accessibilityAddTraits(.isModal)
     }
+}
 
-    private func unlock() async {
-        await lockManager.unlock()
-        if !lockManager.isLocked {
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+/// Board 1 and the icon concept: two interlocking rounded rectangles, the couple and the space
+/// they share. The board's 1024 point artwork scaled to 72.
+private struct VaultMark: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Theme.Colors.markTeal, lineWidth: 4)
+                .frame(width: 24, height: 31)
+                .offset(x: -7.7)
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Theme.Colors.markLight, lineWidth: 4)
+                .frame(width: 24, height: 31)
+                .offset(x: 7.7)
         }
+        .frame(width: 72, height: 72)
+        .accessibilityHidden(true)
     }
 }
 
