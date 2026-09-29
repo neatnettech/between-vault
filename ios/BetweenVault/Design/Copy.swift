@@ -51,15 +51,37 @@ enum Copy {
     static let cancel = "Cancel"
     static let delete = "Delete"
     static let name = "Name"
-    static let categoryChangesStayLocal = "Category changes stay on this iPhone; your partner sees the category only on notes you send."
+    static let builtInsCannotBeDeleted = "Emergency and Other can be renamed and moved, not deleted."
+    static let categoriesFooter = "Tap a name to rename it. \(builtInsCannotBeDeleted) Category changes stay on this iPhone; your partner sees the category only on notes you send."
+    static let deleteCategoryFallback = "Delete category?"
 
     static func deleteCategoryTitle(_ name: String) -> String {
         "Delete \"\(name)\"?"
     }
 
-    static func deleteCategoryMessage(_ count: Int) -> String {
-        "Its \(count) notes move to Other. No notes are deleted."
+    /// `destination` is Other under its current name: it can be renamed, and notes follow the key.
+    static func deleteCategoryMessage(_ count: Int, movingTo destination: String) -> String {
+        switch count {
+        case 0: "It has no notes."
+        case 1: "Its 1 note moves to \(destination). No notes are deleted."
+        default: "Its \(count) notes move to \(destination). No notes are deleted."
+        }
     }
+
+    static func categoryFailure(_ error: any Error) -> String {
+        switch error as? CategoryError {
+        case .builtInCannotBeDeleted: builtInsCannotBeDeleted
+        case .notFound: "This category no longer exists."
+        case .otherCategoryMissing: "Other is missing, so its notes would have nowhere to go. Nothing was deleted."
+        case nil: changeNotSaved
+        }
+    }
+
+    // MARK: Failures
+
+    static let notSaved = "Not saved"
+    static let ok = "OK"
+    static let changeNotSaved = "The change could not be saved. Nothing was changed."
 
     // MARK: Notes
 

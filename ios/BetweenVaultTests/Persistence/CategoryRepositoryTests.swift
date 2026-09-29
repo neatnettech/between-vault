@@ -173,7 +173,8 @@ struct CategoryRepositoryTests {
 
     // MARK: - Add, rename, reorder
 
-    @Test func addingAppendsAfterTheLastCategory() throws {
+    /// Board 3b: a new category sits above Other, which stays the catch all at the end.
+    @Test func addingPlacesANewCategoryAboveOther() throws {
         let setup = try makeRepository()
         let repository = setup.repository
         try repository.seedIfNeeded()
@@ -182,10 +183,22 @@ struct CategoryRepositoryTests {
 
         #expect(car.isBuiltIn == false)
         #expect(car.symbol == CategoryRecord.defaultSymbol)
-        let categories = try repository.categories()
-        #expect(categories.last?.id == car.id)
-        #expect(categories.last?.name == "Car")
-        #expect(categories.last?.sort == 6)
+        let names = try repository.categories().map(\.name)
+        #expect(names == ["Emergency", "Home", "Documents", "Finance", "Personal", "Car", "Other"])
+    }
+
+    /// Once the user has moved Other off the end, a new category simply goes last.
+    @Test func addingAppendsWhenOtherIsNotLast() throws {
+        let setup = try makeRepository()
+        let repository = setup.repository
+        try repository.seedIfNeeded()
+        var ids = try repository.categories().map(\.id)
+        ids.insert(ids.removeLast(), at: 0)
+        try repository.reorder(ids)
+
+        _ = try repository.add(name: "Car")
+
+        #expect(try repository.categories().map(\.name).suffix(2) == ["Personal", "Car"])
     }
 
     @Test func renamingKeepsTheIconAndTheBuiltInKey() throws {
