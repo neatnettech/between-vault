@@ -25,13 +25,24 @@ enum Copy {
     static let sealedVoiceOver = "State: Sealed. Ready to send to your partner."
     static let sharedChangedVoiceOver = "State: Shared. Changed since you sent it."
 
+    // MARK: Dates
+
+    /// The compact ladder on note rows (boards 4 and U1).
+    static let justNow = "Just now"
+    static func minutesAgo(_ count: Int) -> String { "\(count)m ago" }
+    static func hoursAgo(_ count: Int) -> String { "\(count)h ago" }
+    static func daysAgo(_ count: Int) -> String { "\(count)d ago" }
+    static func weeksAgo(_ count: Int) -> String { "\(count)w ago" }
+
     // MARK: Vault home
 
     static let startWithEmergency = "Start with Emergency"
     static let emergencyPrompt = "If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are."
     static let writeTheFirstNote = "Write the first note"
     static let starterCategoriesNote = "Six starter categories are created with the vault. Emergency and Other always exist, so the vault is never without a category."
-    static let localOnlyFooter = "Stored locally on this iPhone. Not in any cloud."
+    /// True for iCloud Backup users too: a device backup may hold the encrypted store, the app
+    /// itself never uploads anything (spec 24).
+    static let localOnlyFooter = "Stored on this iPhone. This app never uploads it."
     static let filterAll = "All"
     static let newCategory = "New category"
     static let lockNow = "Lock now"
@@ -160,7 +171,9 @@ enum Copy {
     static let fingerprint = "Fingerprint"
     static let partnerCanRecover = "Your partner can recover your vault. This is by design."
     static let unpairPartner = "Unpair partner"
-    static let noPartnerPaired = "No partner paired yet."
+    static let noPartnerPaired = "No partner paired yet"
+    static let pairedPartner = "Paired partner"
+    static let pairingLandsLater = "Pairing lands with the exchange work."
     static let pairWithPartner = "Pair with partner"
 
     // MARK: Lock
@@ -169,7 +182,9 @@ enum Copy {
     static let unlockWithFaceID = "Unlock with Face ID"
     static let usePasscode = "Use passcode"
     static let vaultUnavailable = "Vault unavailable"
-    static let storeCouldNotOpen = "The local store could not be opened. Your data is safe, but the app cannot start."
+    /// States only what is known: after a failed open the app cannot tell whether the data is intact.
+    static let storeCouldNotOpen = "The local store could not be opened, so the app cannot start. Do not delete the app."
+    static let unlockReason = "Unlock your vault."
 
     // MARK: Settings
 
@@ -183,6 +198,7 @@ enum Copy {
     static let data = "Data"
     static let exportBackup = "Export backup"
     static let attachmentsUnlock = "Attachments unlock"
+    static let comingIn11 = "1.1"
     static let about = "About"
     static let version = "Version"
     static let collectsNothing = "This app collects nothing and has no server to send it to."

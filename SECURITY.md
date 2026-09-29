@@ -50,8 +50,10 @@ These are documented design decisions, not vulnerabilities:
 
 * **Your partner can recover your vault.** Pairing grants that by design. It is
   stated plainly in the app and on the website.
-* **No cloud backup.** Lose both phones without a backup export and the data is
-  gone. There is no server to recover it from and no account to reset.
+* **No cloud backup.** The app never uploads your vault. An iPhone backup can
+  hold the encrypted store but not the vault key, so on its own it cannot be
+  opened. Lose both phones without a backup export and the data is gone. There
+  is no server to recover it from and no account to reset.
 * **A compromised device.** If iOS itself is compromised, or the device is
   jailbroken, the vault key is reachable once the device is unlocked.
 

@@ -12,8 +12,9 @@ struct VaultView: View {
     /// Categories, per category counts and the unfiltered total, read in one pass so the two halves
     /// of the screen can never disagree about the same vault.
     ///
-    /// ponytail: refreshed by hand from `.task` and the filter chips. Once 1.7 and 1.8 add mutation
-    /// sites, move this behind an observed model rather than adding a `load()` call per site.
+    /// ponytail: refreshed by hand: `.task` reruns when a pushed screen pops, the filter chips
+    /// reload, and each sheet reloads on dismiss. A new sheet that mutates needs its own onDismiss,
+    /// and a change from outside the view tree (the 5.x import) needs an observed model instead.
     private struct Snapshot {
         var categories: [Category] = []
         var counts: [UUID: Int] = [:]
@@ -189,7 +190,7 @@ struct VaultView: View {
 
     private var localOnlyFooter: some View {
         HStack(spacing: Theme.Space.xs) {
-            Image(systemName: "cloud.slash")
+            Image(systemName: "icloud.slash")
                 .imageScale(.small)
             Text(Copy.localOnlyFooter)
                 .font(Theme.Typography.footnote)

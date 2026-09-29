@@ -11,7 +11,7 @@ struct ComponentsTests {
     }
 
     @Test func timestampCompactLadder() {
-        #expect(NoteRow.timestampString(for: now.addingTimeInterval(-30), now: now) == "now")
+        #expect(NoteRow.timestampString(for: now.addingTimeInterval(-30), now: now) == "Just now")
         #expect(NoteRow.timestampString(for: now.addingTimeInterval(-60 * 42), now: now) == "42m ago")
         #expect(NoteRow.timestampString(for: now.addingTimeInterval(-3_600 * 5), now: now) == "5h ago")
         #expect(NoteRow.timestampString(for: ago(days: 2), now: now) == "2d ago")
