@@ -1,6 +1,7 @@
 import Foundation
 import LocalAuthentication
 import Observation
+import SwiftUI
 import UIKit
 
 @MainActor
@@ -15,6 +16,9 @@ final class LockManager {
     private(set) var blocked: LAError.Code?
     /// The enrolled faces or fingers changed since the vault passcode last opened the vault.
     private(set) var biometryChanged = false
+    /// True at launch, so opening the app counts as a return.
+    @ObservationIgnored private var promptOnActive = true
+
     /// Set while the biometric prompt is up, so the app root and a sheet's cover never prompt twice.
     private var isAuthenticating = false
 
@@ -127,6 +131,26 @@ final class LockManager {
 
     func lock() {
         isLocked = true
+    }
+
+    /// Spec 21: open the app, Face ID, unlocked. Launch and every return from the background ask
+    /// once. An inactive blip (the Face ID sheet itself, Control Center) and Lock now do not, so a
+    /// cancelled prompt never loops and Lock now stays locked. Spec 22: anything but active locks.
+    /// Returns whether to ask for biometrics now. Before onboarding nothing is guarded, so nothing
+    /// asks; the pending ask waits for the next return, which sets it again anyway.
+    func sceneChanged(to phase: ScenePhase, guarded: Bool) -> Bool {
+        switch phase {
+        case .active:
+            guard guarded, promptOnActive else { return false }
+            promptOnActive = false
+            return true
+        case .background:
+            promptOnActive = true
+            lock()
+        default:
+            lock()
+        }
+        return false
     }
 
     /// Row 2.5: any touch or keystroke while open.
