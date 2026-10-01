@@ -11,19 +11,14 @@ struct BetweenVaultApp: App {
     @State private var promptOnActive = true
     @Environment(\.scenePhase) private var scenePhase
 
-    /// Notes from before onboarding existed (rc.1), or a flag lost in a restore. The flag alone
-    /// must never take the lock off a vault that holds something. Unknown counts as holding.
-    private let vaultHasNotes: Bool
-
     init() {
-        let services = try? AppServices()
-        _services = State(initialValue: services)
-        vaultHasNotes = (try? services?.noteRepository.noteCount()).flatMap { $0 } != 0
+        _services = State(initialValue: try? AppServices())
     }
 
     /// The cover and the launch prompt apply once the vault exists, and before onboarding too when
-    /// it already holds notes: then Face ID opens onboarding, and onboarding sets the passcode.
-    private var guarded: Bool { onboarded || vaultHasNotes }
+    /// it already holds notes (rc.1, a flag lost in a restore): the flag alone must never take the
+    /// lock off a vault that holds something. Then Face ID opens onboarding, which sets the passcode.
+    private var guarded: Bool { onboarded || services?.guardsOnboarding ?? true }
 
     var body: some Scene {
         WindowGroup {
@@ -43,6 +38,8 @@ struct BetweenVaultApp: App {
                 }
             }
             .environment(lockManager)
+            // Optional, for the lock screen's reset (2.4): it is drawn even when the store failed.
+            .environment(services)
             .privacyCover(lockManager, enabled: guarded)
         }
         // Spec 21: open the app, Face ID, unlocked. Launch and every return from the background

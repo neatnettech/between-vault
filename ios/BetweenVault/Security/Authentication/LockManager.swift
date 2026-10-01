@@ -131,6 +131,19 @@ final class LockManager {
         isLocked = false
     }
 
+    /// Row 2.4, after the vault is erased: every setting and the attempt count start over, and
+    /// onboarding takes the screen. The lock stays on: a sheet being dismissed must not show its
+    /// note on the way out. Onboarding draws uncovered and ends with `openAfterSetup()`.
+    func forget() {
+        for key in [Self.onboardedKey, Keys.biometrics, Keys.autoLock, Keys.failures, Keys.waitUntil, Keys.domainState] {
+            defaults.removeObject(forKey: key)
+        }
+        biometricsEnabled = true
+        autoLockMinutes = 1
+        biometryChanged = false
+        blocked = nil
+    }
+
     /// Trusts the faces or fingers enrolled right now. Only after the vault passcode was entered.
     private func recordEnrollment() {
         let context = enrollmentContext()

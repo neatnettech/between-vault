@@ -12,4 +12,9 @@ enum Identity {
         defaults.set(fresh, forKey: deviceIDKey)
         return fresh
     }
+
+    /// A reset makes this installation a new phone: the next read mints a fresh ID.
+    static func reset(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: deviceIDKey)
+    }
 }

@@ -188,4 +188,27 @@ struct LockManagerTests {
         lock.lock()
         #expect(lock.unlock(passcode: "000000") == .wrong(triesLeft: 4))
     }
+
+    /// Row 2.4: after the vault is erased, every setting and the attempt count start over, the
+    /// lock comes off and onboarding runs again.
+    @Test func forgetStartsEverythingOver() {
+        let clock = Clock()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let lock = makeOnboardedLock(defaults, clock: clock, enrolled: Data("owner".utf8))
+        lock.biometricsEnabled = false
+        lock.autoLockMinutes = 15
+        for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
+
+        lock.forget()
+
+        #expect(lock.isLocked, "a dismissing sheet stays covered")
+        #expect(lock.waitingUntil == nil)
+        #expect(lock.biometricsEnabled)
+        #expect(lock.autoLockMinutes == 1)
+        #expect(!defaults.bool(forKey: LockManager.onboardedKey))
+        let relaunched = makeLock(clock, defaults: defaults)
+        #expect(relaunched.biometricsEnabled)
+        relaunched.lock()
+        #expect(relaunched.unlock(passcode: "000000") == .wrong(triesLeft: 4))
+    }
 }

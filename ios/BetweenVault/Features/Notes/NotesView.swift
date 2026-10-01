@@ -6,6 +6,7 @@ struct NotesView: View {
     @Environment(AppServices.self) private var services
     @State private var all: [Note] = []
     @State private var loadFailed = false
+    @State private var awaitingRestore = false
     @State private var composing = false
 
     private var visible: [Note] {
@@ -17,9 +18,9 @@ struct NotesView: View {
         List {
             if loadFailed {
                 EmptyState(
-                    systemImage: "exclamationmark.triangle",
-                    headline: Copy.notesCouldNotOpen,
-                    message: Copy.nothingWasDeleted
+                    systemImage: awaitingRestore ? "lock" : "exclamationmark.triangle",
+                    headline: awaitingRestore ? Copy.awaitingRestore : Copy.notesCouldNotOpen,
+                    message: awaitingRestore ? Copy.awaitingRestoreMessage : Copy.nothingWasDeleted
                 )
                 .listRowBackground(Theme.Colors.bg)
             } else if visible.isEmpty {
@@ -72,6 +73,7 @@ struct NotesView: View {
         } catch {
             all = []
             loadFailed = true
+            awaitingRestore = error as? VaultKeyError == .awaitingRestore
         }
     }
 
