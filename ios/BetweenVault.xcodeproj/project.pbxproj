@@ -41,6 +41,7 @@
 		A2262DF3B86DE199E146CC86 /* Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95FEC752607E863464D22B /* Passcode.swift */; };
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
 		BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000683975CBD7601FC489A79 /* NoteDetailView.swift */; };
+		C26D963F54F09212D4BBA778 /* ClipboardGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEC9EF0CEEB8E6A69E499BD /* ClipboardGuard.swift */; };
 		C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47A3E24A32707DF8716A835 /* VaultView.swift */; };
 		C850845B06B4ED5B7570E0D2 /* PackageSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69EC1B6E9D410C2F67EF2744 /* PackageSerializer.swift */; };
 		CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C45078893A75B5576E623BE /* CategoryManagementView.swift */; };
@@ -53,6 +54,7 @@
 		E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A47012B8F91AB4BD7554FCB /* Category.swift */; };
 		E8A141490102176A2745B9C9 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */; };
 		F680C837F9E19F1F4E8CC174 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DB9ECF6FC12466EAB06444 /* OnboardingView.swift */; };
+		FC2118C8E85C03332CA47EB3 /* ClipboardGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */; };
 		FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583549427BD529DFF90413C4 /* ExchangePackage.swift */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +74,7 @@
 		0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInCategory.swift; sourceTree = "<group>"; };
 		0DF110A4E469C0714B0C1727 /* VaultResetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultResetTests.swift; sourceTree = "<group>"; };
 		108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
+		13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardGuardTests.swift; sourceTree = "<group>"; };
 		1553B454DCDC33314C1A9B83 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
 		17BF8FDCD9DA6268D61EFA82 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		17D93BC6A2D9ED15380D3427 /* PackageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageTests.swift; sourceTree = "<group>"; };
@@ -83,6 +86,7 @@
 		3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
 		3C45078893A75B5576E623BE /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
 		4122C2060ACA4481A1C22926 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
+		4EEC9EF0CEEB8E6A69E499BD /* ClipboardGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardGuard.swift; sourceTree = "<group>"; };
 		4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepositoryTests.swift; sourceTree = "<group>"; };
 		583549427BD529DFF90413C4 /* ExchangePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangePackage.swift; sourceTree = "<group>"; };
 		5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyOverlayView.swift; sourceTree = "<group>"; };
@@ -150,6 +154,7 @@
 		28F06C5F60AE6D490A6F8A62 /* Security */ = {
 			isa = PBXGroup;
 			children = (
+				4EEC9EF0CEEB8E6A69E499BD /* ClipboardGuard.swift */,
 				76E70C4D7C532B5956BACD3E /* Authentication */,
 				5A370C6EFECD62122E2E1C57 /* Crypto */,
 				BBBF15B8B292AA168E41FE73 /* KeyManagement */,
@@ -417,6 +422,7 @@
 		FCECDF1B71BACF0FC254D9CD /* Security */ = {
 			isa = PBXGroup;
 			children = (
+				13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */,
 				108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */,
 				A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */,
 				F47C57382C6B84F187B1F582 /* PasscodeTests.swift */,
@@ -519,6 +525,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */,
+				FC2118C8E85C03332CA47EB3 /* ClipboardGuardTests.swift in Sources */,
 				215BC30B4A0EA02F20E8BC77 /* ComponentsTests.swift in Sources */,
 				8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */,
 				D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */,
@@ -541,6 +548,7 @@
 				E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */,
 				CA05F4850FC8E4CD468926D8 /* CategoryManagementView.swift in Sources */,
 				E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */,
+				C26D963F54F09212D4BBA778 /* ClipboardGuard.swift in Sources */,
 				16AF48E3713973E49987F962 /* Components.swift in Sources */,
 				02409F9A40BE4D676A3638EF /* Copy.swift in Sources */,
 				5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */,
