@@ -6,7 +6,11 @@ import UIKit
 @MainActor
 @Observable
 final class LockManager {
-    private(set) var isLocked = true
+    private(set) var isLocked = true {
+        didSet { if !isLocked { lastActivity = now() } }
+    }
+    /// The last touch or keystroke, for auto lock (row 2.5). Not observed: it changes constantly.
+    @ObservationIgnored private var lastActivity = Date.distantPast
     /// Why biometrics cannot open the vault right now, for the lock screen. `nil` when they can.
     private(set) var blocked: LAError.Code?
     /// The enrolled faces or fingers changed since the vault passcode last opened the vault.
@@ -18,7 +22,7 @@ final class LockManager {
     var biometricsEnabled: Bool {
         didSet { defaults.set(biometricsEnabled, forKey: Keys.biometrics) }
     }
-    /// Board 2d and Settings. Stored here; row 2.5 enforces it.
+    /// Board 2d and Settings. Enforced by `lockIfIdle()`.
     var autoLockMinutes: Int {
         didSet { defaults.set(autoLockMinutes, forKey: Keys.autoLock) }
     }
@@ -123,6 +127,17 @@ final class LockManager {
 
     func lock() {
         isLocked = true
+    }
+
+    /// Row 2.5: any touch or keystroke while open.
+    func noteActivity() {
+        lastActivity = now()
+    }
+
+    /// Row 2.5, spec 22: locks once the vault sat open and untouched for the auto lock time.
+    func lockIfIdle() {
+        guard !isLocked, now().timeIntervalSince(lastActivity) >= TimeInterval(autoLockMinutes * 60) else { return }
+        lock()
     }
 
     /// The end of onboarding: the owner just chose the passcode, so asking for it again is noise.

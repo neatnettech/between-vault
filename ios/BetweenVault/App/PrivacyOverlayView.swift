@@ -2,8 +2,7 @@ import LocalAuthentication
 import SwiftUI
 
 /// Boards 1, 1a and 1b: the lock screen, vault passcode entry and the wait after too many tries.
-/// Covers everything whenever the vault is locked, including the app switcher snapshot. Applied
-/// through `privacyCover` at the app root and at every sheet root.
+/// Drawn in the cover window (row 2.5), above everything the app presents.
 struct PrivacyOverlayView: View {
     let lockManager: LockManager
 
@@ -366,17 +365,13 @@ private struct VaultMark: View {
     }
 }
 
-extension View {
-    /// A sheet is presented above the root view, so the root overlay cannot cover it. Every sheet
-    /// root applies this too, which keeps an open draft out of the app switcher snapshot without
-    /// dismissing it.
-    ///
-    /// ponytail: one cover per presentation root; alerts and dialogs still float above. Row 2.5
-    /// moves the cover into its own window to catch everything. Until then the root and an open
-    /// sheet each hold their own passcode screen; the sheet's is the one on top.
-    func privacyCover(_ lockManager: LockManager, enabled: Bool = true) -> some View {
-        overlay {
-            if enabled, lockManager.isLocked {
+extension PrivacyOverlayView {
+    /// The cover window's root. A fresh lock screen per lock, so it opens on board 1 every time.
+    struct Cover: View {
+        let lockManager: LockManager
+
+        var body: some View {
+            if lockManager.isLocked {
                 PrivacyOverlayView(lockManager: lockManager)
             }
         }

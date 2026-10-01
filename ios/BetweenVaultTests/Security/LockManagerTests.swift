@@ -211,4 +211,35 @@ struct LockManagerTests {
         relaunched.lock()
         #expect(relaunched.unlock(passcode: "000000") == .wrong(triesLeft: 4))
     }
+
+    /// Row 2.5: open and untouched for the auto lock time locks; any touch or keystroke resets it.
+    @Test func autoLockLocksOnlyAfterTheIdleTime() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        lock.autoLockMinutes = 5
+        #expect(lock.unlock(passcode: "123456") == .opened)
+
+        clock.now.addTimeInterval(4 * 60)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked)
+
+        lock.noteActivity()
+        clock.now.addTimeInterval(4 * 60)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked, "activity starts the wait over")
+
+        clock.now.addTimeInterval(60)
+        lock.lockIfIdle()
+        #expect(lock.isLocked)
+    }
+
+    /// Opening counts as activity, so a vault left open long ago does not lock the moment it opens.
+    @Test func openingStartsTheIdleTimeOver() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        clock.now.addTimeInterval(60 * 60)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked)
+    }
 }

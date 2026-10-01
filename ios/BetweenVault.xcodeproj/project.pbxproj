@@ -23,6 +23,7 @@
 		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
 		4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28310679148BD0779616585A /* PromiseLineTests.swift */; };
 		4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F738238F6615CC5CC47F33E /* NoteEditorView.swift */; };
+		5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */; };
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4122C2060ACA4481A1C22926 /* ThemeTests.swift */; };
 		6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD283DBA80128A707436C5 /* LockManager.swift */; };
@@ -78,6 +79,7 @@
 		22E156D950FED97901EB412F /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
 		26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BetweenVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28310679148BD0779616585A /* PromiseLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromiseLineTests.swift; sourceTree = "<group>"; };
+		312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverWindow.swift; sourceTree = "<group>"; };
 		3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
 		3C45078893A75B5576E623BE /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
 		4122C2060ACA4481A1C22926 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 			children = (
 				E62B6562834B98DED89F64DA /* AppServices.swift */,
 				ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */,
+				312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */,
 				5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */,
 				D0E3AEA809ED556F3068F402 /* RootView.swift */,
 			);
@@ -540,6 +543,7 @@
 				E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */,
 				16AF48E3713973E49987F962 /* Components.swift in Sources */,
 				02409F9A40BE4D676A3638EF /* Copy.swift in Sources */,
+				5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */,
 				7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */,
 				19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */,
 				FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */,

@@ -109,7 +109,6 @@ struct CategoryManagementView: View {
                 Text(message)
             }
         }
-        .privacyCover(lockManager)
     }
 
     private func row(for category: Category) -> some View {

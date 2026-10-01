@@ -17,13 +17,23 @@ struct SettingsView: View {
             Form {
                 Section(Copy.security) {
                     @Bindable var lockManager = lockManager
+                    // Board 17: the first row, a teal action with a padlock.
+                    Button {
+                        lockManager.lock()
+                    } label: {
+                        Label(Copy.lockNow, systemImage: "lock")
+                            .font(Theme.Typography.body.weight(.semibold))
+                            .foregroundStyle(Theme.Colors.accent)
+                    }
                     Toggle(
                         lockManager.biometry == .touchID ? Copy.unlockWithTouchID : Copy.unlockWithFaceID,
                         isOn: $lockManager.biometricsEnabled
                     )
                     .tint(Theme.Colors.accent)
-                    // ponytail: shows the stored choice; the picker and enforcement land with 2.5.
-                    LabeledContent(Copy.autoLock, value: Copy.minutes(lockManager.autoLockMinutes))
+                    Picker(Copy.autoLock, selection: $lockManager.autoLockMinutes) {
+                        ForEach(LockManager.autoLockChoices, id: \.self) { Text(Copy.minutes($0)) }
+                    }
+                    .pickerStyle(.navigationLink)
                     LabeledContent(Copy.clearClipboard, value: Copy.after60s)
                 }
                 .listRowBackground(Theme.Colors.surface)
