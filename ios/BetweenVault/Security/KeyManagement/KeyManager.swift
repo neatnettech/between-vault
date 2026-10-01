@@ -48,6 +48,12 @@ enum KeyManager {
         guard status == errSecSuccess else { throw KeyError.keychainFailure(status) }
     }
 
+    /// Absent counts as deleted. Never call it on the vault key: that strands every stored note.
+    static func delete(_ account: String) throws {
+        let status = SecItemDelete(baseQuery(account) as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeyError.keychainFailure(status) }
+    }
+
     private static func baseQuery(_ account: String) -> [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword,

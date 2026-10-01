@@ -188,29 +188,76 @@ enum Copy {
     static let touchID = "Touch ID"
     static let openSettings = "Open Settings"
 
-    /// Why biometrics cannot open the vault right now, and what fixes it. Until the vault
-    /// passcode (2.3) there is no other way in.
+    /// Why biometrics cannot open the vault right now, and what fixes it. The vault passcode
+    /// always works, so each reason ends there.
     static func biometryBlocked(_ code: LAError.Code, name: String) -> String? {
         switch code {
-        case .biometryNotAvailable: "\(name) is turned off for \(productName). Turn it on in Settings to open the vault."
-        case .biometryNotEnrolled, .passcodeNotSet: "Set up \(name) on this iPhone to open the vault."
-        case .biometryLockout: "\(name) is locked after too many tries. Unlock your iPhone with its passcode, then try again."
+        case .biometryNotAvailable: "\(name) is turned off for \(productName). Turn it on in Settings, or use your vault passcode."
+        case .biometryNotEnrolled, .passcodeNotSet: "\(name) is not set up on this iPhone. Use your vault passcode."
+        case .biometryLockout: "\(name) is locked after too many tries. Use your vault passcode."
         default: nil
         }
     }
-    static let usePasscode = "Use passcode"
+    static func biometryChanged(name: String) -> String {
+        "\(name) changed on this iPhone. Enter your vault passcode once to use \(name) again."
+    }
+    static let useVaultPasscode = "Use vault passcode"
+    static let useFaceID = "Use Face ID"
+    static let useTouchID = "Use Touch ID"
+    static let enterVaultPasscode = "Enter vault passcode"
+    static func wrongPasscode(triesLeft: Int) -> String {
+        triesLeft == 1
+            ? "Wrong passcode. 1 try left before a wait."
+            : "Wrong passcode. \(triesLeft) tries left before a wait."
+    }
+    static let passcodeUnreadable = "The passcode could not be checked. Nothing was counted. Try again."
+    /// Board 1b. Rounded up, so it never promises less wait than there is.
+    static func tryAgainIn(_ seconds: TimeInterval) -> String {
+        let minutes = max(1, Int((seconds / 60).rounded(.up)))
+        return minutes == 1 ? "Try again in 1 minute" : "Try again in \(minutes) minutes"
+    }
+    static let waitBody = "Each wrong try after this makes the wait longer. Your iPhone passcode can't unlock the vault."
+    static func digitsEntered(_ count: Int) -> String { "\(count) of 6 digits entered" }
     static let vaultUnavailable = "Vault unavailable"
     /// States only what is known: after a failed open the app cannot tell whether the data is intact.
     static let storeCouldNotOpen = "The local store could not be opened, so the app cannot start. Do not delete the app."
     static let unlockReason = "Unlock your vault."
 
+    // MARK: Onboarding
+
+    /// Board 2a. The first two clauses of the web promise line; PromiseLineTests pins them.
+    static let promiseHero = "Private by default. Shared by choice."
+    static let promiseBody = "Everything you write stays on this iPhone. Nothing leaves it unless you decide to send it."
+    static let noCloudHero = "No cloud. No account."
+    static let noCloudBody = "There is no server and no sign up. Items reach your partner only as an encrypted file you hand over yourself, by AirDrop, Messages or Files."
+    static let backupHero = "Your data is yours. Your partner is your backup."
+    static let backupLimit = "If both phones are lost and there is no backup, the data is gone. We cannot restore it, because we never had it."
+    static let continueLabel = "Continue"
+    static let iUnderstand = "I understand"
+    static func page(_ index: Int, of count: Int) -> String { "Page \(index) of \(count)" }
+    static let back = "Back"
+    static let choosePasscode = "Choose a vault passcode"
+    static let choosePasscodeBody = "6 digits, different from your iPhone passcode. It unlocks the vault when Face ID doesn't."
+    static let choosePasscodeFootnote = "Forget it and you reset the vault, then restore it from your partner."
+    /// Not on board 2e: a second entry, so a typo cannot lock the owner out.
+    static let confirmPasscode = "Enter it again"
+    static let confirmPasscodeBody = "So a typo can't lock you out."
+    static let passcodesDidNotMatch = "The two entries didn't match. Choose a passcode again."
+    static let createVaultHero = "Create your vault"
+    static let createVaultBody = "Your vault is encrypted with a key that never leaves this iPhone."
+    static let vaultPasscode = "Vault passcode"
+    static let set = "Set"
+    static let createVaultFootnote = "Face ID is a shortcut. Your vault passcode always works. Your iPhone passcode never unlocks the vault."
+    static let createVault = "Create vault"
+    static let vaultNotCreated = "The vault passcode could not be saved. Nothing was created. Try again."
+
     // MARK: Settings
 
     static let security = "Security"
-    static let unlockWithFaceIDSetting = "Unlock with Face ID"
-    static let on = "On"
-    static let autoLock = "Auto-lock"
-    static let oneMinute = "1 minute"
+        static let autoLock = "Auto-lock"
+    /// Settings writes "1 minute" (board 17), onboarding "After 1 minute" (board 2d).
+    static func minutes(_ count: Int) -> String { count == 1 ? "1 minute" : "\(count) minutes" }
+    static func afterMinutes(_ count: Int) -> String { "After \(minutes(count))" }
     static let clearClipboard = "Clear clipboard"
     static let after60s = "After 60 s"
     static let data = "Data"

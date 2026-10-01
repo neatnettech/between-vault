@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(LockManager.self) private var lockManager
+
     /// Read from the bundle, which project.yml fills from MARKETING_VERSION and
     /// CURRENT_PROJECT_VERSION, so the screen follows every version bump.
     private var version: String {
@@ -14,8 +16,14 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section(Copy.security) {
-                    LabeledContent(Copy.unlockWithFaceIDSetting, value: Copy.on)
-                    LabeledContent(Copy.autoLock, value: Copy.oneMinute)
+                    @Bindable var lockManager = lockManager
+                    Toggle(
+                        lockManager.biometry == .touchID ? Copy.unlockWithTouchID : Copy.unlockWithFaceID,
+                        isOn: $lockManager.biometricsEnabled
+                    )
+                    .tint(Theme.Colors.accent)
+                    // ponytail: shows the stored choice; the picker and enforcement land with 2.5.
+                    LabeledContent(Copy.autoLock, value: Copy.minutes(lockManager.autoLockMinutes))
                     LabeledContent(Copy.clearClipboard, value: Copy.after60s)
                 }
                 .listRowBackground(Theme.Colors.surface)
