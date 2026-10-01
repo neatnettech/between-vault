@@ -35,10 +35,8 @@
 		89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */; };
 		8BAA54CCFDFC787DB04B3DE0 /* PartnerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C258A4C2403CD2DCC9BA155 /* PartnerRepository.swift */; };
 		8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */; };
-		98D8EEDB3E35750E8492E576 /* pre-tool-advisory-throttle.json in Resources */ = {isa = PBXBuildFile; fileRef = 08AF625F59455392848020F8 /* pre-tool-advisory-throttle.json */; };
 		99A75C7C8DC1BE88506C44C3 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */; };
 		A2262DF3B86DE199E146CC86 /* Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95FEC752607E863464D22B /* Passcode.swift */; };
-		A2A21615129C61F08FB9FBE5 /* pre-tool-advisory-throttle.json in Resources */ = {isa = PBXBuildFile; fileRef = B811E43346EFAACC10D524BD /* pre-tool-advisory-throttle.json */; };
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
 		BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000683975CBD7601FC489A79 /* NoteDetailView.swift */; };
 		C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47A3E24A32707DF8716A835 /* VaultView.swift */; };
@@ -69,7 +67,6 @@
 /* Begin PBXFileReference section */
 		000683975CBD7601FC489A79 /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		04DB9ECF6FC12466EAB06444 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		08AF625F59455392848020F8 /* pre-tool-advisory-throttle.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "pre-tool-advisory-throttle.json"; sourceTree = "<group>"; };
 		0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInCategory.swift; sourceTree = "<group>"; };
 		108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngineTests.swift; sourceTree = "<group>"; };
 		1553B454DCDC33314C1A9B83 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
@@ -97,7 +94,6 @@
 		A3D1A9BC6DD2621344C2F5F5 /* ExchangeLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeLogRepository.swift; sourceTree = "<group>"; };
 		A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManagerTests.swift; sourceTree = "<group>"; };
 		AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
-		B811E43346EFAACC10D524BD /* pre-tool-advisory-throttle.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "pre-tool-advisory-throttle.json"; sourceTree = "<group>"; };
 		C47A3E24A32707DF8716A835 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C67C3E039C7E5333270671E1 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
@@ -128,14 +124,6 @@
 			path = Validation;
 			sourceTree = "<group>";
 		};
-		097A63C181D053D4C28CB353 /* state */ = {
-			isa = PBXGroup;
-			children = (
-				21B0AC17B2E20769BF06DAB3 /* sessions */,
-			);
-			path = state;
-			sourceTree = "<group>";
-		};
 		16A6830FDF98C458F44E557D /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -143,14 +131,6 @@
 				26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		21B0AC17B2E20769BF06DAB3 /* sessions */ = {
-			isa = PBXGroup;
-			children = (
-				7872C6AD1444B7A2FB5CC2F9 /* 0e7bcfae-1a18-4542-8917-bdd7b33bdc84 */,
-			);
-			path = sessions;
 			sourceTree = "<group>";
 		};
 		26286EEFFA462CCBF164DF19 /* Design */ = {
@@ -163,22 +143,6 @@
 			path = Design;
 			sourceTree = "<group>";
 		};
-		27A6ED50663211EB85FEFAB1 /* sessions */ = {
-			isa = PBXGroup;
-			children = (
-				3B7A7B5155FDFBFD93FB9023 /* 0e7bcfae-1a18-4542-8917-bdd7b33bdc84 */,
-			);
-			path = sessions;
-			sourceTree = "<group>";
-		};
-		28E3E1701D041BDA957C5CE9 /* state */ = {
-			isa = PBXGroup;
-			children = (
-				27A6ED50663211EB85FEFAB1 /* sessions */,
-			);
-			path = state;
-			sourceTree = "<group>";
-		};
 		28F06C5F60AE6D490A6F8A62 /* Security */ = {
 			isa = PBXGroup;
 			children = (
@@ -187,14 +151,6 @@
 				BBBF15B8B292AA168E41FE73 /* KeyManagement */,
 			);
 			path = Security;
-			sourceTree = "<group>";
-		};
-		2B0BF1C60F9E521A466E7F94 /* .omc */ = {
-			isa = PBXGroup;
-			children = (
-				28E3E1701D041BDA957C5CE9 /* state */,
-			);
-			path = .omc;
 			sourceTree = "<group>";
 		};
 		2D83882EB499015DE8CE66EF /* Vault */ = {
@@ -209,21 +165,12 @@
 		315AF443EA2D386DEE491010 /* BetweenVaultTests */ = {
 			isa = PBXGroup;
 			children = (
-				C6283990FF83D43DEC4BD6E1 /* .omc */,
 				EDACE117F389F150D22C484B /* Design */,
 				6895E94800D601043265CAC0 /* Persistence */,
 				6268D7DE5483AD58B341B4EB /* Protocol */,
 				FCECDF1B71BACF0FC254D9CD /* Security */,
 			);
 			path = BetweenVaultTests;
-			sourceTree = "<group>";
-		};
-		3B7A7B5155FDFBFD93FB9023 /* 0e7bcfae-1a18-4542-8917-bdd7b33bdc84 */ = {
-			isa = PBXGroup;
-			children = (
-				08AF625F59455392848020F8 /* pre-tool-advisory-throttle.json */,
-			);
-			path = "0e7bcfae-1a18-4542-8917-bdd7b33bdc84";
 			sourceTree = "<group>";
 		};
 		48886F212F21C9AEBE510956 /* Features */ = {
@@ -309,14 +256,6 @@
 			path = Authentication;
 			sourceTree = "<group>";
 		};
-		7872C6AD1444B7A2FB5CC2F9 /* 0e7bcfae-1a18-4542-8917-bdd7b33bdc84 */ = {
-			isa = PBXGroup;
-			children = (
-				B811E43346EFAACC10D524BD /* pre-tool-advisory-throttle.json */,
-			);
-			path = "0e7bcfae-1a18-4542-8917-bdd7b33bdc84";
-			sourceTree = "<group>";
-		};
 		82993B657172813DDA75B034 /* Partner */ = {
 			isa = PBXGroup;
 			children = (
@@ -340,7 +279,6 @@
 				8F378B970C775E0AA86C1AC0 /* Assets.xcassets */,
 				F94297C58F2F7298CAA902D7 /* Info.plist */,
 				C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */,
-				2B0BF1C60F9E521A466E7F94 /* .omc */,
 				E2C812E8914E2D9D05075B55 /* App */,
 				26286EEFFA462CCBF164DF19 /* Design */,
 				A3A793979109D5BCBEABE30A /* Domain */,
@@ -404,14 +342,6 @@
 				1553B454DCDC33314C1A9B83 /* KeyManager.swift */,
 			);
 			path = KeyManagement;
-			sourceTree = "<group>";
-		};
-		C6283990FF83D43DEC4BD6E1 /* .omc */ = {
-			isa = PBXGroup;
-			children = (
-				097A63C181D053D4C28CB353 /* state */,
-			);
-			path = .omc;
 			sourceTree = "<group>";
 		};
 		C6C6FA1B158AEDD1729C043B /* Serialization */ = {
@@ -496,7 +426,6 @@
 			buildConfigurationList = F5ED13BA296B1353EBE8EEDC /* Build configuration list for PBXNativeTarget "BetweenVaultTests" */;
 			buildPhases = (
 				5FAF1A62300C8F11EB66AFD3 /* Sources */,
-				953B601B7B45D5602E9A79C8 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -573,15 +502,6 @@
 			files = (
 				A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */,
 				0644DBDA971BA5283CEAFF41 /* PrivacyInfo.xcprivacy in Resources */,
-				98D8EEDB3E35750E8492E576 /* pre-tool-advisory-throttle.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		953B601B7B45D5602E9A79C8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A2A21615129C61F08FB9FBE5 /* pre-tool-advisory-throttle.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
