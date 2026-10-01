@@ -19,7 +19,7 @@ struct VaultResetTests {
             id: UUID(), title: "Boiler", body: "Engineer", state: .private, categoryID: nil,
             version: 1, baseVersion: 0, partnerKnownVersion: 0, createdAt: .now, updatedAt: .now
         ))
-        try CategoryRepository(context: context).add(name: "Garden")
+        _ = try CategoryRepository(context: context).add(name: "Garden")
         context.insert(ExchangeLogRecord(exchangeID: "x1", directionRaw: "sent"))
         try context.save()
         return (context, container, notes)
