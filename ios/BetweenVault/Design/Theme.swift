@@ -37,6 +37,11 @@ enum Theme {
         /// The vault mark's two strokes, as on board 1, the app icon and web/favicon.svg.
         static var markTeal: Color { dyn(0x5C_C2B8, 0x5C_C2B8) }
         static var markLight: Color { dyn(0xF4_F4F2, 0xF4_F4F2) }
+        /// Boards 2e and 1a: the passcode keypad keys and the empty digit ring.
+        static var keypadKey: Color { dyn(0xE4_E6E7, 0x1E_2A2A) }
+        static var digitRing: Color { dyn(0x8E_9398, 0x9B_A1A7) }
+        /// Board 1a: the wrong passcode line, amber in the dark lock screen.
+        static var warning: Color { dyn(0x7A_4E00, 0xF2_C572) }
         static var surface: Color { dyn(0xFF_FFFF, 0x1B_1E20) }
         static var text: Color { dyn(0x15_171A, 0xEC_EDEE) }
         static var secondary: Color { dyn(0x5B_6066, 0x9B_A1A7) }

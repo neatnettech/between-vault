@@ -17,6 +17,8 @@ targets:
     platform: iOS
     sources:
       - path: BetweenVault
+        # Local tool state (gitignored) must never become an app resource.
+        excludes: ["**/.omc"]
     info:
       path: BetweenVault/Info.plist
       properties:
@@ -56,6 +58,7 @@ targets:
     platform: iOS
     sources:
       - path: BetweenVaultTests
+        excludes: ["**/.omc"]
     dependencies:
       - target: BetweenVault
     settings:

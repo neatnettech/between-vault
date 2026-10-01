@@ -357,6 +357,64 @@ struct Toast: View {
     }
 }
 
+// MARK: - Passcode entry
+
+/// Boards 2e and 1a: six digit dots over a 3 by 4 keypad. Light or dark follows the color scheme,
+/// so onboarding draws it light and the lock screen dark. Calls `onComplete` at the sixth digit;
+/// the owner of `digits` clears it.
+struct PasscodeEntry: View {
+    @Binding var digits: String
+    let onComplete: (String) -> Void
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 28), count: 3)
+
+    var body: some View {
+        VStack(spacing: Theme.Space.xl) {
+            HStack(spacing: 18) {
+                ForEach(0..<Passcode.length, id: \.self) { index in
+                    Circle()
+                        .fill(index < digits.count ? Theme.Colors.text : .clear)
+                        .overlay { Circle().stroke(index < digits.count ? .clear : Theme.Colors.digitRing, lineWidth: 1.5) }
+                        .frame(width: 14, height: 14)
+                }
+            }
+            .accessibilityElement()
+            .accessibilityLabel(Copy.digitsEntered(digits.count))
+
+            LazyVGrid(columns: columns, spacing: Theme.Space.md) {
+                ForEach(["1", "2", "3", "4", "5", "6", "7", "8", "9"], id: \.self, content: key)
+                Color.clear.accessibilityHidden(true)
+                key("0")
+                Button {
+                    if !digits.isEmpty { digits.removeLast() }
+                } label: {
+                    Image(systemName: "delete.left")
+                        .font(.title2)
+                        .frame(maxWidth: .infinity, minHeight: 76)
+                        .contentShape(Rectangle())
+                }
+                .foregroundStyle(Theme.Colors.text)
+                .accessibilityLabel(Copy.delete)
+            }
+            .padding(.horizontal, 18)
+        }
+    }
+
+    private func key(_ digit: String) -> some View {
+        Button {
+            guard digits.count < Passcode.length else { return }
+            digits.append(digit)
+            if digits.count == Passcode.length { onComplete(digits) }
+        } label: {
+            Text(digit)
+                .font(.title)
+                .frame(width: 76, height: 76)
+                .background(Theme.Colors.keypadKey, in: Circle())
+        }
+        .foregroundStyle(Theme.Colors.text)
+    }
+}
+
 // MARK: - Button styles
 
 struct PrimaryButtonStyle: ButtonStyle {

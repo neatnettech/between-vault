@@ -1,4 +1,6 @@
 .DS_Store
+.nod
+.omc
 DerivedData/
 build/
 xcuserdata/
