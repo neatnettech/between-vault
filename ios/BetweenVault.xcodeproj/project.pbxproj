@@ -21,12 +21,14 @@
 		400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62B6562834B98DED89F64DA /* AppServices.swift */; };
 		47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */; };
 		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
+		4B52249D5CD776F449556B47 /* PairingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80D096B5A886D0EA1DEF95A /* PairingTests.swift */; };
 		4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28310679148BD0779616585A /* PromiseLineTests.swift */; };
 		4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F738238F6615CC5CC47F33E /* NoteEditorView.swift */; };
 		5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */; };
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4122C2060ACA4481A1C22926 /* ThemeTests.swift */; };
 		6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD283DBA80128A707436C5 /* LockManager.swift */; };
+		6F8ECDB9C17171137F92FDEA /* PairingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796A83D62D755B7619B9B8D3 /* PairingService.swift */; };
 		724769FCD787E5B3244C3E17 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4019E724CC4067D6FE7112 /* NotesView.swift */; };
 		73153977095EE863A27F519C /* PackageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D93BC6A2D9ED15380D3427 /* PackageTests.swift */; };
 		73E96A8D5271D1AF5EDF102A /* BuiltInCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA0537A7666E5C8E33003CD /* BuiltInCategory.swift */; };
@@ -93,6 +95,7 @@
 		69EC1B6E9D410C2F67EF2744 /* PackageSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSerializer.swift; sourceTree = "<group>"; };
 		6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerView.swift; sourceTree = "<group>"; };
 		6E4019E724CC4067D6FE7112 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		796A83D62D755B7619B9B8D3 /* PairingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingService.swift; sourceTree = "<group>"; };
 		7CF0A0F45F745836889C862F /* Partner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Partner.swift; sourceTree = "<group>"; };
 		7F738238F6615CC5CC47F33E /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
 		86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepositoryTests.swift; sourceTree = "<group>"; };
@@ -113,6 +116,7 @@
 		E1C7B6BEDBBE67B3F669C113 /* ComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentsTests.swift; sourceTree = "<group>"; };
 		E62B6562834B98DED89F64DA /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		E6401CB8B0F4ABD25CF32B09 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		E80D096B5A886D0EA1DEF95A /* PairingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTests.swift; sourceTree = "<group>"; };
 		EA95FEC752607E863464D22B /* Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Passcode.swift; sourceTree = "<group>"; };
 		EB278D67828CA7BA78523340 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetweenVaultApp.swift; sourceTree = "<group>"; };
@@ -124,6 +128,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		0081C246C99FD0010230CA2D /* Pairing */ = {
+			isa = PBXGroup;
+			children = (
+				796A83D62D755B7619B9B8D3 /* PairingService.swift */,
+			);
+			path = Pairing;
+			sourceTree = "<group>";
+		};
 		01C62CEFCA46EB65E45D9835 /* Validation */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +170,7 @@
 				76E70C4D7C532B5956BACD3E /* Authentication */,
 				5A370C6EFECD62122E2E1C57 /* Crypto */,
 				BBBF15B8B292AA168E41FE73 /* KeyManagement */,
+				0081C246C99FD0010230CA2D /* Pairing */,
 			);
 			path = Security;
 			sourceTree = "<group>";
@@ -425,6 +438,7 @@
 				13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */,
 				108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */,
 				A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */,
+				E80D096B5A886D0EA1DEF95A /* PairingTests.swift */,
 				F47C57382C6B84F187B1F582 /* PasscodeTests.swift */,
 			);
 			path = Security;
@@ -531,6 +545,7 @@
 				D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */,
 				4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */,
 				73153977095EE863A27F519C /* PackageTests.swift in Sources */,
+				4B52249D5CD776F449556B47 /* PairingTests.swift in Sources */,
 				0EA0F439C726A9AE1A242266 /* PasscodeTests.swift in Sources */,
 				4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */,
 				64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */,
@@ -569,6 +584,7 @@
 				F680C837F9E19F1F4E8CC174 /* OnboardingView.swift in Sources */,
 				C850845B06B4ED5B7570E0D2 /* PackageSerializer.swift in Sources */,
 				2B22EC8E7D834DA33A236A8A /* PackageValidator.swift in Sources */,
+				6F8ECDB9C17171137F92FDEA /* PairingService.swift in Sources */,
 				0E8837E4A0B21CA8E88C7339 /* Partner.swift in Sources */,
 				8BAA54CCFDFC787DB04B3DE0 /* PartnerRepository.swift in Sources */,
 				52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */,

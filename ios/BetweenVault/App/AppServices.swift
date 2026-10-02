@@ -47,7 +47,7 @@ final class AppServices {
     }
 
     /// Row 2.4, the forgotten passcode. Erases everything that opens or identifies this vault: the
-    /// vault key, the passcode, the device ID and the pairing, so the phone starts over like a new
+    /// vault key, the passcode, the device ID and the pairing with its pair key, so the phone starts over like a new
     /// one. Paired, the encrypted notes stay for restore from the partner, which returns the
     /// original key (spec 20). Not paired, nothing can ever open them, so they go too, as board
     /// 1b warns. Keys first, store last: the pairing decides what the store keeps, so it goes in
@@ -56,6 +56,7 @@ final class AppServices {
     func resetVault() throws {
         try KeyManager.delete(Self.vaultKeyAccount)
         try KeyManager.delete(Passcode.account)
+        try KeyManager.delete(Pairing.pairKeyAccount)
         Identity.reset()
         try Self.eraseRecords(in: container.mainContext)
         guardsOnboarding = false
