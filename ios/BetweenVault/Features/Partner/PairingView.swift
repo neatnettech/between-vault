@@ -19,15 +19,26 @@ struct PairingView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                switch flow.step {
-                case let .show(message, index): showQR(message, index: index)
-                case let .scan(index): ScanStep(flow: flow, index: index)
-                case let .compare(code): compare(code)
-                case .paired: Color.clear.onAppear { dismiss() }
-                case let .failed(failure): failed(failure)
+            VStack(spacing: 0) {
+                if let index = progressIndex {
+                    PairingProgress(role: flow.role, current: index)
+                        .padding(.horizontal, Theme.Space.lg)
+                        .padding(.vertical, Theme.Space.sm)
                 }
+                Group {
+                    switch flow.step {
+                    case let .show(message, index): showQR(message, index: index)
+                    case let .scan(index): ScanStep(flow: flow, index: index)
+                    case let .compare(code): compare(code)
+                    case .paired: Color.clear.onAppear { dismiss() }
+                    case let .failed(failure): failed(failure)
+                    }
+                }
+                // Each step slides in, so moving on is visible, not a silent swap.
+                .id(progressIndex ?? 0)
+                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
             }
+            .animation(.snappy, value: progressIndex)
             .toolbar {
                 if !isFailed {
                     ToolbarItem(placement: .cancellationAction) {
@@ -37,6 +48,10 @@ struct PairingView: View {
             }
         }
         .sensoryFeedback(.success, trigger: flow.step == .paired)
+        // A scan that worked is felt, not only seen.
+        .sensoryFeedback(.impact(weight: .medium), trigger: progressIndex) { old, new in
+            (old ?? 0) < (new ?? 0) && old != nil
+        }
         // Board 12c: each phone times out on its own. Pairing is held up, not tapped, so it
         // counts as activity for auto lock, and the screen stays awake; the 5 minutes bound both.
         .task(id: ObjectIdentifier(flow)) {
@@ -54,10 +69,13 @@ struct PairingView: View {
         if case .failed = flow.step { true } else { false }
     }
 
-    private func stepLabel(_ index: Int) -> some View {
-        Text(Copy.stepOf(index, PairingFlow.stepCount))
-            .font(Theme.Typography.footnote)
-            .foregroundStyle(Theme.Colors.secondary)
+    /// 1 to 4 while pairing; nil once it ended.
+    private var progressIndex: Int? {
+        switch flow.step {
+        case let .show(_, index), let .scan(index): index
+        case .compare: PairingFlow.stepCount
+        case .paired, .failed: nil
+        }
     }
 
     // MARK: Board 11
@@ -65,7 +83,6 @@ struct PairingView: View {
     private func showQR(_ message: Pairing.Message, index: Int) -> some View {
         ScrollView {
             VStack(spacing: Theme.Space.lg) {
-                stepLabel(index)
                 Text(Copy.letPartnerScan)
                     .font(Theme.Typography.title2)
                     .foregroundStyle(Theme.Colors.text)
@@ -76,9 +93,13 @@ struct PairingView: View {
                     .padding(Theme.Space.md)
                     .background(.white, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
                     .accessibilityLabel(Copy.pairingQR)
-                Text(index == 1 ? Copy.onPartnersPhone : Copy.holdUpToPartner)
+                Text(index == 1 ? Copy.onPartnersPhone : Copy.partnerScansThis)
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.text)
+                    .multilineTextAlignment(.center)
+                Text(Copy.whenTheyveScanned)
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.secondary)
                     .multilineTextAlignment(.center)
                 Text(Copy.pairInPersonFootnote)
                     .font(Theme.Typography.footnote)
@@ -88,8 +109,13 @@ struct PairingView: View {
             .padding(Theme.Space.lg)
         }
         .safeAreaInset(edge: .bottom) {
-            Button(Copy.partnerScannedIt) { flow.next() }
-                .buttonStyle(.vaultPrimary)
+            // Named for what happens next, not "Next": after QR 3 the codes are compared, before
+            // it this phone scans.
+            Button { flow.next() } label: {
+                Label(index == 3 ? Copy.compareCodes : Copy.scanTheirCode,
+                      systemImage: index == 3 ? "number" : "qrcode.viewfinder")
+            }
+            .buttonStyle(.vaultPrimary)
                 .padding(Theme.Space.lg)
         }
         .background(Theme.Colors.bg.ignoresSafeArea())
@@ -100,7 +126,6 @@ struct PairingView: View {
     private func compare(_ code: String) -> some View {
         ScrollView {
             VStack(spacing: Theme.Space.lg) {
-                stepLabel(PairingFlow.stepCount)
                 Text(Copy.doBothShow)
                     .font(Theme.Typography.title2)
                     .foregroundStyle(Theme.Colors.text)
@@ -174,6 +199,46 @@ struct PairingView: View {
     }
 }
 
+// MARK: - Progress
+
+/// Owner feedback from the two phone test: the steps felt static and it was unclear how far along
+/// and whose turn it was. Four segments that fill as pairing moves on, each named for what this
+/// phone does, the current one spelled out.
+private struct PairingProgress: View {
+    let role: PairingFlow.Role
+    let current: Int
+
+    /// What this phone does at each step: A shows, scans, shows; B scans, shows, scans; both compare.
+    private var actions: [(String, String)] {
+        let show = (Copy.youShow, "qrcode")
+        let scan = (Copy.youScan, "camera.viewfinder")
+        let middle = role == .starter ? [show, scan, show] : [scan, show, scan]
+        return middle + [(Copy.bothCompare, "number")]
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            HStack(spacing: Theme.Space.xxs) {
+                ForEach(1...PairingFlow.stepCount, id: \.self) { index in
+                    Capsule()
+                        .fill(index <= current ? Theme.Colors.accent : Theme.Colors.disabledFill)
+                        .frame(height: 6)
+                }
+            }
+            HStack(spacing: Theme.Space.xs) {
+                Image(systemName: actions[current - 1].1)
+                    .contentTransition(.symbolEffect(.replace))
+                Text(Copy.stepOf(current, PairingFlow.stepCount) + " · " + actions[current - 1].0)
+                    .contentTransition(.numericText())
+            }
+            .font(Theme.Typography.footnote.weight(.semibold))
+            .foregroundStyle(Theme.Colors.secondary)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Copy.progressLabel(current, PairingFlow.stepCount, actions[current - 1].0))
+    }
+}
+
 // MARK: - Board 12: the camera
 
 /// Board 12, with 12a and 12b when the camera cannot run. Dark like the board.
@@ -196,13 +261,14 @@ private struct ScanStep: View {
                     QRScanner { flow.scanned($0) }
                         .ignoresSafeArea()
                     VStack(spacing: Theme.Space.sm) {
-                        Text(Copy.stepOf(index, PairingFlow.stepCount))
-                            .font(Theme.Typography.footnote)
-                            .foregroundStyle(Theme.Colors.secondary)
                         Text(Copy.scanPartnersCodeTitle)
                             .font(Theme.Typography.title3)
                             .foregroundStyle(Theme.Colors.text)
                             .accessibilityAddTraits(.isHeader)
+                        Text(Copy.pointAtTheirScreen)
+                            .font(Theme.Typography.subheadline)
+                            .foregroundStyle(Theme.Colors.secondary)
+                            .multilineTextAlignment(.center)
                         if let problem = flow.scanProblem {
                             Label(Self.copy(for: problem), systemImage: "exclamationmark.triangle")
                                 .font(Theme.Typography.subheadline)

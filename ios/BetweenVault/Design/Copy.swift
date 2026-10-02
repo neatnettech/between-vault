@@ -306,7 +306,17 @@ enum Copy {
     /// Not on a board: board 11 is drawn for A's first QR only; the return QRs reuse it.
     static let holdUpToPartner = "Hold this up to your partner's camera."
     static let pairInPersonFootnote = "Pair in person. The code only works for the next 5 minutes and only on this screen."
-    static let partnerScannedIt = "Next"
+    // Pairing progress (owner feedback from the two phone test: too static, unclear whose turn).
+    static let scanTheirCode = "Scan your partner's code"
+    static let compareCodes = "Compare the codes"
+    static let youShow = "You show"
+    static let youScan = "You scan"
+    static let bothCompare = "Both compare"
+    static let partnerScansThis = "Hold your phone up. Your partner scans this screen with Between Vault."
+    static let whenTheyveScanned = "When their screen changes, tap below."
+    static let pointAtTheirScreen = "Point the camera at your partner's screen. It moves on by itself."
+    static let scanned = "Scanned"
+    static func progressLabel(_ index: Int, _ count: Int, _ action: String) -> String { "Step \(index) of \(count): \(action)" }
     static let scanPartnersCodeTitle = "Scan your partner's code"
     static let notAPairingCode = "That isn't a pairing code. Scan the code on your partner's screen."
     static let wrongStepCode = "That's a different step's code. Scan the code your partner shows now."
