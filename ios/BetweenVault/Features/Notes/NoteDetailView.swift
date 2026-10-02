@@ -113,16 +113,33 @@ struct NoteDetailView: View {
         }
     }
 
+    /// Board 5 for a Private note, U2 for a Shared one changed since it was sent, and Send again
+    /// for a Shared one the partner says never arrived: sending is optimistic, so this is the way
+    /// back (see ExchangeService).
     private var sealSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.xs) {
-            Button {
-                seal()
-            } label: {
-                Text(Copy.sealForPartner)
-                    .frame(maxWidth: .infinity)
+        let (action, helper): (String, String) = switch (note.state, note.hasChangedSinceSent) {
+        case (.shared, true): (Copy.sealUpdate, Copy.sealUpdateHelper)
+        case (.shared, false): (Copy.sendAgain, Copy.sendAgainHelper)
+        default: (Copy.sealForPartner, Copy.sealedNotesWait)
+        }
+        return VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            if note.hasChangedSinceSent {
+                Text(Copy.changedSinceSentNotice)
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.changedFlagInk)
+                    .padding(Theme.Space.sm)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.Colors.changedFlagBG, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
             }
-            .buttonStyle(.vaultPrimary)
-            Text(Copy.sealedNotesWait)
+            // Send again is the quieter action: nothing changed, it only repeats a handoff.
+            if note.state == .shared, !note.hasChangedSinceSent {
+                Button(action: seal) { Text(action).frame(maxWidth: .infinity) }
+                    .buttonStyle(.vaultSecondary)
+            } else {
+                Button(action: seal) { Text(action).frame(maxWidth: .infinity) }
+                    .buttonStyle(.vaultPrimary)
+            }
+            Text(helper)
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.tertiary)
         }

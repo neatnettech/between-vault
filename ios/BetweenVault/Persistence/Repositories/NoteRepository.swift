@@ -78,7 +78,9 @@ final class NoteRepository {
         try context.fetchCount(FetchDescriptor<NoteRecord>())
     }
 
-    func save(_ note: Note) throws {
+    /// `commit: false` stages the change in the shared context for a caller that saves several
+    /// writes as one, like sending (row 4.6): the next save commits or rolls back all of them.
+    func save(_ note: Note, commit: Bool = true) throws {
         let key = try vaultKey()
         let payload = Payload(title: note.title, body: note.body)
         let plaintext = try JSONEncoder().encode(payload)
@@ -110,7 +112,7 @@ final class NoteRepository {
                 )
             )
         }
-        try context.saveOrRollback()
+        if commit { try context.saveOrRollback() }
     }
 
     func delete(id: UUID) throws {

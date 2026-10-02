@@ -4,10 +4,22 @@ enum PackageSerializer {
     enum SerializationError: Error {
         case tampered
         case malformedItems
+        case notAPackage
     }
 
-    /// Encrypts items under the pair key, binding the header fields as additional
-    /// authenticated data. The output is the exact .nvlt file content.
+    /// Format marker inside every .nvlt file, apart from the protocol version.
+    static let format = "betweenvault.exchange"
+    static let fileExtension = "nvlt"
+
+    /// Each package has a key of its own: HKDF of the pair key, salted with the exchange ID. The
+    /// pair key itself never encrypts anything, like the recovery file's, and no two packages
+    /// share a key, so AES-GCM's random nonces never meet under the same key.
+    static func packageKey(pairKey: Data, exchangeID: String) -> Data {
+        CryptoEngine.derive(pairKey: pairKey, info: "betweenvault.exchange.v1", salt: Data(exchangeID.utf8))
+    }
+
+    /// Encrypts items under the package key, binding the header fields as additional
+    /// authenticated data.
     ///
     /// The AAD encoding is canonical: JSON with sorted keys. JSONEncoder alone does
     /// not guarantee stable key ordering, and an unstable AAD breaks verification.
@@ -23,7 +35,7 @@ enum PackageSerializer {
             HeaderAD(protocolVersion: SealedPackage.currentVersion, senderDeviceID: sender, recipientDeviceID: recipient, exchangeID: exchangeID, createdAt: createdAt)
         )
         let itemsData = try canonicalJSON(items)
-        let ciphertext = try CryptoEngine.encrypt(itemsData, key: pairKey, aad: aad)
+        let ciphertext = try CryptoEngine.encrypt(itemsData, key: packageKey(pairKey: pairKey, exchangeID: exchangeID), aad: aad)
         return SealedPackage(
             protocolVersion: SealedPackage.currentVersion,
             senderDeviceID: sender,
@@ -42,7 +54,9 @@ enum PackageSerializer {
         )
         let plaintext: Data
         do {
-            plaintext = try CryptoEngine.decrypt(package.ciphertext, key: pairKey, aad: aad)
+            plaintext = try CryptoEngine.decrypt(
+                package.ciphertext, key: packageKey(pairKey: pairKey, exchangeID: package.exchangeID), aad: aad
+            )
         } catch {
             throw SerializationError.tampered
         }
@@ -59,6 +73,19 @@ enum PackageSerializer {
         )
     }
 
+    /// The .nvlt file bytes: the format marker and the sealed package, as JSON.
+    static func fileData(_ package: SealedPackage) throws -> Data {
+        try canonicalJSON(PackageFile(format: format, package: package))
+    }
+
+    /// Reads a .nvlt file. Anything without the marker is not ours, before any decryption.
+    static func package(fromFile data: Data) throws -> SealedPackage {
+        guard let file = try? JSONDecoder().decode(PackageFile.self, from: data), file.format == format else {
+            throw SerializationError.notAPackage
+        }
+        return file.package
+    }
+
     private static func canonicalJSON<T: Encodable>(_ value: T) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
@@ -68,6 +95,11 @@ enum PackageSerializer {
 
 extension SealedPackage {
     static let currentVersion = 1
+}
+
+private struct PackageFile: Codable {
+    let format: String
+    let package: SealedPackage
 }
 
 private struct HeaderAD: Codable {

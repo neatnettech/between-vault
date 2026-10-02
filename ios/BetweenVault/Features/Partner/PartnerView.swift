@@ -10,6 +10,7 @@ struct PartnerView: View {
     @State private var asksUnpair = false
     @State private var asksUnpairAgain = false
     @State private var failure: String?
+    @State private var unpaired = false
 
     var body: some View {
         NavigationStack {
@@ -60,6 +61,8 @@ struct PartnerView: View {
             } message: {
                 Text(Copy.unpairAgainMessage)
             }
+            // Row 4.7 and handoff C8: confirmation on unpair.
+            .sensoryFeedback(.impact(weight: .heavy), trigger: unpaired) { _, new in new }
             .alert(Copy.notSaved, isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
                 Button(Copy.ok, role: .cancel) {}
             } message: {
@@ -143,6 +146,7 @@ struct PartnerView: View {
     private func unpair() {
         do {
             try services.unpair()
+            unpaired = true
         } catch {
             failure = Copy.unpairFailed
         }

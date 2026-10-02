@@ -83,16 +83,24 @@ final class PartnerRecord {
     }
 }
 
+/// Board 18: counts and dates only, never titles or content. `importedAt` is when the exchange
+/// happened, either way; the name predates sending. The new columns are defaulted, so adding them
+/// stays a lightweight migration.
 @Model
 final class ExchangeLogRecord {
     @Attribute(.unique) var exchangeID: String
     var directionRaw: String
     var importedAt: Date
+    var itemCount: Int = 0
+    /// Board 18's second line: "1 conflict, kept both". Empty when there is nothing to add.
+    var outcomeRaw: String = ""
 
-    init(exchangeID: String, directionRaw: String, importedAt: Date = Date()) {
+    init(exchangeID: String, directionRaw: String, importedAt: Date = Date(), itemCount: Int = 0, outcomeRaw: String = "") {
         self.exchangeID = exchangeID
         self.directionRaw = directionRaw
         self.importedAt = importedAt
+        self.itemCount = itemCount
+        self.outcomeRaw = outcomeRaw
     }
 }
 

@@ -17,10 +17,13 @@ enum CryptoEngine {
         return Data(bytes)
     }
 
-    static func derive(pairKey: Data, info: String, outputByteCount: Int = 32) -> Data {
+    /// A key for one purpose from the pair key. `info` names the purpose; `salt` binds it to one
+    /// use, as the exchange ID does for a package key.
+    static func derive(pairKey: Data, info: String, salt: Data = Data(), outputByteCount: Int = 32) -> Data {
         let input = SymmetricKey(data: pairKey)
         let derived = HKDF<SHA256>.deriveKey(
             inputKeyMaterial: input,
+            salt: salt,
             info: Data(info.utf8),
             outputByteCount: outputByteCount
         )

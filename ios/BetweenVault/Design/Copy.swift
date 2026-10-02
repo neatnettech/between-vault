@@ -113,6 +113,12 @@ enum Copy {
     static let sharedSetBySending = "Shared is set automatically after you send it. Nothing is shared by editing."
     static let sealForPartner = "Seal for partner"
     static let sealedNotesWait = "Sealed notes wait in Exchange until you send them."
+    // Board U2, and Send again for a Shared note the partner says never arrived.
+    static let sealUpdate = "Seal update"
+    static let sealUpdateHelper = "Moves it to Sealed. It waits in Exchange until you send it."
+    static let changedSinceSentNotice = "You changed it after you sent it. Your partner only gets this version when you send it."
+    static let sendAgain = "Send again"
+    static let sendAgainHelper = "Seals it once more, if your partner didn't get it. Sending a version twice changes nothing on their phone."
     static let moreActions = "More actions"
     static let moveToCategory = "Move to category"
     static let deleteNote = "Delete note"
@@ -166,6 +172,33 @@ enum Copy {
     static let toastItemsImported = "3 items imported"
     static let toastClipboardCleared = "Clipboard cleared"
     static let encryptAndShare = "Encrypt & Share"
+    // Boards 7, U3, 8, 18.
+    static func readyToSendCount(_ count: Int) -> String { count == 0 ? readyToSend : "\(readyToSend) · \(count)" }
+    static let newTag = "New"
+    static let updateTag = "Update"
+    static let outboxFooter = "These are sealed. They stay on this iPhone until you review them and send one encrypted file."
+    /// Sent, not delivered: never claims the partner holds a copy.
+    static let updateFooter = "Update replaces the version you sent before, unless your partner changed it too. Then they choose which to keep."
+    static let reviewAndSend = "Review and send"
+    static let pairFirstToSend = "Pair with your partner first. A package only opens on their paired iPhone."
+    static let exactlyWhatLeaves = "Exactly what leaves this iPhone"
+    static func itemsEncrypted(_ count: Int) -> String {
+        "\(count == 1 ? "1 item" : "\(count) items"), encrypted so only your partner's paired iPhone can open them."
+    }
+    static func includedLine(_ count: Int) -> String {
+        "titles, text and categories of \(count == 1 ? "this note" : "these \(count) notes")."
+    }
+    static let included = "Included:"
+    static let notIncluded = "Not included:"
+    static let notIncludedLine = "anything else in your vault."
+    static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
+    /// Shared means sent, not delivered: the copy never claims the partner has it.
+    static let sentNotDelivered = "Sent notes become Shared. Whether a file arrived is for the two of you to say; if it didn't, open the note and Send again."
+    static let packageNotMade = "The encrypted file could not be made. Nothing was sent and nothing changed."
+    static let sentNotRecorded = "The file was handed over, but this iPhone could not mark the notes as sent. They are still Sealed."
+    static func sentItems(_ count: Int) -> String { count == 1 ? "Sent 1 item" : "Sent \(count) items" }
+    static func receivedItems(_ count: Int) -> String { count == 1 ? "Received 1 item" : "Received \(count) items" }
+    static let historyFooter = "This log keeps counts and dates only. No titles, no content."
 
     // MARK: Partner
 
