@@ -3,6 +3,7 @@ import SwiftUI
 struct PartnerView: View {
     @Environment(AppServices.self) private var services
     @State private var partner: Partner?
+    @State private var pairing: PairingFlow.Role?
 
     var body: some View {
         NavigationStack {
@@ -25,12 +26,13 @@ struct PartnerView: View {
                         EmptyState(
                             systemImage: "person.2",
                             headline: Copy.noPartnerPaired,
-                            message: Copy.pairingLandsLater
+                            message: Copy.pairInPerson
                         )
-                        Button(Copy.pairWithPartner) {
-                            // Pairing flow lands with the exchange work item.
-                        }
-                        .buttonStyle(.vaultPrimary)
+                        // Core flows: A pairs, B scans. Board 14's empty state is not drawn.
+                        Button(Copy.pairWithPartner) { pairing = .starter }
+                            .buttonStyle(.vaultPrimary)
+                        Button(Copy.scanPartnersCode) { pairing = .joiner }
+                            .buttonStyle(.vaultSecondary)
                     }
                     .listRowBackground(Theme.Colors.bg)
                 }
@@ -40,6 +42,15 @@ struct PartnerView: View {
             .navigationTitle(Copy.tabPartner)
             .task {
                 partner = try? services.partnerRepository.partner()
+            }
+            .fullScreenCover(item: $pairing, onDismiss: {
+                partner = try? services.partnerRepository.partner()
+            }) { role in
+                PairingView {
+                    PairingFlow(role: role, deviceID: services.deviceID) { agreement in
+                        try Pairing.commit(agreement, partners: services.partnerRepository)
+                    }
+                }
             }
         }
     }

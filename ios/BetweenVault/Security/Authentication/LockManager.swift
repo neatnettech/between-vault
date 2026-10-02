@@ -153,6 +153,12 @@ final class LockManager {
         return false
     }
 
+    /// The app's own system alert (the camera permission) is about to make the scene inactive,
+    /// which locks; the return asks for biometrics like a return from the background would.
+    func expectSystemPrompt() {
+        promptOnActive = true
+    }
+
     /// Row 2.5: any touch or keystroke while open.
     func noteActivity() {
         lastActivity = now()

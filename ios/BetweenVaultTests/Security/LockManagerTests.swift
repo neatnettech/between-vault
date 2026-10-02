@@ -285,4 +285,15 @@ struct LockManagerTests {
         _ = lock.sceneChanged(to: .background, guarded: false)
         #expect(lock.sceneChanged(to: .active, guarded: true))
     }
+
+    /// The camera permission alert makes the app inactive, which locks it; the return asks.
+    @Test func theReturnFromTheAppsOwnAlertAsks() {
+        let lock = makeLock()
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+        lock.expectSystemPrompt()
+        #expect(!lock.sceneChanged(to: .inactive, guarded: true))
+        #expect(lock.isLocked)
+        #expect(lock.sceneChanged(to: .active, guarded: true))
+    }
 }
