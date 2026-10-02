@@ -6,6 +6,8 @@ struct BetweenVaultApp: App {
     @State private var services: AppServices?
     @State private var lockManager = LockManager()
     @State private var cover = CoverWindow()
+    @State private var clipboard = ClipboardGuard()
+    @State private var showsClipboardToast = false
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
     /// True at launch, so opening the app counts as a return.
@@ -45,7 +47,25 @@ struct BetweenVaultApp: App {
             .overlay {
                 if covered { Theme.Colors.lockScreen.ignoresSafeArea() }
             }
+            // Row 2.6: counts only, never content.
+            .overlay(alignment: .bottom) {
+                if showsClipboardToast, !covered {
+                    Toast(systemImage: "doc.on.clipboard", text: Copy.toastClipboardCleared)
+                        .padding(.bottom, Theme.Space.xxxl)
+                        .transition(.opacity)
+                }
+            }
+            .onChange(of: clipboard.clearedAt) {
+                AccessibilityNotification.Announcement(Copy.toastClipboardCleared).post()
+                withAnimation { showsClipboardToast = true }
+            }
+            .task(id: showsClipboardToast) {
+                guard showsClipboardToast else { return }
+                try? await Task.sleep(for: .seconds(2))
+                withAnimation { showsClipboardToast = false }
+            }
             .onAppear {
+                clipboard.observe()
                 cover.install(lockManager: lockManager, services: services)
                 cover.show(covered)
             }
