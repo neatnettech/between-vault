@@ -193,11 +193,71 @@ enum Copy {
     static let notIncludedLine = "anything else in your vault."
     static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
     /// Shared means sent, not delivered: the copy never claims the partner has it.
-    static let sentNotDelivered = "Sent notes become Shared. Whether a file arrived is for the two of you to say; if it didn't, open the note and Send again."
+    static let sentNotDelivered = "After you hand it over, you say whether it arrived. Only then do these notes become Shared."
+    /// Not on a board: found on two phones, an interrupted AirDrop still reports done, so the
+    /// owner says whether it arrived. Their word, not the system's, makes notes Shared.
+    static let didItArrive = "Did it arrive?"
+    static let didItArriveMessage = "Check with your partner. Notes become Shared only when you say it arrived. Not sure? Keep them Sealed and send again."
+    static let yesItArrived = "Yes, mark as sent"
+    static let noKeepSealed = "No, keep them Sealed"
     static let packageNotMade = "The encrypted file could not be made. Nothing was sent and nothing changed."
     static let sentNotRecorded = "The file was handed over, but this iPhone could not mark the notes as sent. They are still Sealed."
     static func sentItems(_ count: Int) -> String { count == 1 ? "Sent 1 item" : "Sent \(count) items" }
     static func receivedItems(_ count: Int) -> String { count == 1 ? "Received 1 item" : "Received \(count) items" }
+    // Boards 9, U4, 10, 9a to 9d (cycle 5).
+    static let fromYourPartner = "From your partner"
+    static func verifiedLine(_ date: Date, count: Int) -> String {
+        "Verified · \(date.formatted(date: .abbreviated, time: .shortened)) · \(count == 1 ? "1 item" : "\(count) items")"
+    }
+    static func newSection(_ count: Int) -> String { "\(count) new" }
+    static func updateSection(_ count: Int) -> String { count == 1 ? "1 update to a note you have" : "\(count) updates to notes you have" }
+    static func conflictSection(_ count: Int) -> String { count == 1 ? "1 changed on both phones" : "\(count) changed on both phones" }
+    static func unchangedSection(_ count: Int) -> String { count == 1 ? "1 you already have" : "\(count) you already have" }
+    static let titlesOnly = "Titles only. Nothing is added to your vault until you accept."
+    static func conflictsToChoose(_ count: Int) -> String {
+        count == 1 ? "1 item changed on both phones: you will choose which to keep."
+            : "\(count) items changed on both phones: you will choose which to keep."
+    }
+    static let updatesReplace = "Notes you haven't changed since the last exchange are replaced by your partner's version."
+    static func acceptItems(_ count: Int) -> String { count == 1 ? "Accept 1 item" : "Accept \(count) items" }
+    static let decline = "Decline"
+    static func conflictCounter(_ index: Int, _ count: Int) -> String { "\(index) of \(count) · Changed on both phones" }
+    static let yours = "Yours"
+    static let partners = "Partner's"
+    static func editedAgo(_ date: Date) -> String { "Edited \(date.formatted(.relative(presentation: .named)))" }
+    static func lineCount(_ count: Int) -> String { count == 1 ? "1 line" : "\(count) lines" }
+    static let keepMine = "Keep mine"
+    static let keepPartners = "Keep partner's"
+    static let keepBothAsCopy = "Keep both as copy"
+    static func keepingBothAdds(_ title: String) -> String { "Keeping both adds \"\(partnersCopy(title))\". Nothing is discarded silently." }
+    static func itemsImported(_ count: Int) -> String { count == 1 ? "1 item imported" : "\(count) items imported" }
+    static let importNotSaved = "The items could not be saved. Nothing was imported. Try again."
+    static let cantBeOpened = "This file can't be opened"
+    static let cantBeOpenedBody = "It was changed or damaged after it was sent, so the check that proves it came from your partner failed."
+    static let nothingImported = "Nothing was imported."
+    static let cantBeOpenedFootnote = "Expecting a file from your partner? It may have been cut short while copying: ask them to send it again. Not expecting one? Delete it."
+    static let forDifferentIPhone = "This file is for a different iPhone"
+    static let forDifferentIPhoneBody = "It was encrypted for another device, so this iPhone can't read it."
+    static let forDifferentIPhoneHint = "This usually means your partner sent it before you paired again on a new phone. Ask them to seal it and send it again."
+    static let updateTheApp = "Update the app to open this"
+    static let updateTheAppBody = "Your partner's app is newer than yours. Update Between Vault, then open the file again."
+    static let openAppStore = "Open App Store"
+    static let later = "Later"
+    static let youAlreadyHaveThis = "You already have this"
+    static func importedOn(_ date: Date?) -> String {
+        guard let date else { return "You imported this exact file before. Opening it again changes nothing." }
+        return "You imported this exact file on \(date.formatted(date: .abbreviated, time: .shortened)). Opening it again changes nothing."
+    }
+    static let seeHistory = "See history"
+    static let unknownFile = "Between Vault opens files your partner sends from their Between Vault: exchange packages and recovery files. Nothing was changed."
+    static let close = "Close"
+    static let pairFirstToOpen = "Pair with your partner first. A file from them only opens on their paired iPhone."
+    static let emptyPackage = "This file has no notes in it. Nothing was imported."
+    static func declinedFiles(_ count: Int) -> String { "Declined 1 file" }
+    static func keptBoth(_ count: Int) -> String { count == 1 ? "1 conflict, kept both" : "\(count) conflicts, kept both" }
+    static let fromPartnerLabel = "From your partner"
+    /// Board 10's naming for Keep both.
+    static func partnersCopy(_ title: String) -> String { "\(title) (partner's copy)" }
     static let historyFooter = "This log keeps counts and dates only. No titles, no content."
 
     // MARK: Partner

@@ -2,11 +2,11 @@ import Foundation
 
 /// Rows 4.4 to 4.6: from sealed notes to one .nvlt file, and what sending changes.
 ///
-/// "Shared means sent, not delivered." The phones never talk, so the app records what its owner
-/// did and never claims to know what happened on the other phone. Notes become Shared when the
-/// share sheet reports the handoff done (AirDrop sent, message sent, file saved); a cancelled
-/// sheet changes nothing. Whether it arrived is for the two people to say to each other. If it did
-/// not, Send again seals it once more, and importing a version twice changes nothing.
+/// "Shared means sent, on the owner's word." The phones never talk, so the app never claims to know
+/// what happened on the other phone, and iOS cannot tell either: on two real phones an interrupted
+/// AirDrop still reported done. So after the handoff the owner says whether it arrived, and only
+/// that makes notes Shared; a cancelled sheet or "No" changes nothing. If it later turns out not
+/// to have arrived, Send again seals it once more, and importing a version twice changes nothing.
 @MainActor
 final class ExchangeService {
     enum ExchangeError: Error, Equatable {
@@ -99,7 +99,7 @@ final class ExchangeService {
         return Prepared(exchangeID: exchangeID, file: file, versions: Dictionary(uniqueKeysWithValues: sealed.map { ($0.id, $0.version) }))
     }
 
-    /// The share sheet reported the handoff done. Each note that is still sealed becomes Shared at
+    /// The owner said it arrived. Each note that is still sealed becomes Shared at
     /// the version that left; the partner is now taken to hold it, so it is also the common
     /// ancestor for their fast forward check (spec 16, 18). If it never arrived, a later package
     /// shows them a conflict, never a silent overwrite. An edit made while the sheet was up stays

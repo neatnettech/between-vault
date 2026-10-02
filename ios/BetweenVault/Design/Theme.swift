@@ -52,6 +52,10 @@ enum Theme {
         static var borderStrong: Color { dyn(0x8E_9398, 0x6B_7076) }
 
         static var accent: Color { dyn(0x0E_6B66, 0x4F_B8AE) }
+        /// derived (no board draws it; the owner asked for it in cycle 5): notes that came from the
+        /// partner. Violet, apart from the teal accent and the amber Sealed badge. About 6.5:1 on the
+        /// light surface and 8:1 on the dark one, so it also carries text.
+        static var partner: Color { dyn(0x6B_4FA3, 0xB7_A2E8) }
         /// `--accent-hover`
         static var accentPressed: Color { dyn(0x09_4C48, 0xA8_E4DD) }
         static var accentTint: Color { dyn(0xDD_F0EE, 0x1E_2A2A) }

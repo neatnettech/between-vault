@@ -13,6 +13,7 @@ final class AppServices {
     let partnerRepository: PartnerRepository
     let exchangeLogRepository: ExchangeLogRepository
     let exchangeService: ExchangeService
+    let importService: ImportService
     /// Read each time: a reset hands the installation a new one.
     var deviceID: String { Identity.deviceID() }
     /// Row 2.4. True while the store holds notes from before onboarding (rc.1, a lost flag), so
@@ -42,6 +43,15 @@ final class AppServices {
         partnerRepository = PartnerRepository(context: context)
         exchangeLogRepository = ExchangeLogRepository(context: context)
         exchangeService = ExchangeService(
+            notes: noteRepository,
+            categories: categoryRepository,
+            partners: partnerRepository,
+            log: exchangeLogRepository,
+            pairKey: { try KeyManager.load(Pairing.pairKeyAccount) },
+            deviceID: { Identity.deviceID() }
+        )
+        importService = ImportService(
+            context: context,
             notes: noteRepository,
             categories: categoryRepository,
             partners: partnerRepository,

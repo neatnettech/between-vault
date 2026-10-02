@@ -127,6 +127,8 @@ private struct ReviewSheet: View {
     @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var failure: String?
+    /// A handoff iOS called done, waiting for the owner to say whether it arrived.
+    @State private var awaitingWord: ExchangeService.Prepared?
 
     var body: some View {
         NavigationStack {
@@ -167,6 +169,12 @@ private struct ReviewSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(Copy.cancel) { dismiss() }
                 }
+            }
+            .alert(Copy.didItArrive, isPresented: Binding(get: { awaitingWord != nil }, set: { if !$0 { awaitingWord = nil } }), presenting: awaitingWord) { prepared in
+                Button(Copy.yesItArrived) { arrived(prepared) }
+                Button(Copy.noKeepSealed, role: .cancel) { services.exchangeService.discard(prepared) }
+            } message: { _ in
+                Text(Copy.didItArriveMessage)
             }
             .safeAreaInset(edge: .bottom) {
                 // Board 8: two equal buttons, Cancel never smaller than send.
@@ -210,13 +218,20 @@ private struct ReviewSheet: View {
                 return
             }
             keepAwake.cancel()
-            do {
-                try services.exchangeService.markSent(prepared)
-                onSent()
-                dismiss()
-            } catch {
-                failure = Copy.sentNotRecorded
-            }
+            // iOS reports AirDrop done even when the transfer was interrupted, so "completed" is
+            // not proof. The owner's word is: tested on two phones, an interrupted AirDrop came
+            // back as completed.
+            awaitingWord = prepared
+        }
+    }
+
+    private func arrived(_ prepared: ExchangeService.Prepared) {
+        do {
+            try services.exchangeService.markSent(prepared)
+            onSent()
+            dismiss()
+        } catch {
+            failure = Copy.sentNotRecorded
         }
     }
 }
@@ -251,9 +266,8 @@ private struct HistoryView: View {
                 Section {
                     ForEach(entries) { entry in
                         VStack(alignment: .leading, spacing: Theme.Space.xxs) {
-                            Text(entry.direction == .sent ? Copy.sentItems(entry.itemCount) : Copy.receivedItems(entry.itemCount))
-                                .foregroundStyle(Theme.Colors.text)
-                            Text(entry.date.formatted(date: .abbreviated, time: .shortened))
+                            Text(Self.title(entry)).foregroundStyle(Theme.Colors.text)
+                            Text(Self.detail(entry))
                                 .font(Theme.Typography.footnote)
                                 .foregroundStyle(Theme.Colors.secondary)
                         }
@@ -269,5 +283,19 @@ private struct HistoryView: View {
         .background(Theme.Colors.bg)
         .navigationTitle(Copy.recentlyExchanged)
         .task { entries = (try? services.exchangeLogRepository.history()) ?? [] }
+    }
+
+    private static func title(_ entry: ExchangeLogEntry) -> String {
+        switch entry.direction {
+        case .sent: Copy.sentItems(entry.itemCount)
+        case .received: Copy.receivedItems(entry.itemCount)
+        case .declined: Copy.declinedFiles(1)
+        }
+    }
+
+    /// Board 18: "Today, 14:02 · 1 conflict, kept both".
+    private static func detail(_ entry: ExchangeLogEntry) -> String {
+        let date = entry.date.formatted(date: .abbreviated, time: .shortened)
+        return entry.conflictsKeptBoth > 0 ? "\(date) · \(Copy.keptBoth(entry.conflictsKeptBoth))" : date
     }
 }

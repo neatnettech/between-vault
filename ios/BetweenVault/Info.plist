@@ -69,30 +69,6 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Between Vault recovery file</string>
-			<key>UTTypeIdentifier</key>
-			<string>tech.neatnet.nvrec</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>nvrec</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>application/octet-stream</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
 			<string>Encrypted vault exchange package</string>
 			<key>UTTypeIdentifier</key>
 			<string>tech.neatnet.nvlt</string>
@@ -101,6 +77,27 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>nvlt</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/octet-stream</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Between Vault recovery file</string>
+			<key>UTTypeIdentifier</key>
+			<string>tech.neatnet.nvrec</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>nvrec</string>
 				</array>
 				<key>public.mime-type</key>
 				<array>

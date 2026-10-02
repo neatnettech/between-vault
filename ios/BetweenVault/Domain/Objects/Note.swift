@@ -16,6 +16,8 @@ struct Note: Identifiable, Equatable, Sendable {
     var partnerKnownVersion: Int
     let createdAt: Date
     var updatedAt: Date
+    /// Who made it: notes that arrived from the partner are drawn in the partner colour.
+    var origin: NoteOrigin = .local
 
     /// Board U1: a flag on Shared, never a fourth state. Edited since the last time this note left
     /// the device.
@@ -41,4 +43,10 @@ struct Note: Identifiable, Equatable, Sendable {
         copy.updatedAt = now
         return copy
     }
+}
+
+/// Persisted as `NoteRecord.originRaw`; renaming a case orphans the stored value.
+enum NoteOrigin: String, Sendable {
+    case local
+    case partner
 }
