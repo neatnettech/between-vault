@@ -253,3 +253,52 @@ extension Data {
         self.init(base64Encoded: base64)
     }
 }
+
+// MARK: - Recovery file (row 3.7, spec 20)
+
+extension Pairing {
+    /// Keychain account holding the partner's recovery blob on this phone. Frozen like the others.
+    static let partnerRecoveryAccount = "betweenvault.partnerRecovery"
+
+    /// What "Send recovery file to partner" hands over: the owner's blob, addressed to the holder.
+    /// The blob is already encrypted under a key only the two phones derive, so the file can go by
+    /// AirDrop, Messages or Files like an exchange package.
+    struct RecoveryFile: Codable, Equatable {
+        static let format = "betweenvault.recovery"
+        static let fileExtension = "nvrec"
+
+        let format: String
+        let version: Int
+        let ownerDeviceID: String
+        let holderDeviceID: String
+        let blob: Data
+
+        enum Problem: Error, Equatable {
+            case unreadable
+            case notForThisPairing
+        }
+
+        static func make(vaultKey: Data, pairKey: Data, owner: String, holder: String) throws -> Data {
+            let file = RecoveryFile(
+                format: format,
+                version: 1,
+                ownerDeviceID: owner,
+                holderDeviceID: holder,
+                blob: try wrapRecovery(vaultKey: vaultKey, pairKey: pairKey, ownerDeviceID: owner)
+            )
+            return try JSONEncoder().encode(file)
+        }
+
+        /// The holder's side: only a file from the paired partner, made for this phone, whose blob
+        /// opens under the pair key, is kept. Returns the blob to store, never the unwrapped key.
+        static func accept(_ data: Data, pairKey: Data, me: String, partner: String) throws -> Data {
+            guard let file = try? JSONDecoder().decode(RecoveryFile.self, from: data),
+                  file.format == format, file.version == 1
+            else { throw Problem.unreadable }
+            guard file.ownerDeviceID == partner, file.holderDeviceID == me,
+                  (try? unwrapRecovery(file.blob, pairKey: pairKey, ownerDeviceID: partner)) != nil
+            else { throw Problem.notForThisPairing }
+            return file.blob
+        }
+    }
+}

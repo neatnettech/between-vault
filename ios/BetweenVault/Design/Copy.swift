@@ -172,6 +172,32 @@ enum Copy {
     static let fingerprint = "Fingerprint"
     static let partnerCanRecover = "Your partner can recover your vault. This is by design."
     static let unpairPartner = "Unpair partner"
+    // Board 14.
+    static let paired = "Paired"
+    static func since(_ date: Date) -> String { "Since \(date.formatted(.dateTime.month(.abbreviated).year()))" }
+    static let deviceFingerprint = "Device fingerprint"
+    static let alsoNewPhone = "It is also how you get your data back on a new phone."
+    static let sendRecoveryFile = "Send recovery file to partner"
+    static let compareFingerprintAgain = "Compare fingerprint again"
+    static let unpairFootnote = "Asks twice. Unpairing stops future exchanges. Items already shared stay on both phones."
+    // Not on a board: the second look at the fingerprint, and the two unpair asks.
+    static let compareFingerprintBody = "Hold both phones side by side. Partner, then Compare fingerprint again on theirs. Every character should be the same."
+    static let unpairTitle = "Unpair partner?"
+    static let unpairMessage = "Unpairing stops future exchanges. Items already shared stay on both phones."
+    static let unpairAgainTitle = "Unpair for good?"
+    /// Honest about the limit: a recovery file already sent stays on the partner's phone and still
+    /// opens this vault; unpairing cannot reach it offline.
+    static let unpairAgainMessage = "You no longer hold your partner's recovery file. A recovery file you already sent stays on their phone and can still open this vault. Pairing again needs both phones side by side."
+    static let unpair = "Unpair"
+    static let unpairFailed = "Unpairing did not finish. Try again."
+    static let recoveryFileNotMade = "The recovery file could not be made. Nothing was sent."
+    // Opening a recovery file from the partner.
+    static let recoverySavedTitle = "Recovery file saved"
+    static let recoverySaved = "If your partner loses their iPhone, you can help them restore their vault."
+    static let recoveryNotSavedTitle = "Recovery file not saved"
+    static let recoveryNotPaired = "Pair first. A recovery file only opens on the partner it was made for."
+    static let recoveryNotForThisPairing = "This recovery file is not from your paired partner, or not for this iPhone. Nothing was saved."
+    static let recoveryUnreadable = "This file could not be read. Nothing was saved."
     static let noPartnerPaired = "No partner paired yet"
     static let pairedPartner = "Paired partner"
     static let pairInPerson = "Pair in person, side by side. Nothing is sent over a network."
@@ -198,7 +224,6 @@ enum Copy {
     static let ifNumbersDiffer = "If the numbers differ, stop. Someone else may be in the middle."
     static let codesMatch = "Codes match"
     static let theyDontMatch = "They don't match"
-    static let paired = "Paired"
     static let cameraOff = "Camera access is off"
     static let cameraOffBody = "Scanning your partner's code needs the camera. Nothing is recorded or saved."
     static let cameraOffStep1 = "Open Settings, then \(productName)"
