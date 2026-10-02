@@ -108,7 +108,6 @@ struct NoteEditorView: View {
         }
         // A swipe down would drop a draft without a word; Cancel stays the explicit way out.
         .interactiveDismissDisabled(title != (note?.title ?? "") || bodyText != (note?.body ?? ""))
-        .privacyCover(lockManager)
     }
 
     private func save() {

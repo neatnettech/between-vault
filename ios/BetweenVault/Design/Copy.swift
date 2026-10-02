@@ -217,6 +217,25 @@ enum Copy {
         return minutes == 1 ? "Try again in 1 minute" : "Try again in \(minutes) minutes"
     }
     static let waitBody = "Each wrong try after this makes the wait longer. Your iPhone passcode can't unlock the vault."
+    // Board 1b's "Forgot it?" card and the reset (row 2.4). The boards draw no confirmation, so
+    // the alert and the typed step below are ours; the RESET rule is row 2.4's.
+    static let forgotPasscode = "Forgot passcode?"
+    static let forgotIt = "Forgot it?"
+    static let resetExplained = "Reset erases the vault on this iPhone. Then your partner sends your recovery file and you restore it, like on a new phone."
+    static let notPairedWarning = "Not paired and no backup? Reset means the data is gone."
+    static let resetAndRestore = "Reset and restore from partner"
+    static let resetVault = "Reset vault"
+    static let resetAsksTwice = "Reset asks twice and needs you to type RESET."
+    static let resetAlertTitle = "Reset the vault?"
+    static let resetAlertPaired = "Your vault passcode, Face ID setting and pairing are erased. Your notes stay on this iPhone, locked, until your partner sends your recovery file."
+    static let resetAlertNotPaired = "You are not paired and there is no backup, so every note on this iPhone is erased for good. Nothing can bring them back."
+    static let continueReset = "Continue"
+    static let typeReset = "Type RESET to erase the vault"
+    static let resetWord = "RESET"
+    static let eraseVault = "Erase vault"
+    static let resetFailed = "The reset did not finish. Try again; it picks up where it stopped."
+    static let awaitingRestore = "These notes wait for your recovery file"
+    static let awaitingRestoreMessage = "Your partner holds it. Restore from your partner arrives in a later update."
     static func digitsEntered(_ count: Int) -> String { "\(count) of 6 digits entered" }
     static let vaultUnavailable = "Vault unavailable"
     /// States only what is known: after a failed open the app cannot tell whether the data is intact.

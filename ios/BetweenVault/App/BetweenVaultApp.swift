@@ -5,25 +5,22 @@ import SwiftUI
 struct BetweenVaultApp: App {
     @State private var services: AppServices?
     @State private var lockManager = LockManager()
+    @State private var cover = CoverWindow()
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
     /// True at launch, so opening the app counts as a return.
     @State private var promptOnActive = true
     @Environment(\.scenePhase) private var scenePhase
 
-    /// Notes from before onboarding existed (rc.1), or a flag lost in a restore. The flag alone
-    /// must never take the lock off a vault that holds something. Unknown counts as holding.
-    private let vaultHasNotes: Bool
-
     init() {
-        let services = try? AppServices()
-        _services = State(initialValue: services)
-        vaultHasNotes = (try? services?.noteRepository.noteCount()).flatMap { $0 } != 0
+        _services = State(initialValue: try? AppServices())
     }
 
     /// The cover and the launch prompt apply once the vault exists, and before onboarding too when
-    /// it already holds notes: then Face ID opens onboarding, and onboarding sets the passcode.
-    private var guarded: Bool { onboarded || vaultHasNotes }
+    /// it already holds notes (rc.1, a flag lost in a restore): the flag alone must never take the
+    /// lock off a vault that holds something. Then Face ID opens onboarding, which sets the passcode.
+    private var guarded: Bool { onboarded || services?.guardsOnboarding ?? true }
+    private var covered: Bool { guarded && lockManager.isLocked }
 
     var body: some Scene {
         WindowGroup {
@@ -43,7 +40,27 @@ struct BetweenVaultApp: App {
                 }
             }
             .environment(lockManager)
-            .privacyCover(lockManager, enabled: guarded)
+            // The lock screen itself is in the cover window. This plain shield only spares the
+            // first frame at launch, before that window exists.
+            .overlay {
+                if covered { Theme.Colors.lockScreen.ignoresSafeArea() }
+            }
+            .onAppear {
+                cover.install(lockManager: lockManager, services: services)
+                cover.show(covered)
+            }
+            .onChange(of: covered) { _, covered in
+                // A reset drops `guarded` while still locked: take any vault sheet down first.
+                if !covered, lockManager.isLocked { cover.dismissPresented() }
+                cover.show(covered)
+            }
+            // Row 2.5: auto lock. Checked often enough that a minute means about a minute.
+            .task {
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(10))
+                    lockManager.lockIfIdle()
+                }
+            }
         }
         // Spec 21: open the app, Face ID, unlocked. Launch and every return from the background
         // ask once. An inactive blip (the Face ID sheet itself, Control Center) and Lock now do

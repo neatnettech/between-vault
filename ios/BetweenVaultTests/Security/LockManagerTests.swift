@@ -188,4 +188,58 @@ struct LockManagerTests {
         lock.lock()
         #expect(lock.unlock(passcode: "000000") == .wrong(triesLeft: 4))
     }
+
+    /// Row 2.4: after the vault is erased, every setting and the attempt count start over, the
+    /// lock comes off and onboarding runs again.
+    @Test func forgetStartsEverythingOver() {
+        let clock = Clock()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let lock = makeOnboardedLock(defaults, clock: clock, enrolled: Data("owner".utf8))
+        lock.biometricsEnabled = false
+        lock.autoLockMinutes = 15
+        for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
+
+        lock.forget()
+
+        #expect(lock.isLocked, "a dismissing sheet stays covered")
+        #expect(lock.waitingUntil == nil)
+        #expect(lock.biometricsEnabled)
+        #expect(lock.autoLockMinutes == 1)
+        #expect(!defaults.bool(forKey: LockManager.onboardedKey))
+        let relaunched = makeLock(clock, defaults: defaults)
+        #expect(relaunched.biometricsEnabled)
+        relaunched.lock()
+        #expect(relaunched.unlock(passcode: "000000") == .wrong(triesLeft: 4))
+    }
+
+    /// Row 2.5: open and untouched for the auto lock time locks; any touch or keystroke resets it.
+    @Test func autoLockLocksOnlyAfterTheIdleTime() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        lock.autoLockMinutes = 5
+        #expect(lock.unlock(passcode: "123456") == .opened)
+
+        clock.now.addTimeInterval(4 * 60)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked)
+
+        lock.noteActivity()
+        clock.now.addTimeInterval(4 * 60)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked, "activity starts the wait over")
+
+        clock.now.addTimeInterval(60)
+        lock.lockIfIdle()
+        #expect(lock.isLocked)
+    }
+
+    /// Opening counts as activity, so a vault left open long ago does not lock the moment it opens.
+    @Test func openingStartsTheIdleTimeOver() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        clock.now.addTimeInterval(60 * 60)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+        lock.lockIfIdle()
+        #expect(!lock.isLocked)
+    }
 }

@@ -2,8 +2,7 @@ import LocalAuthentication
 import SwiftUI
 
 /// Boards 1, 1a and 1b: the lock screen, vault passcode entry and the wait after too many tries.
-/// Covers everything whenever the vault is locked, including the app switcher snapshot. Applied
-/// through `privacyCover` at the app root and at every sheet root.
+/// Drawn in the cover window (row 2.5), above everything the app presents.
 struct PrivacyOverlayView: View {
     let lockManager: LockManager
 
@@ -13,9 +12,15 @@ struct PrivacyOverlayView: View {
         case wait(until: Date)
     }
 
+    @Environment(AppServices.self) private var services: AppServices?
     @State private var screen: Screen
     @State private var digits = ""
     @State private var alert: String?
+    @State private var asksReset = false
+    @State private var typesReset = false
+
+    /// Row 2.4: paired, the notes survive a reset for restore; not paired, they are gone.
+    private var isPaired: Bool { ((try? services?.partnerRepository.partner()) ?? nil) != nil }
 
     init(lockManager: LockManager) {
         self.lockManager = lockManager
@@ -51,6 +56,16 @@ struct PrivacyOverlayView: View {
         .accessibilityElement(children: .contain)
         // Modal, so VoiceOver cannot swipe past the lock into the vault drawn underneath.
         .accessibilityAddTraits(.isModal)
+        // Row 2.4, first ask. The second is typing RESET.
+        .alert(Copy.resetAlertTitle, isPresented: $asksReset) {
+            Button(Copy.cancel, role: .cancel) {}
+            Button(Copy.continueReset, role: .destructive) { typesReset = true }
+        } message: {
+            Text(isPaired ? Copy.resetAlertPaired : Copy.resetAlertNotPaired)
+        }
+        .sheet(isPresented: $typesReset) {
+            ResetConfirmation(services: services, lockManager: lockManager)
+        }
     }
 
     // MARK: Board 1
@@ -125,6 +140,12 @@ struct PrivacyOverlayView: View {
             }
             .scrollBounceBehavior(.basedOnSize)
             PasscodeEntry(digits: $digits, onComplete: submit)
+            // Reset needs the store; without it there is nothing to offer.
+            if services != nil {
+                Button(Copy.forgotPasscode) { asksReset = true }
+                    .foregroundStyle(Theme.Colors.onAccentTint)
+                    .frame(minHeight: 44)
+            }
         }
         .padding(.top, Theme.Space.md)
         .padding(.bottom, Theme.Space.lg)
@@ -173,33 +194,76 @@ struct PrivacyOverlayView: View {
     // MARK: Board 1b
 
     private func waitScreen(_ until: Date) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Space.sm) {
-            Image(systemName: "timer")
-                .font(.title)
-                .foregroundStyle(Theme.Colors.text)
-                .frame(width: 64, height: 64)
-                .background(Theme.Colors.keypadKey, in: RoundedRectangle(cornerRadius: 18))
-                .accessibilityHidden(true)
-                .padding(.top, Theme.Space.xxxl)
-            TimelineView(.periodic(from: .now, by: 30)) { context in
-                Text(Copy.tryAgainIn(until.timeIntervalSince(context.date)))
-                    .font(Theme.Typography.title2)
-                    .foregroundStyle(Theme.Colors.text)
-                    .accessibilityAddTraits(.isHeader)
+        VStack(spacing: Theme.Space.sm) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Space.sm) {
+                    Image(systemName: "timer")
+                        .font(.title)
+                        .foregroundStyle(Theme.Colors.text)
+                        .frame(width: 64, height: 64)
+                        .background(Theme.Colors.keypadKey, in: RoundedRectangle(cornerRadius: 18))
+                        .accessibilityHidden(true)
+                        .padding(.top, Theme.Space.xxxl)
+                    TimelineView(.periodic(from: .now, by: 30)) { context in
+                        Text(Copy.tryAgainIn(until.timeIntervalSince(context.date)))
+                            .font(Theme.Typography.title2)
+                            .foregroundStyle(Theme.Colors.text)
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                    Text(Copy.waitBody)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.secondary)
+                    if services != nil {
+                        forgotCard
+                            .padding(.top, Theme.Space.md)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            Text(Copy.waitBody)
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.secondary)
-            Spacer()
-            // ponytail: "Forgot it?" and Reset and restore from partner arrive with 2.4.
+            .scrollBounceBehavior(.basedOnSize)
             Button(Copy.ok) {
                 alert = nil
                 screen = lockManager.biometricsEnabled ? .lock : .passcode
             }
             .buttonStyle(.vaultPrimary)
+            if services != nil {
+                Button { asksReset = true } label: {
+                    // The frame inside the label, so the whole outline is the tap target.
+                    Text(isPaired ? Copy.resetAndRestore : Copy.resetVault)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.vaultDestructive)
+                .overlay {
+                    RoundedRectangle(cornerRadius: Theme.Radius.panel)
+                        .stroke(Theme.Colors.destructive.opacity(0.4))
+                }
+                Text(Copy.resetAsksTwice)
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.secondary)
+                    .multilineTextAlignment(.center)
+            }
         }
+        .padding(.bottom, Theme.Space.lg)
+    }
+
+    /// Board 1b's "Forgot it?" card. The amber line only when nothing could restore the vault.
+    private var forgotCard: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            Text(Copy.forgotIt)
+                .font(Theme.Typography.body.weight(.semibold))
+                .foregroundStyle(Theme.Colors.text)
+            Text(Copy.resetExplained)
+                .foregroundStyle(Theme.Colors.secondary)
+            if !isPaired {
+                Text(Copy.notPairedWarning)
+                    .foregroundStyle(Theme.Colors.warning)
+            }
+        }
+        .font(Theme.Typography.subheadline)
+        .padding(Theme.Space.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.bottom, Theme.Space.xxl)
+        .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
     }
 
     private func showPasscode() {
@@ -222,6 +286,66 @@ struct PrivacyOverlayView: View {
     }
 }
 
+/// Row 2.4, second ask: the word RESET, typed. No board draws it; dark like the lock screen it
+/// opens from.
+private struct ResetConfirmation: View {
+    let services: AppServices?
+    let lockManager: LockManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var typed = ""
+    @State private var failed = false
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: Theme.Space.md) {
+                Text(Copy.typeReset)
+                    .font(Theme.Typography.title3)
+                    .foregroundStyle(Theme.Colors.text)
+                    .accessibilityAddTraits(.isHeader)
+                TextField(Copy.resetWord, text: $typed)
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled()
+                    .font(.body.monospaced())
+                    .padding(Theme.Space.sm)
+                    .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+                if failed {
+                    Label(Copy.resetFailed, systemImage: "exclamationmark.triangle")
+                        .font(Theme.Typography.subheadline)
+                        .foregroundStyle(Theme.Colors.warning)
+                }
+                Spacer()
+                Button(Copy.eraseVault, role: .destructive, action: erase)
+                    .buttonStyle(.vaultDestructive)
+                    .frame(maxWidth: .infinity)
+                    .disabled(typed != Copy.resetWord)
+            }
+            .padding(Theme.Space.lg)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Theme.Colors.lockScreen.ignoresSafeArea())
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(Copy.cancel) { dismiss() }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+        .presentationDetents([.medium, .large])
+    }
+
+    private func erase() {
+        do {
+            guard let services else { throw VaultKeyError.awaitingRestore }
+            try services.resetVault()
+        } catch {
+            failed = true
+            AccessibilityNotification.Announcement(Copy.resetFailed).post()
+            return
+        }
+        lockManager.forget()
+        dismiss()
+    }
+}
+
 /// Board 1 and the icon concept: two interlocking rounded rectangles, the couple and the space
 /// they share. The board's 1024 point artwork scaled to 72.
 private struct VaultMark: View {
@@ -241,17 +365,13 @@ private struct VaultMark: View {
     }
 }
 
-extension View {
-    /// A sheet is presented above the root view, so the root overlay cannot cover it. Every sheet
-    /// root applies this too, which keeps an open draft out of the app switcher snapshot without
-    /// dismissing it.
-    ///
-    /// ponytail: one cover per presentation root; alerts and dialogs still float above. Row 2.5
-    /// moves the cover into its own window to catch everything. Until then the root and an open
-    /// sheet each hold their own passcode screen; the sheet's is the one on top.
-    func privacyCover(_ lockManager: LockManager, enabled: Bool = true) -> some View {
-        overlay {
-            if enabled, lockManager.isLocked {
+extension PrivacyOverlayView {
+    /// The cover window's root. A fresh lock screen per lock, so it opens on board 1 every time.
+    struct Cover: View {
+        let lockManager: LockManager
+
+        var body: some View {
+            if lockManager.isLocked {
                 PrivacyOverlayView(lockManager: lockManager)
             }
         }
