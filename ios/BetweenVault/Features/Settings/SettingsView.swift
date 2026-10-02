@@ -37,6 +37,14 @@ struct SettingsView: View {
                     LabeledContent(Copy.clearClipboard, value: Copy.after60s)
                 }
                 .listRowBackground(Theme.Colors.surface)
+                Section {
+                    NavigationLink {
+                        AppIconPicker()
+                    } label: {
+                        LabeledContent(Copy.appIcon, value: AppIconChoice.current.title)
+                    }
+                }
+                .listRowBackground(Theme.Colors.surface)
                 Section(Copy.data) {
                     LabeledContent(Copy.exportBackup, value: Copy.comingIn11)
                     LabeledContent(Copy.attachmentsUnlock, value: Copy.comingIn11)

@@ -64,6 +64,10 @@ targets:
         MARKETING_VERSION: 1.0.0
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The Settings icon picker: the keyhole is the one alternate, both from the "App icon
+        # concepts" board.
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: AppIconKeyhole
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: NO
   BetweenVaultTests:
     type: bundle.unit-test
     platform: iOS
