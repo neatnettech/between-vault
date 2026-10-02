@@ -6,6 +6,7 @@
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey.svg)](ios/project.yml)
 [![Swift](https://img.shields.io/badge/swift-6.0-orange.svg)](ios/project.yml)
+[![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-support-yellow.svg?logo=buymeacoffee)](https://buymeacoffee.com/neatnettech)
 
 **Private by default. Shared by choice. No cloud required.**
 
@@ -71,6 +72,8 @@ commit. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full flow and the local
 setup.
 
 Found a security problem? Please report it privately. See [SECURITY.md](SECURITY.md).
+
+Like the project? [Buy me a coffee](https://buymeacoffee.com/neatnettech) or [sponsor on GitHub](https://github.com/sponsors/neatnettech).
 
 ## License
 
