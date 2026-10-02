@@ -26,13 +26,13 @@ final class PartnerRepository {
         } else {
             context.insert(PartnerRecord(id: partner.id, deviceID: partner.deviceID, fingerprint: partner.fingerprint, pairedAt: partner.pairedAt))
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func removeAll() throws {
         for record in try context.fetch(FetchDescriptor<PartnerRecord>()) {
             context.delete(record)
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 }
