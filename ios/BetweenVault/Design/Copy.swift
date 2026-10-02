@@ -459,6 +459,12 @@ enum Copy {
     static let attachmentsUnlock = "Attachments unlock"
     static let comingIn11 = "1.1"
     static let about = "About"
+    // App icon picker: the two directions of the "App icon concepts" board.
+    static let appIcon = "App icon"
+    static let iconTwoOfYou = "Two of you"
+    static let iconVaultDoor = "Vault door"
+    static let iconFooter = "Changes the icon on your Home Screen. iOS confirms the change."
+    static let iconNotChanged = "The icon could not be changed. Try again."
     static let version = "Version"
     static let collectsNothing = "This app collects nothing and has no server to send it to."
 }
