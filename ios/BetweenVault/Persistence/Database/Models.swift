@@ -40,6 +40,8 @@ final class NoteRecord {
     var baseVersion: Int
     /// The version last sent to the partner. Defaulted, so adding it stays a lightweight migration.
     var partnerKnownVersion: Int = 0
+    /// `NoteOrigin`. Defaulted, so adding it stays a lightweight migration.
+    var originRaw: String = "local"
     /// AES-GCM(nonce + ciphertext + tag) under the vault key. Title and body live inside.
     var ciphertext: Data
     var createdAt: Date

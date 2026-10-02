@@ -32,15 +32,14 @@ targets:
         NSCameraUsageDescription: Scan your partner's pairing code. Nothing is recorded or saved.
         ITSAppUsesNonExemptEncryption: false
         LSSupportsOpeningDocumentsInPlace: true
-        UTImportedTypeDeclarations:
+        # Ours, so exported, not imported (rows 3.7, 5.1).
+        UTExportedTypeDeclarations:
           - UTTypeIdentifier: tech.neatnet.nvlt
             UTTypeDescription: Encrypted vault exchange package
             UTTypeConformsTo: [public.data]
             UTTypeTagSpecification:
               public.filename-extension: [nvlt]
               public.mime-type: [application/octet-stream]
-        # Row 3.7: ours, so exported, not imported.
-        UTExportedTypeDeclarations:
           - UTTypeIdentifier: tech.neatnet.nvrec
             UTTypeDescription: Between Vault recovery file
             UTTypeConformsTo: [public.data]

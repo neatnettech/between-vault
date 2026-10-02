@@ -101,7 +101,8 @@ final class CategoryRepository {
 
     /// Creates a user category. Other is the catch all, so while it is last the new category goes
     /// above it (board 3b); once the user has moved Other elsewhere, the new one is appended.
-    func add(name: String, symbol: String = CategoryRecord.defaultSymbol) throws -> Category {
+    /// `commit: false` stages it for a caller that saves several writes as one (an import).
+    func add(name: String, symbol: String = CategoryRecord.defaultSymbol, commit: Bool = true) throws -> Category {
         let all = try context.fetch(FetchDescriptor<CategoryRecord>(sortBy: [SortDescriptor(\.sort)]))
         var sort = (all.last?.sort ?? -1) + 1
         if let last = all.last, last.builtInKey == BuiltInCategory.other.rawValue {
@@ -110,7 +111,7 @@ final class CategoryRepository {
         }
         let record = CategoryRecord(name: name, sort: sort, symbol: symbol)
         context.insert(record)
-        try context.saveOrRollback()
+        if commit { try context.saveOrRollback() }
         return Self.domain(record)
     }
 

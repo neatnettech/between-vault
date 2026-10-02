@@ -126,10 +126,27 @@ struct NoteRow: View {
                 .lineLimit(2)
                 // lineLimit only shortens what is drawn; VoiceOver would read the whole body.
                 .accessibilityLabel(String(note.body.prefix(120)))
-            StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
+            HStack(spacing: Theme.Space.xs) {
+                StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
+                // Never colour alone: the bar is paired with words.
+                if note.origin == .partner {
+                    Text(Copy.fromPartnerLabel)
+                        .font(Theme.Typography.badge)
+                        .foregroundStyle(Theme.Colors.partner)
+                }
+            }
         }
         .padding(.vertical, Theme.Space.sm)
         .padding(.horizontal, Theme.Space.md)
+        .overlay(alignment: .leading) {
+            if note.origin == .partner {
+                Capsule()
+                    .fill(Theme.Colors.partner)
+                    .frame(width: 3)
+                    .padding(.vertical, Theme.Space.sm)
+                    .accessibilityHidden(true)
+            }
+        }
         .accessibilityElement(children: .combine)
     }
 }

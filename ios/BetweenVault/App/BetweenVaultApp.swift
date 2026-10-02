@@ -10,6 +10,8 @@ struct BetweenVaultApp: App {
     @State private var showsClipboardToast = false
     /// A file opened from AirDrop, Messages or Files, held until the vault is open (row 3.7).
     @State private var openedFile: URL?
+    /// Row 5.2 toast: "N items imported".
+    @State private var importedCount: Int?
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
     @Environment(\.scenePhase) private var scenePhase
@@ -24,6 +26,27 @@ struct BetweenVaultApp: App {
     private var guarded: Bool { onboarded || services?.guardsOnboarding ?? true }
     private var covered: Bool { guarded && lockManager.isLocked }
 
+    /// Row 5.1: a package from the partner. Checked first (9a to 9d), then reviewed (9, U4); the
+    /// file itself is read once here and nothing else keeps it.
+    private func receivePackage(_ url: URL, services: AppServices) {
+        let content: ImportReviewView.Content
+        do {
+            content = .review(try services.importService.inspect(Data(contentsOf: url)))
+        } catch let failure as ImportService.ImportFailure {
+            content = .failed(failure)
+        } catch {
+            content = .failed(.damaged)
+        }
+        cover.present(
+            ImportReviewView(content: content) { imported in
+                cover.dismissScreen()
+                withAnimation { importedCount = imported }
+            }
+            .environment(services)
+            .environment(lockManager)
+        )
+    }
+
     /// Row 3.7: a recovery file from the partner. Only once the vault is open and onboarded, so a
     /// file opened onto the lock screen waits for the owner. Exchange packages arrive with 5.1.
     private func receiveOpenedFile() {
@@ -33,9 +56,18 @@ struct BetweenVaultApp: App {
         // so no copy of a wrapped key stays on disk. A file opened in place from Files is left alone.
         let inbox = URL.documentsDirectory.appending(path: "Inbox", directoryHint: .isDirectory).standardizedFileURL.path
         defer { if url.standardizedFileURL.path.hasPrefix(inbox) { try? FileManager.default.removeItem(at: url) } }
-        guard url.pathExtension == Pairing.RecoveryFile.fileExtension else { return }
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        if url.pathExtension == PackageSerializer.fileExtension {
+            receivePackage(url, services: services)
+            return
+        }
+        // Never silent: found on two phones, a file the app did not handle looked like nothing
+        // happened at all.
+        guard url.pathExtension == Pairing.RecoveryFile.fileExtension else {
+            cover.alert(Copy.cantBeOpened, Copy.unknownFile)
+            return
+        }
         do {
             try services.receiveRecoveryFile(Data(contentsOf: url))
             cover.alert(Copy.recoverySavedTitle, Copy.recoverySaved)
@@ -78,6 +110,21 @@ struct BetweenVaultApp: App {
                         .padding(.bottom, Theme.Space.xxxl)
                         .transition(.opacity)
                 }
+            }
+            .overlay(alignment: .bottom) {
+                if let importedCount, !covered {
+                    Toast(systemImage: "tray.and.arrow.down", text: Copy.itemsImported(importedCount))
+                        .padding(.bottom, Theme.Space.xxxl)
+                        .transition(.opacity)
+                }
+            }
+            // Handoff C8: success on import.
+            .sensoryFeedback(.success, trigger: importedCount) { _, new in new != nil }
+            .task(id: importedCount) {
+                guard let importedCount else { return }
+                AccessibilityNotification.Announcement(Copy.itemsImported(importedCount)).post()
+                try? await Task.sleep(for: .seconds(2))
+                withAnimation { self.importedCount = nil }
             }
             .onChange(of: clipboard.clearedAt) {
                 AccessibilityNotification.Announcement(Copy.toastClipboardCleared).post()

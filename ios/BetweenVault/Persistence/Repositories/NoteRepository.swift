@@ -50,7 +50,8 @@ final class NoteRepository {
             baseVersion: record.baseVersion,
             partnerKnownVersion: record.partnerKnownVersion,
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt
+            updatedAt: record.updatedAt,
+            origin: NoteOrigin(rawValue: record.originRaw) ?? .local
         )
     }
 
@@ -95,11 +96,11 @@ final class NoteRepository {
             existing.version = note.version
             existing.baseVersion = note.baseVersion
             existing.partnerKnownVersion = note.partnerKnownVersion
+            existing.originRaw = note.origin.rawValue
             existing.ciphertext = ciphertext
             existing.updatedAt = note.updatedAt
         } else {
-            context.insert(
-                NoteRecord(
+            let record = NoteRecord(
                     id: note.id,
                     categoryID: note.categoryID,
                     stateRaw: note.state.rawValue,
@@ -110,7 +111,8 @@ final class NoteRepository {
                     createdAt: note.createdAt,
                     updatedAt: note.updatedAt
                 )
-            )
+            record.originRaw = note.origin.rawValue
+            context.insert(record)
         }
         if commit { try context.saveOrRollback() }
     }

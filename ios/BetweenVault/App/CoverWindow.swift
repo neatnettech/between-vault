@@ -57,6 +57,22 @@ final class CoverWindow {
         top?.present(alert, animated: true)
     }
 
+    /// A screen above whatever the vault presents (row 5.1: a file from the partner), so an open
+    /// sheet, and its draft, stay where they are underneath.
+    private weak var presented: UIViewController?
+
+    func present(_ view: some View) {
+        var top = appWindow?.rootViewController
+        while let next = top?.presentedViewController { top = next }
+        let host = UIHostingController(rootView: view)
+        presented = host
+        top?.present(host, animated: true)
+    }
+
+    func dismissScreen() {
+        presented?.dismiss(animated: true)
+    }
+
     func show(_ visible: Bool) {
         guard let window else { return }
         if visible {
