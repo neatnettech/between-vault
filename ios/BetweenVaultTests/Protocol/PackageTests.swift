@@ -13,7 +13,7 @@ struct PackageTests {
             items: [
                 ExchangeItem(
                     objectID: UUID(),
-                    categoryID: nil,
+                    category: ExchangeCategory(name: "Home", builtInKey: nil, symbol: "house"),
                     baseVersion: 0,
                     version: 1,
                     updatedAt: Date(),
@@ -43,7 +43,7 @@ struct PackageTests {
                 items: [
                     ExchangeItem(
                         objectID: UUID(),
-                        categoryID: nil,
+                        category: ExchangeCategory(name: "Home", builtInKey: nil, symbol: "house"),
                         baseVersion: 0,
                         version: 1,
                         updatedAt: Date(),

@@ -11,6 +11,7 @@
 		0644DBDA971BA5283CEAFF41 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */; };
 		0E8837E4A0B21CA8E88C7339 /* Partner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF0A0F45F745836889C862F /* Partner.swift */; };
 		0EA0F439C726A9AE1A242266 /* PasscodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47C57382C6B84F187B1F582 /* PasscodeTests.swift */; };
+		14198B0158DE7E4AD7419C1B /* ExchangeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3F989DF102D93A114D9B6C /* ExchangeServiceTests.swift */; };
 		16AF48E3713973E49987F962 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6401CB8B0F4ABD25CF32B09 /* Components.swift */; };
 		19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D1A9BC6DD2621344C2F5F5 /* ExchangeLogRepository.swift */; };
 		1A8FC511996091A051AE1AA8 /* PairingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED36D99806280261613C54F /* PairingFlow.swift */; };
@@ -23,6 +24,7 @@
 		47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */; };
 		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
 		4B52249D5CD776F449556B47 /* PairingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80D096B5A886D0EA1DEF95A /* PairingTests.swift */; };
+		4CC5B655319E137113430EAE /* ExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90DF4968C346930F5ADABB3 /* ExchangeService.swift */; };
 		4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28310679148BD0779616585A /* PromiseLineTests.swift */; };
 		4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F738238F6615CC5CC47F33E /* NoteEditorView.swift */; };
 		5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */; };
@@ -106,6 +108,7 @@
 		8A47012B8F91AB4BD7554FCB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		8F378B970C775E0AA86C1AC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		99695F85D8BA477356642B65 /* NoteState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteState.swift; sourceTree = "<group>"; };
+		9E3F989DF102D93A114D9B6C /* ExchangeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeServiceTests.swift; sourceTree = "<group>"; };
 		9ED36D99806280261613C54F /* PairingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingFlow.swift; sourceTree = "<group>"; };
 		A3D1A9BC6DD2621344C2F5F5 /* ExchangeLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeLogRepository.swift; sourceTree = "<group>"; };
 		A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManagerTests.swift; sourceTree = "<group>"; };
@@ -114,6 +117,7 @@
 		C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C67C3E039C7E5333270671E1 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		C6DD283DBA80128A707436C5 /* LockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManager.swift; sourceTree = "<group>"; };
+		C90DF4968C346930F5ADABB3 /* ExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeService.swift; sourceTree = "<group>"; };
 		CC529AE18B505426C1456254 /* PackageValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageValidator.swift; sourceTree = "<group>"; };
 		CCBB490200F8E6648A9E6A29 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Copy.swift; sourceTree = "<group>"; };
 		D0E3AEA809ED556F3068F402 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -262,6 +266,7 @@
 			isa = PBXGroup;
 			children = (
 				4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */,
+				9E3F989DF102D93A114D9B6C /* ExchangeServiceTests.swift */,
 				86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */,
 				0DF110A4E469C0714B0C1727 /* VaultResetTests.swift */,
 			);
@@ -334,6 +339,7 @@
 		AB89D65C31376E849963596B /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
+				C90DF4968C346930F5ADABB3 /* ExchangeService.swift */,
 				AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */,
 			);
 			path = Exchange;
@@ -551,6 +557,7 @@
 				FC2118C8E85C03332CA47EB3 /* ClipboardGuardTests.swift in Sources */,
 				215BC30B4A0EA02F20E8BC77 /* ComponentsTests.swift in Sources */,
 				8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */,
+				14198B0158DE7E4AD7419C1B /* ExchangeServiceTests.swift in Sources */,
 				D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */,
 				4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */,
 				73153977095EE863A27F519C /* PackageTests.swift in Sources */,
@@ -580,6 +587,7 @@
 				7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */,
 				19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */,
 				FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */,
+				4CC5B655319E137113430EAE /* ExchangeService.swift in Sources */,
 				99A75C7C8DC1BE88506C44C3 /* ExchangeView.swift in Sources */,
 				7B9C512DB3559931CCB5E256 /* Identity.swift in Sources */,
 				22E68C04E8663ACDA5843ABD /* KeyManager.swift in Sources */,
