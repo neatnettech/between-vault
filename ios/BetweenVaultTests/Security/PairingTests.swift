@@ -166,3 +166,40 @@ struct PairingTests {
         }
     }
 }
+
+/// Row 3.7: the recovery file between the two phones.
+@MainActor
+struct RecoveryFileTests {
+    private let idA = "0f8fad5b-d9cb-469f-a165-70867728950e"
+    private let idB = "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+
+    @Test func thePartnerKeepsTheBlobAndItOpensToTheOwnersKey() throws {
+        let pairKey = CryptoEngine.randomKey()
+        let vaultKey = CryptoEngine.randomKey()
+        let file = try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: idA, holder: idB)
+
+        #expect(!file.contains(vaultKey))
+        let blob = try Pairing.RecoveryFile.accept(file, pairKey: pairKey, me: idB, partner: idA)
+        #expect(try Pairing.unwrapRecovery(blob, pairKey: pairKey, ownerDeviceID: idA) == vaultKey)
+    }
+
+    /// Only the paired partner's file, made for this phone, under this pairing, is kept.
+    @Test func anythingElseIsRefused() throws {
+        let pairKey = CryptoEngine.randomKey()
+        let file = try Pairing.RecoveryFile.make(vaultKey: CryptoEngine.randomKey(), pairKey: pairKey, owner: idA, holder: idB)
+        let other = "11111111-2222-3333-4444-555555555555"
+
+        #expect(throws: Pairing.RecoveryFile.Problem.notForThisPairing) {
+            try Pairing.RecoveryFile.accept(file, pairKey: pairKey, me: other, partner: idA)
+        }
+        #expect(throws: Pairing.RecoveryFile.Problem.notForThisPairing) {
+            try Pairing.RecoveryFile.accept(file, pairKey: pairKey, me: idB, partner: other)
+        }
+        #expect(throws: Pairing.RecoveryFile.Problem.notForThisPairing) {
+            try Pairing.RecoveryFile.accept(file, pairKey: CryptoEngine.randomKey(), me: idB, partner: idA)
+        }
+        #expect(throws: Pairing.RecoveryFile.Problem.unreadable) {
+            try Pairing.RecoveryFile.accept(Data("not json".utf8), pairKey: pairKey, me: idB, partner: idA)
+        }
+    }
+}

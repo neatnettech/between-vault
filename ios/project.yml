@@ -39,11 +39,23 @@ targets:
             UTTypeTagSpecification:
               public.filename-extension: [nvlt]
               public.mime-type: [application/octet-stream]
+        # Row 3.7: ours, so exported, not imported.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: tech.neatnet.nvrec
+            UTTypeDescription: Between Vault recovery file
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [nvrec]
+              public.mime-type: [application/octet-stream]
         CFBundleDocumentTypes:
           - CFBundleTypeName: NVLT Exchange Package
             CFBundleTypeRole: Viewer
             LSHandlerRank: Owner
             LSItemContentTypes: [tech.neatnet.nvlt]
+          - CFBundleTypeName: Between Vault Recovery File
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes: [tech.neatnet.nvrec]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: tech.neatnet.betweenvault

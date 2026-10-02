@@ -48,6 +48,15 @@ final class CoverWindow {
         appWindow?.rootViewController?.dismiss(animated: false)
     }
 
+    /// An alert above whatever the vault presents, so a sheet that is up does not swallow it.
+    func alert(_ title: String, _ message: String) {
+        var top = appWindow?.rootViewController
+        while let next = top?.presentedViewController { top = next }
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: Copy.ok, style: .cancel))
+        top?.present(alert, animated: true)
+    }
+
     func show(_ visible: Bool) {
         guard let window else { return }
         if visible {
