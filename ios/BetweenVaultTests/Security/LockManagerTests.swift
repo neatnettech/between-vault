@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import LocalAuthentication
 import Testing
 
@@ -241,5 +242,47 @@ struct LockManagerTests {
         #expect(lock.unlock(passcode: "123456") == .opened)
         lock.lockIfIdle()
         #expect(!lock.isLocked)
+    }
+
+    // MARK: Row 2.7: lock on backgrounding (spec 21, 22)
+
+    /// Launch asks once; the inactive blip the Face ID sheet itself causes does not ask again, so
+    /// a cancelled prompt never loops.
+    @Test func launchAsksOnceAndAnInactiveBlipDoesNotAskAgain() {
+        let lock = makeLock()
+        #expect(lock.sceneChanged(to: .active, guarded: true))
+        #expect(!lock.sceneChanged(to: .inactive, guarded: true))
+        #expect(!lock.sceneChanged(to: .active, guarded: true))
+    }
+
+    /// Leaving the app locks it, and the return asks once.
+    @Test func backgroundLocksAndTheReturnAsks() {
+        let lock = makeLock()
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+
+        #expect(!lock.sceneChanged(to: .inactive, guarded: true))
+        #expect(lock.isLocked, "inactive already locks, before the app switcher snapshot")
+        #expect(!lock.sceneChanged(to: .background, guarded: true))
+        #expect(lock.isLocked)
+        #expect(lock.sceneChanged(to: .active, guarded: true))
+    }
+
+    /// Lock now stays locked: no prompt until the app actually leaves and comes back.
+    @Test func lockNowDoesNotAsk() {
+        let lock = makeLock()
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+        lock.lock()
+        #expect(!lock.sceneChanged(to: .active, guarded: true))
+        #expect(lock.isLocked)
+    }
+
+    /// Before onboarding nothing asks; the first return after it does.
+    @Test func nothingAsksBeforeOnboarding() {
+        let lock = makeLock()
+        #expect(!lock.sceneChanged(to: .active, guarded: false))
+        _ = lock.sceneChanged(to: .background, guarded: false)
+        #expect(lock.sceneChanged(to: .active, guarded: true))
     }
 }

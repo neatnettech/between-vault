@@ -10,8 +10,6 @@ struct BetweenVaultApp: App {
     @State private var showsClipboardToast = false
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
-    /// True at launch, so opening the app counts as a return.
-    @State private var promptOnActive = true
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -82,22 +80,10 @@ struct BetweenVaultApp: App {
                 }
             }
         }
-        // Spec 21: open the app, Face ID, unlocked. Launch and every return from the background
-        // ask once. An inactive blip (the Face ID sheet itself, Control Center) and Lock now do
-        // not, so a cancelled prompt never loops and Lock now stays locked.
+        // Spec 21 and 22, decided in LockManager so row 2.7 can test it.
         .onChange(of: scenePhase, initial: true) { _, phase in
-            switch phase {
-            case .active:
-                // A fresh onboarding leaves promptOnActive set; it ends unlocked, and the next
-                // return from the background sets it again anyway.
-                guard guarded, promptOnActive else { return }
-                promptOnActive = false
+            if lockManager.sceneChanged(to: phase, guarded: guarded) {
                 Task { await lockManager.unlock() }
-            case .background:
-                promptOnActive = true
-                lockManager.lock()
-            default:
-                lockManager.lock()
             }
         }
     }
