@@ -11,7 +11,8 @@ struct BetweenVaultApp: App {
     /// A file opened from AirDrop, Messages or Files, held until the vault is open (row 3.7).
     @State private var openedFile: URL?
     /// Row 5.2 toast: "N items imported".
-    @State private var importedCount: Int?
+    /// Rows R2 and R3: what became of a file, said in a toast ("N items imported", kept, declined).
+    @State private var fileToast: String?
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
     @Environment(\.scenePhase) private var scenePhase
@@ -31,20 +32,30 @@ struct BetweenVaultApp: App {
     private func receivePackage(_ url: URL, services: AppServices) {
         let content: ImportReviewView.Content
         do {
-            content = .review(try services.importService.inspect(Data(contentsOf: url)))
+            let data = try Data(contentsOf: url)
+            content = .review(try services.importService.inspect(data), data: data, receivedAt: .now)
         } catch let failure as ImportService.ImportFailure {
             content = .failed(failure)
         } catch {
             content = .failed(.damaged)
         }
         cover.present(
-            ImportReviewView(content: content) { imported in
+            ImportReviewView(content: content) { outcome in
                 cover.dismissScreen()
-                withAnimation { importedCount = imported }
+                withAnimation { fileToast = Self.toast(for: outcome) }
             }
             .environment(services)
             .environment(lockManager)
         )
+    }
+
+    static func toast(for outcome: ImportReviewView.Outcome) -> String? {
+        switch outcome {
+        case let .imported(count): Copy.itemsImported(count)
+        case .keptForLater: Copy.keptForLater
+        case .declined: Copy.fileDeclined
+        case .closed: nil
+        }
     }
 
     /// Row 3.7: a recovery file from the partner. Only once the vault is open and onboarded, so a
@@ -82,28 +93,45 @@ struct BetweenVaultApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if !onboarded {
-                    OnboardingView(lockManager: lockManager) { onboarded = true }
-                } else if let services {
-                    RootView()
-                        .environment(services)
-                        .modelContainer(services.container)
-                } else {
-                    ContentUnavailableView(
-                        Copy.vaultUnavailable,
-                        systemImage: "exclamationmark.triangle",
-                        description: Text(Copy.storeCouldNotOpen)
-                    )
-                }
+            lifecycle(feedback(root))
+        }
+        // Spec 21 and 22, decided in LockManager so row 2.7 can test it.
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if lockManager.sceneChanged(to: phase, guarded: guarded) {
+                Task { await lockManager.unlock() }
             }
-            .environment(lockManager)
-            // The lock screen itself is in the cover window. This plain shield only spares the
-            // first frame at launch, before that window exists.
-            .overlay {
-                if covered { Theme.Colors.lockScreen.ignoresSafeArea() }
+        }
+    }
+
+    /// The vault, onboarding, or why the store could not open.
+    private var root: some View {
+        Group {
+            if !onboarded {
+                OnboardingView(lockManager: lockManager) { onboarded = true }
+            } else if let services {
+                RootView()
+                    .environment(services)
+                    .modelContainer(services.container)
+            } else {
+                ContentUnavailableView(
+                    Copy.vaultUnavailable,
+                    systemImage: "exclamationmark.triangle",
+                    description: Text(Copy.storeCouldNotOpen)
+                )
             }
-            // Row 2.6: counts only, never content.
+        }
+        .environment(lockManager)
+        // The lock screen itself is in the cover window. This plain shield only spares the
+        // first frame at launch, before that window exists.
+        .overlay {
+            if covered { Theme.Colors.lockScreen.ignoresSafeArea() }
+        }
+    }
+
+    /// Toasts and their haptics: counts and status only, never content.
+    private func feedback(_ content: some View) -> some View {
+        content
+            // Row 2.6.
             .overlay(alignment: .bottom) {
                 if showsClipboardToast, !covered {
                     Toast(systemImage: "doc.on.clipboard", text: Copy.toastClipboardCleared)
@@ -112,19 +140,19 @@ struct BetweenVaultApp: App {
                 }
             }
             .overlay(alignment: .bottom) {
-                if let importedCount, !covered {
-                    Toast(systemImage: "tray.and.arrow.down", text: Copy.itemsImported(importedCount))
+                if let fileToast, !covered {
+                    Toast(systemImage: "tray.and.arrow.down", text: fileToast)
                         .padding(.bottom, Theme.Space.xxxl)
                         .transition(.opacity)
                 }
             }
             // Handoff C8: success on import.
-            .sensoryFeedback(.success, trigger: importedCount) { _, new in new != nil }
-            .task(id: importedCount) {
-                guard let importedCount else { return }
-                AccessibilityNotification.Announcement(Copy.itemsImported(importedCount)).post()
+            .sensoryFeedback(.success, trigger: fileToast) { _, new in new != nil }
+            .task(id: fileToast) {
+                guard let fileToast else { return }
+                AccessibilityNotification.Announcement(fileToast).post()
                 try? await Task.sleep(for: .seconds(2))
-                withAnimation { self.importedCount = nil }
+                withAnimation { self.fileToast = nil }
             }
             .onChange(of: clipboard.clearedAt) {
                 AccessibilityNotification.Announcement(Copy.toastClipboardCleared).post()
@@ -135,7 +163,14 @@ struct BetweenVaultApp: App {
                 try? await Task.sleep(for: .seconds(2))
                 withAnimation { showsClipboardToast = false }
             }
+    }
+
+    /// Files opened from elsewhere, the cover window and auto lock.
+    private func lifecycle(_ content: some View) -> some View {
+        content
             .onOpenURL { openedFile = $0 }
+            // R1: the lock screen says a file from the partner waits behind it, and nothing more.
+            .onChange(of: openedFile) { _, file in lockManager.fileWaiting = file != nil }
             .onChange(of: openedFile) { receiveOpenedFile() }
             .onChange(of: covered) { receiveOpenedFile() }
             .onChange(of: onboarded) { receiveOpenedFile() }
@@ -156,12 +191,5 @@ struct BetweenVaultApp: App {
                     lockManager.lockIfIdle()
                 }
             }
-        }
-        // Spec 21 and 22, decided in LockManager so row 2.7 can test it.
-        .onChange(of: scenePhase, initial: true) { _, phase in
-            if lockManager.sceneChanged(to: phase, guarded: guarded) {
-                Task { await lockManager.unlock() }
-            }
-        }
     }
 }

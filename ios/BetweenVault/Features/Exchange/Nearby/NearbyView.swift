@@ -17,8 +17,6 @@ struct NearbyView: View {
     @State private var session: NearbySession?
     @State private var available: [ExchangeService.OutboxItem] = []
     @State private var ticked = Set<UUID>()
-    @State private var resolutions: [UUID: ImportService.Resolution] = [:]
-    @State private var conflictIndex: Int?
     @State private var failure: String?
 
     var body: some View {
@@ -173,9 +171,10 @@ struct NearbyView: View {
                             HStack {
                                 Text(item.note.title).foregroundStyle(Theme.Colors.text)
                                 Spacer()
-                                Text(item.isUpdate ? Copy.updateTag : Copy.newTag)
+                                let notReceived = session.notReceived.contains(item.id)
+                                Text(notReceived ? Copy.notReceived : item.isUpdate ? Copy.updateTag : Copy.newTag)
                                     .font(Theme.Typography.badge)
-                                    .foregroundStyle(item.isUpdate ? Theme.Colors.sealedBadgeInk : Theme.Colors.privateBadgeInk)
+                                    .foregroundStyle(notReceived || item.isUpdate ? Theme.Colors.sealedBadgeInk : Theme.Colors.privateBadgeInk)
                             }
                         }
                         .toggleStyle(CheckboxStyle())
@@ -185,7 +184,9 @@ struct NearbyView: View {
                 }
                 .padding(.horizontal, Theme.Space.md)
                 .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-                Text(Copy.untickToKeep).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
+                Text(session.notReceived.isEmpty ? Copy.untickToKeep : Copy.untickToKeepWithNotReceived(session.notReceived.count))
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.secondary)
             }
             if session.confirmedCount > 0 {
                 Label(Copy.confirmedEarlier(session.confirmedCount), systemImage: "checkmark.seal")
@@ -205,58 +206,16 @@ struct NearbyView: View {
         .onAppear(perform: reloadAvailable)
     }
 
+    /// N3: the same review as a file (R2), without Decide later: the partner is right here.
     private func incomingSheet(_ incoming: ImportService.Incoming, session: NearbySession) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Space.md) {
-            HStack(spacing: Theme.Space.sm) {
-                Image(systemName: "envelope")
-                    .foregroundStyle(Theme.Colors.onAccentTint)
-                    .frame(width: 48, height: 48)
-                    .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 12))
-                    .accessibilityHidden(true)
-                Text(Copy.partnerWantsToSend(incoming.items.count)).font(Theme.Typography.title3)
-            }
-            ScrollView {
-                VStack(spacing: Theme.Space.sm) {
-                    ForEach(incoming.items) { item in
-                        HStack {
-                            Text(item.incoming.title)
-                            Spacer()
-                            switch item.change {
-                            case .update, .conflict:
-                                Text(Copy.updatesYours).font(Theme.Typography.badge).foregroundStyle(Theme.Colors.sealedBadgeInk)
-                            default:
-                                Text(item.incoming.category?.name ?? "").font(Theme.Typography.subheadline).foregroundStyle(Theme.Colors.secondary)
-                            }
-                        }
-                        .accessibilityElement(children: .combine)
-                    }
-                }
-                .padding(Theme.Space.md)
-                .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-            }
-            Text(Copy.titlesUntilAccept).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
-            // N3: Decline and Accept at equal size.
-            HStack(spacing: Theme.Space.sm) {
-                Button(Copy.decline) { session.decline() }.buttonStyle(.vaultSecondary)
-                Button(Copy.acceptItems(incoming.items.count)) { accept(incoming, session: session) }.buttonStyle(.vaultPrimary)
-            }
-        }
-        .padding(Theme.Space.lg)
+        IncomingReview(
+            incoming: incoming,
+            source: .nearby,
+            accept: { resolutions in try session.accept(resolutions: resolutions) },
+            decline: { session.decline() }
+        )
         .presentationDetents([.medium, .large])
         .interactiveDismissDisabled()
-        .sheet(isPresented: Binding(get: { conflictIndex != nil }, set: { if !$0 { conflictIndex = nil } })) {
-            if let index = conflictIndex, index < incoming.conflicts.count {
-                ConflictSheet(item: incoming.conflicts[index], index: index + 1, count: incoming.conflicts.count) { choice in
-                    resolutions[incoming.conflicts[index].id] = choice
-                    if index + 1 < incoming.conflicts.count {
-                        conflictIndex = index + 1
-                    } else {
-                        conflictIndex = nil
-                        finishAccept(session)
-                    }
-                }
-            }
-        }
     }
 
     private func sending(_ session: NearbySession, count: Int) -> some View {
@@ -292,6 +251,7 @@ struct NearbyView: View {
             Text(Copy.partnerHasAll(count)).foregroundStyle(Theme.Colors.secondary)
             VStack(spacing: Theme.Space.sm) {
                 LabeledContent(Copy.sent, value: "\(session.sentCount)")
+                LabeledContent(Copy.earlierFileSendsConfirmed, value: "\(session.confirmedCount)")
                 LabeledContent(Copy.received, value: "\(session.receivedCount)")
                 LabeledContent(Copy.conflicts, value: session.conflictsCount == 0 ? Copy.noneWord : "\(session.conflictsCount)")
             }
@@ -401,19 +361,6 @@ struct NearbyView: View {
             failure = nil
         } catch {
             failure = Copy.packageNotMade
-        }
-    }
-
-    private func accept(_ incoming: ImportService.Incoming, session: NearbySession) {
-        resolutions = [:]
-        if incoming.conflicts.isEmpty { finishAccept(session) } else { conflictIndex = 0 }
-    }
-
-    private func finishAccept(_ session: NearbySession) {
-        do {
-            try session.accept(resolutions: resolutions)
-        } catch {
-            failure = Copy.importNotSaved
         }
     }
 

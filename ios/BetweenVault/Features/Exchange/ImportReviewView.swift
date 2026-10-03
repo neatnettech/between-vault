@@ -5,147 +5,63 @@ import SwiftUI
 /// until Accept, and then all of it at once.
 struct ImportReviewView: View {
     enum Content {
-        case review(ImportService.Incoming)
+        /// R2. `data` is the package as it arrived, kept only if the owner decides later.
+        case review(ImportService.Incoming, data: Data, receivedAt: Date)
         case failed(ImportService.ImportFailure)
     }
 
+    /// How the review ended, for the caller's toast.
+    enum Outcome {
+        case imported(Int)
+        case declined
+        case keptForLater
+        case closed
+    }
+
     let content: Content
-    let onDone: (_ importedCount: Int?) -> Void
+    let onDone: (Outcome) -> Void
 
     @Environment(AppServices.self) private var services
-    @State private var resolutions: [UUID: ImportService.Resolution] = [:]
-    @State private var conflictIndex: Int?
-    @State private var failure: String?
+    /// R3, once accepted.
+    @State private var result: (incoming: ImportService.Incoming, resolutions: [UUID: ImportService.Resolution])?
 
     var body: some View {
         NavigationStack {
             switch content {
-            case let .review(incoming): review(incoming)
-            case let .failed(failure): failed(failure)
+            case let .review(incoming, data, receivedAt):
+                if let result {
+                    ImportResult(incoming: result.incoming, resolutions: result.resolutions) {
+                        onDone(.imported(result.incoming.changingCount))
+                    }
+                } else {
+                    IncomingReview(
+                        incoming: incoming,
+                        source: .file(receivedAt: receivedAt),
+                        accept: { resolutions in
+                            try services.importService.accept(incoming, resolutions: resolutions)
+                            // R3: accepted, so it no longer waits; the file itself is already gone.
+                            try? services.pendingPackages.remove(incoming.exchangeID)
+                            result = (incoming, resolutions)
+                        },
+                        decline: {
+                            try? services.importService.decline(incoming)
+                            try? services.pendingPackages.remove(incoming.exchangeID)
+                            onDone(.declined)
+                        },
+                        decideLater: {
+                            // The only way a file waits: the encrypted package, never its titles.
+                            try? services.pendingPackages.keep(
+                                exchangeID: incoming.exchangeID, data: data, itemCount: incoming.items.count, at: receivedAt
+                            )
+                            onDone(.keptForLater)
+                        }
+                    )
+                }
+            case let .failed(failure):
+                failed(failure)
             }
         }
         .interactiveDismissDisabled()
-    }
-
-    // MARK: Boards 9, U4
-
-    private func review(_ incoming: ImportService.Incoming) -> some View {
-        let groups = Dictionary(grouping: incoming.items) { item -> Int in
-            switch item.change {
-            case .new: 0
-            case .update: 1
-            case .conflict: 2
-            case .unchanged: 3
-            }
-        }
-        return List {
-            Section {
-                HStack(spacing: Theme.Space.sm) {
-                    Image(systemName: "envelope")
-                        .foregroundStyle(Theme.Colors.onAccentTint)
-                        .frame(width: 44, height: 44)
-                        .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 12))
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: Theme.Space.xxs) {
-                        Text(Copy.fromYourPartner).font(Theme.Typography.body.weight(.semibold))
-                        Text(Copy.verifiedLine(incoming.createdAt, count: incoming.items.count))
-                            .font(Theme.Typography.subheadline)
-                            .foregroundStyle(Theme.Colors.secondary)
-                    }
-                }
-                .accessibilityElement(children: .combine)
-            }
-            .listRowBackground(Theme.Colors.surface)
-
-            section(Copy.newSection, groups[0])
-            section(Copy.updateSection, groups[1])
-            section(Copy.conflictSection, groups[2], highlighted: true)
-            section(Copy.unchangedSection, groups[3])
-
-            Section {
-                VStack(alignment: .leading, spacing: Theme.Space.xs) {
-                    Text(Copy.titlesOnly)
-                    if groups[1] != nil { Text(Copy.updatesReplace) }
-                    if !incoming.conflicts.isEmpty { Text(Copy.conflictsToChoose(incoming.conflicts.count)) }
-                    if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
-                }
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.secondary)
-            }
-            .listRowBackground(Color.clear)
-        }
-        .scrollContentBackground(.hidden)
-        .background(Theme.Colors.bg)
-        .navigationTitle(Copy.tabExchange)
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            VStack(spacing: Theme.Space.xs) {
-                Button(Copy.acceptItems(incoming.items.count)) { accept(incoming) }
-                    .buttonStyle(.vaultPrimary)
-                Button(Copy.decline) { decline(incoming) }
-                    .frame(minHeight: 44)
-            }
-            .padding(Theme.Space.md)
-            .background(Theme.Colors.bg)
-        }
-        .sheet(isPresented: Binding(get: { conflictIndex != nil }, set: { if !$0 { conflictIndex = nil } })) {
-            if let index = conflictIndex, index < incoming.conflicts.count {
-                ConflictSheet(item: incoming.conflicts[index], index: index + 1, count: incoming.conflicts.count) { choice in
-                    resolutions[incoming.conflicts[index].id] = choice
-                    if index + 1 < incoming.conflicts.count {
-                        conflictIndex = index + 1
-                    } else {
-                        conflictIndex = nil
-                        apply(incoming)
-                    }
-                }
-            }
-        }
-        // Handoff C8: warning when a diverged item is found.
-        .sensoryFeedback(.warning, trigger: conflictIndex) { old, new in old == nil && new != nil }
-    }
-
-    @ViewBuilder
-    private func section(_ header: (Int) -> String, _ items: [ImportService.Item]?, highlighted: Bool = false) -> some View {
-        if let items, !items.isEmpty {
-            Section(header(items.count)) {
-                ForEach(items) { item in
-                    HStack {
-                        Text(item.incoming.title).foregroundStyle(Theme.Colors.text)
-                        Spacer()
-                        Text(item.incoming.category?.name ?? "")
-                            .font(Theme.Typography.subheadline)
-                            .foregroundStyle(highlighted ? Theme.Colors.sealedBadgeInk : Theme.Colors.secondary)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-            }
-            .listRowBackground(Theme.Colors.surface)
-        }
-    }
-
-    private func accept(_ incoming: ImportService.Incoming) {
-        if incoming.conflicts.isEmpty {
-            apply(incoming)
-        } else {
-            // Board 10: one sheet per item, no default answer.
-            resolutions = [:]
-            conflictIndex = 0
-        }
-    }
-
-    private func apply(_ incoming: ImportService.Incoming) {
-        do {
-            try services.importService.accept(incoming, resolutions: resolutions)
-            onDone(incoming.items.count)
-        } catch {
-            failure = Copy.importNotSaved
-        }
-    }
-
-    private func decline(_ incoming: ImportService.Incoming) {
-        try? services.importService.decline(incoming)
-        onDone(nil)
     }
 
     // MARK: Boards 9a to 9d
@@ -166,7 +82,7 @@ struct ImportReviewView: View {
                     if let url = URL(string: "itms-apps://apps.apple.com") { UIApplication.shared.open(url) }
                 }
                 .buttonStyle(.vaultPrimary)
-                Button(Copy.later) { onDone(nil) }.buttonStyle(.vaultSecondary)
+                Button(Copy.later) { onDone(.closed) }.buttonStyle(.vaultSecondary)
             }
         case let .alreadyImported(date):
             FailureCard(icon: "checkmark.circle", title: Copy.youAlreadyHaveThis, message: Copy.importedOn(date),
@@ -181,7 +97,7 @@ struct ImportReviewView: View {
     }
 
     private var done: some View {
-        Button(Copy.done) { onDone(nil) }.buttonStyle(.vaultPrimary)
+        Button(Copy.done) { onDone(.closed) }.buttonStyle(.vaultPrimary)
     }
 }
 

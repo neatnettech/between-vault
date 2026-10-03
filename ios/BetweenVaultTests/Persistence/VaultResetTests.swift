@@ -9,7 +9,7 @@ import Testing
 struct VaultResetTests {
     private func makeStore() throws -> (context: ModelContext, container: ModelContainer, notes: NoteRepository) {
         let container = try ModelContainer(
-            for: CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self,
+            for: CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let context = container.mainContext

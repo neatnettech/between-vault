@@ -193,6 +193,89 @@ enum Copy {
     static let notIncludedLine = "anything else in your vault."
     static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
     /// Shared means sent, not delivered: the copy never claims the partner has it.
+    // Board X1 to X4: the Exchange tab with its exchange area.
+    static let withYourPartner = "With your partner"
+    static func lastExchange(_ date: Date) -> String { "Last exchange \(date.formatted(.dateTime.month(.abbreviated).day()))" }
+    static let pairedPill = "Paired"
+    static let notPairedPill = "Not paired"
+    static func toSendChip(_ count: Int) -> String { "\(count) to send" }
+    static func waitingChip(_ count: Int) -> String { "\(count) waiting" }
+    static func notConfirmedChip(_ count: Int) -> String { "\(count) not confirmed" }
+    static func nearbyCaption(notConfirmed: Int) -> String {
+        guard notConfirmed > 0 else { return "Phone to phone, encrypted. No internet, no server." }
+        return notConfirmed == 1
+            ? "Phone to phone, encrypted. Also confirms the note sent earlier."
+            : "Phone to phone, encrypted. Also confirms the \(notConfirmed) notes sent earlier."
+    }
+    static let nothingToSendCaption = "Nothing to send. You can still receive."
+    static let fileOptionSub = "AirDrop, Messages or Files. Confirmed later."
+    static let addNotesFirst = "Add notes to send first"
+    static func toSendSection(_ count: Int) -> String { count == 0 ? "To send" : "To send · \(count)" }
+    static let addNotes = "Add notes"
+    static let addNotesToSend = "Add notes to send"
+    static let sentAsFileNotConfirmed = "Sent as a file, not confirmed"
+    static func waitingSection(_ count: Int) -> String { count == 0 ? "Waiting for you" : "Waiting for you · \(count)" }
+    static let openAFile = "Open a file"
+    static let fileFromPartner = "File from your partner"
+    static func itemsSuffix(_ count: Int) -> String { count == 1 ? "· 1 item" : "· \(count) items" }
+    static let review = "Review"
+    static let history = "History"
+    static func historySummary(_ entry: ExchangeLogEntry) -> String {
+        let date = entry.date.formatted(.dateTime.month(.abbreviated).day())
+        return switch entry.direction {
+        case .sent: "Sent \(entry.itemCount) · \(date)"
+        case .received: "Received \(entry.itemCount) · \(date)"
+        case .declined: "Declined · \(date)"
+        }
+    }
+    static let pairFirstTitle = "Pair with your partner first"
+    static let pairFirstSub = "Exchange only works between two paired iPhones"
+    static let pairFirstBody = "It takes about a minute, side by side. After that, this is where you exchange."
+    static let pairNow = "Pair now"
+    static let gotAFileAlready = "Got a file from your partner already? Pair first, then open it again."
+    static let searchNotes = "Search notes"
+    static let alreadyShared = "Already shared"
+    static func sealNotes(_ count: Int) -> String { count == 1 ? "Seal 1 note" : "Seal \(count) notes" }
+    static let sealingSendsNothing = "Sealing sends nothing. It readies notes for your next exchange."
+    // Board F2, as a drill-in from the To send row.
+    static func sentAsFileF2Banner(_ date: Date?) -> String {
+        let when = date.map { "Sent \($0.formatted(date: .abbreviated, time: .shortened)). " } ?? ""
+        return when + "This iPhone can't see whether your partner opened it. Your next nearby exchange confirms it, or sends it again if it never arrived."
+    }
+    static let notConfirmed = "Not confirmed"
+    static let exchangeNearbyToConfirm = "Exchange nearby to confirm"
+    // Boards R1 to R3: a file from AirDrop or Messages; the review is shared with N3.
+    static let aFileFromPartner = "A file from your partner"
+    static let unlockToCheck = "Unlock to check it and see what is inside. Nothing is imported until you accept."
+    static func partnerSentYou(_ count: Int) -> String { count == 1 ? "Your partner sent you 1 item" : "Your partner sent you \(count) items" }
+    static func sourceFile(_ date: Date) -> String { "Sent as a file · \(date.formatted(date: .abbreviated, time: .shortened)) · verified" }
+    static let sourceNearby = "Nearby · from your partner's iPhone · verified"
+    static let changedOnBoth = "Changed on both"
+    static func changedOnBothNote(_ titles: [String]) -> String {
+        titles.count == 1
+            ? "You see titles only until you accept. \(titles[0]) changed on both phones, so you will choose which to keep."
+            : "You see titles only until you accept. \(titles.count) notes changed on both phones, so you will choose which to keep."
+    }
+    static let decideLater = "Decide later"
+    static let keptForLater = "Kept in Waiting for you"
+    static let fileDeclined = "Declined. The file was removed from this iPhone."
+    static func itemsAdded(_ count: Int) -> String { count == 1 ? "1 item added" : "\(count) items added" }
+    static let fileRemoved = "The file itself has been removed from this iPhone."
+    static let confirmedAfterNearby = "Your partner sees these as confirmed after your next nearby exchange."
+    static let outcomeAdded = "Added"
+    static let outcomeUpdated = "Updated"
+    static let outcomeKeptBoth = "Kept both"
+    static let outcomeKeptYours = "Kept yours"
+    static let outcomeReplaced = "Replaced"
+    static let outcomeAlreadyHere = "Already here"
+    // Board N2 and N5 additions.
+    static let notReceived = "Not received"
+    static func untickToKeepWithNotReceived(_ count: Int) -> String {
+        count == 1
+            ? "Your sealed notes, plus 1 note you sent as a file that never arrived. Untick any you want to keep back. Nothing else leaves this iPhone."
+            : "Your sealed notes, plus \(count) notes you sent as a file that never arrived. Untick any you want to keep back. Nothing else leaves this iPhone."
+    }
+    static let earlierFileSendsConfirmed = "Earlier file sends confirmed"
     // Boards N0 to N5: Exchange nearby.
     static let exchangeNearby = "Exchange nearby"
     static let exchangeSideBySide = "Exchange side by side"

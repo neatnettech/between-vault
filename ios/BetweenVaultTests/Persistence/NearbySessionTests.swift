@@ -213,4 +213,28 @@ struct NearbySessionTests {
         #expect(try a.notes.note(id: fromB.id)?.origin == .partner)
         #expect(sb.state == .delivered(count: 1))
     }
+
+    /// A file the partner never got: meeting leaves it unconfirmed and lists it as not received;
+    /// sending it nearby then delivers it and clears the mark.
+    @Test func aFileNeverReceivedComesBackAsNotReceived() throws {
+        let key = CryptoEngine.randomKey()
+        let a = try Phone(id: idA, partner: idB, pairKey: key)
+        let b = try Phone(id: idB, partner: idA, pairKey: key)
+        let note = try a.write("Boiler")
+        try a.send.markHandedOver(try a.send.prepare())
+
+        let (la, lb) = Link.pair()
+        let sa = a.session(over: la, partner: idB)
+        let sb = b.session(over: lb, partner: idA)
+        sa.start()
+        sb.start()
+        #expect(sa.confirmedCount == 0)
+        #expect(sa.notReceived == [note.id])
+
+        try sa.send([note.id])
+        try sb.accept()
+        #expect(sa.notReceived.isEmpty)
+        #expect(try a.notes.note(id: note.id)?.state == .shared)
+        #expect(try a.notes.note(id: note.id)?.isSentNotConfirmed == false)
+    }
 }

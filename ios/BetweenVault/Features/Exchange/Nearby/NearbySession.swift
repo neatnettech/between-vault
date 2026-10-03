@@ -65,8 +65,11 @@ final class NearbySession {
     private(set) var sentCount = 0
     private(set) var receivedCount = 0
     private(set) var conflictsCount = 0
-    /// File sends this session confirmed (F2).
+    /// File sends this session confirmed (F2), for N5's "Earlier file sends confirmed".
     private(set) var confirmedCount = 0
+    /// Notes sent as a file that the partner's phone never imported: N2 lists them again, ticked,
+    /// as "Not received". Known once the partner's confirmations arrived.
+    private(set) var notReceived = Set<UUID>()
     /// Why the last offer from the partner could not be shown (9a to 9d).
     private(set) var incomingFailure: ImportService.ImportFailure?
 
@@ -188,6 +191,8 @@ final class NearbySession {
             break
         case let .confirmations(ids):
             confirmedCount += (try? exchange.confirm(importedExchangeIDs: Set(ids))) ?? 0
+            // Whatever still waits on a file was never imported there.
+            notReceived = Set(((try? exchange.unconfirmed()) ?? []).map(\.id))
         case let .offer(package):
             do {
                 state = .incoming(try importer.inspect(package))
@@ -205,6 +210,7 @@ final class NearbySession {
             guard let outgoing, outgoing.exchangeID == exchangeID else { return }
             try? exchange.markSent(outgoing)
             sentCount += outgoing.versions.count
+            notReceived.subtract(outgoing.versions.keys)
             self.outgoing = nil
             state = .delivered(count: outgoing.versions.count)
         case let .declined(exchangeID):
