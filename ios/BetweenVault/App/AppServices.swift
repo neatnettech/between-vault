@@ -112,8 +112,11 @@ extension AppServices {
               let pairKey = try KeyManager.load(Pairing.pairKeyAccount)
         else { throw PartnerError.keyMissing }
         // Row 6.2: a copy kept from their old iPhone goes back to them, wrapped for this pairing.
-        let returned = try KeyManager.load(Pairing.retiredRecoveryAccount).map {
-            try Pairing.rewrap(JSONDecoder().decode(Pairing.RetiredCopy.self, from: $0), pairKey: pairKey, newOwnerDeviceID: partner.deviceID)
+        // One that no longer opens is dropped, so it never stops this phone sending its own.
+        var returned: Data?
+        if let data = try KeyManager.load(Pairing.retiredRecoveryAccount) {
+            returned = try? Pairing.rewrap(JSONDecoder().decode(Pairing.RetiredCopy.self, from: data), pairKey: pairKey, newOwnerDeviceID: partner.deviceID)
+            if returned == nil { try? dropRetiredRecovery() }
         }
         return try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: deviceID, holder: partner.deviceID, returned: returned)
     }
@@ -127,6 +130,8 @@ extension AppServices {
         /// Their copy is kept, but the key it returned does not open the waiting notes: a copy
         /// from an older vault.
         case notThisVaultsKey
+        /// Notes wait, but the file brought no key back: their phone kept no copy to return.
+        case noKeyReturned
     }
 
     @discardableResult
@@ -137,9 +142,13 @@ extension AppServices {
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
         try KeyManager.save(accepted.blob, account: Pairing.partnerRecoveryAccount)
         RecoveryStatus().markReceived()
+        // Their own copy arrived, so their phone works under this pairing: a retired copy is done
+        // with. Single use: it must not travel on to whoever this phone pairs with next.
+        try dropRetiredRecovery()
+        guard awaitsRestore else { return .kept }
         // Nothing waiting: a fresh phone with no backup has no notes this key opens, and a vault
         // that has its key keeps it.
-        guard let key = accepted.returnedVaultKey, awaitsRestore else { return .kept }
+        guard let key = accepted.returnedVaultKey else { return .noKeyReturned }
         return try Self.restore(key, in: container.mainContext) ? .restored : .notThisVaultsKey
     }
 
@@ -195,6 +204,11 @@ extension AppServices {
             try KeyManager.save(retired, account: Pairing.retiredRecoveryAccount)
         }
         try endPairing()
+    }
+
+    /// The retired copy reached the partner's new iPhone, or is no longer needed.
+    func dropRetiredRecovery() throws {
+        try KeyManager.delete(Pairing.retiredRecoveryAccount)
     }
 
     /// Whether this phone keeps a copy for a partner's new iPhone.

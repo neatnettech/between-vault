@@ -110,6 +110,7 @@ struct RecoveryAlert: Equatable {
             case .restored: return RecoveryAlert(title: Copy.vaultRestoredTitle, message: Copy.vaultRestored, restored: true)
             case .kept: return RecoveryAlert(title: Copy.recoverySavedTitle, message: Copy.recoverySaved)
             case .notThisVaultsKey: return RecoveryAlert(title: Copy.vaultNotRestoredTitle, message: Copy.notThisVaultsKey)
+            case .noKeyReturned: return RecoveryAlert(title: Copy.vaultNotRestoredTitle, message: Copy.noKeyReturned)
             }
         } catch AppServices.PartnerError.notPaired {
             return RecoveryAlert(title: Copy.recoveryNotSavedTitle, message: Copy.recoveryNotPaired)

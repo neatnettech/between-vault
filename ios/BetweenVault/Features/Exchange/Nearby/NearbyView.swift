@@ -55,7 +55,11 @@ struct NearbyView: View {
         .onChange(of: session?.confirmedCount) { reloadAvailable() }
         // The partner's phone kept this phone's recovery copy: P1 says up to date.
         .onChange(of: session?.recovery) { _, recovery in
-            if recovery == .delivered { RecoveryStatus().markDelivered() }
+            if recovery == .delivered {
+                RecoveryStatus().markDelivered()
+                // Row 6.2: a returned copy is single use; their phone has it now.
+                try? services.dropRetiredRecovery()
+            }
         }
         .onChange(of: session?.notReceived) { reloadAvailable() }
         .sensoryFeedback(.success, trigger: deliveredCount) { _, new in new > 0 }
@@ -293,7 +297,7 @@ struct NearbyView: View {
                 restored = true
                 sendRecovery(session)
             } else {
-                failure = Copy.notThisVaultsKey
+                failure = Copy.noKeyOrNotThisVaults
             }
         }
         .sensoryFeedback(.success, trigger: session.recovery) { _, new in new == .delivered }

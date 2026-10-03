@@ -25,8 +25,8 @@ struct BetweenVaultApp: App {
         // device only). Left alone, the lock asks for a passcode that is gone. A reset makes it
         // what it is, a new phone whose notes wait for the partner's recovery copy.
         if let services, services.cameFromDeviceBackup(onboarded: UserDefaults.standard.bool(forKey: LockManager.onboardedKey)) {
-            try? services.resetVault()
-            lockManager.forget()
+            // Only after a full reset: a failed one keeps the flag, so the next launch tries again.
+            if (try? services.resetVault()) != nil { lockManager.forget() }
         }
         _services = State(initialValue: services)
         _lockManager = State(initialValue: lockManager)
