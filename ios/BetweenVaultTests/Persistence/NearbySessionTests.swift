@@ -261,4 +261,44 @@ struct NearbySessionTests {
         #expect(throws: ExchangeService.ExchangeError.nothingSealed) { try sa.send([note.id]) }
         #expect(sa.state == .connected)
     }
+
+    /// The recovery file over the connection: made from A's vault key, checked on B with the same
+    /// rules as a file, kept as the blob only, and A learns it arrived.
+    @Test func theRecoveryFileTravelsAndIsConfirmed() throws {
+        let key = CryptoEngine.randomKey()
+        let vaultKeyA = CryptoEngine.randomKey()
+        let a = try Phone(id: idA, partner: idB, pairKey: key)
+        let b = try Phone(id: idB, partner: idA, pairKey: key)
+        var keptOnB: Data?
+        let (la, lb) = Link.pair()
+        let sa = NearbySession(transport: la, exchange: a.send, importer: a.receive, log: a.log, me: idA, partner: idB,
+                               makeRecovery: { try Pairing.RecoveryFile.make(vaultKey: vaultKeyA, pairKey: key, owner: self.idA, holder: self.idB) })
+        let sb = NearbySession(transport: lb, exchange: b.send, importer: b.receive, log: b.log, me: idB, partner: idA,
+                               keepRecovery: { keptOnB = try Pairing.RecoveryFile.accept($0, pairKey: key, me: self.idB, partner: self.idA) })
+        sa.start()
+        sb.start()
+
+        try sa.sendRecovery()
+        #expect(sa.recovery == .delivered)
+        #expect(sb.receivedRecovery)
+        let blob = try #require(keptOnB)
+        #expect(try Pairing.unwrapRecovery(blob, pairKey: key, ownerDeviceID: idA) == vaultKeyA)
+    }
+
+    /// A recovery file that fails the checks is refused, and the sender is told.
+    @Test func aRefusedRecoveryFileIsSaidAsSuch() throws {
+        let key = CryptoEngine.randomKey()
+        let a = try Phone(id: idA, partner: idB, pairKey: key)
+        let b = try Phone(id: idB, partner: idA, pairKey: key)
+        let (la, lb) = Link.pair()
+        let sa = NearbySession(transport: la, exchange: a.send, importer: a.receive, log: a.log, me: idA, partner: idB,
+                               makeRecovery: { Data("not a recovery file".utf8) })
+        let sb = NearbySession(transport: lb, exchange: b.send, importer: b.receive, log: b.log, me: idB, partner: idA,
+                               keepRecovery: { _ = try Pairing.RecoveryFile.accept($0, pairKey: key, me: self.idB, partner: self.idA) })
+        sa.start()
+        sb.start()
+        try sa.sendRecovery()
+        #expect(sa.recovery == .refused)
+        #expect(!sb.receivedRecovery)
+    }
 }

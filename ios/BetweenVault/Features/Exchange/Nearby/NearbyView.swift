@@ -6,6 +6,9 @@ import SwiftUI
 struct NearbyView: View {
     let partner: Partner
     let pairKey: Data
+    /// Board P2 "Update recovery copy": the session sends this phone's recovery copy and nothing
+    /// else. Notes can still arrive from the partner.
+    var recoveryOnly = false
     let onSendAsFile: () -> Void
 
     @Environment(AppServices.self) private var services
@@ -47,6 +50,10 @@ struct NearbyView: View {
         // file into Shared: the send list follows, or it offers a note that is no longer sealed.
         // Found on two phones.
         .onChange(of: session?.confirmedCount) { reloadAvailable() }
+        // The partner's phone kept this phone's recovery copy: P1 says up to date.
+        .onChange(of: session?.recovery) { _, recovery in
+            if recovery == .delivered { RecoveryStatus().markDelivered() }
+        }
         .onChange(of: session?.notReceived) { reloadAvailable() }
         .sensoryFeedback(.success, trigger: deliveredCount) { _, new in new > 0 }
     }
@@ -142,6 +149,8 @@ struct NearbyView: View {
         switch session.state {
         case .greeting:
             looking
+        case .connected where recoveryOnly:
+            recoveryScreen(session)
         case .connected, .incoming:
             choose(session)
                 .sheet(isPresented: Binding(get: { isIncoming(session) }, set: { _ in })) {
@@ -193,6 +202,11 @@ struct NearbyView: View {
                     .font(Theme.Typography.footnote)
                     .foregroundStyle(Theme.Colors.secondary)
             }
+            if session.receivedRecovery {
+                Label(Copy.partnerRecoveryKept, systemImage: "lifepreserver")
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
+            }
             if session.confirmedCount > 0 {
                 Label(Copy.confirmedEarlier(session.confirmedCount), systemImage: "checkmark.seal")
                     .font(Theme.Typography.subheadline)
@@ -221,6 +235,43 @@ struct NearbyView: View {
         )
         .presentationDetents([.medium, .large])
         .interactiveDismissDisabled()
+    }
+
+    /// Board P2's action over the connection: send, then the partner's phone says it kept it.
+    private func recoveryScreen(_ session: NearbySession) -> some View {
+        screen {
+            connectedPill(Copy.connectedTo(partner.fingerprint))
+            switch session.recovery {
+            case .delivered:
+                Image(systemName: "checkmark")
+                    .font(.title)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
+                    .frame(width: 64, height: 64)
+                    .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 18))
+                    .accessibilityHidden(true)
+                Text(Copy.recoveryCopyUpdated).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                Text(Copy.recoveryCopyUpdatedBody).foregroundStyle(Theme.Colors.secondary)
+            case .refused:
+                Text(Copy.recoveryCopyRefused).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                Text(Copy.recoveryCopyRefusedBody).foregroundStyle(Theme.Colors.secondary)
+            case .none, .sending:
+                Text(Copy.sendingRecoveryCopy).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                ProgressView().progressViewStyle(.linear).tint(Theme.Colors.accent)
+            }
+            if session.receivedRecovery {
+                Label(Copy.partnerRecoveryKept, systemImage: "lifepreserver")
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
+            }
+            if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
+        } footer: {
+            Button(Copy.done) { close() }.buttonStyle(.vaultPrimary)
+        }
+        .task {
+            guard session.recovery == .none else { return }
+            do { try session.sendRecovery() } catch { failure = Copy.recoveryFileNotMade }
+        }
+        .sensoryFeedback(.success, trigger: session.recovery) { _, new in new == .delivered }
     }
 
     private func sending(_ session: NearbySession, count: Int) -> some View {
@@ -348,7 +399,11 @@ struct NearbyView: View {
             importer: services.importService,
             log: services.exchangeLogRepository,
             me: services.deviceID,
-            partner: partner.deviceID
+            partner: partner.deviceID,
+            makeRecovery: { try services.recoveryFileData() },
+            keepRecovery: { try services.receiveRecoveryFile($0) },
+            holdsRecovery: { services.holdsPartnerRecovery },
+            partnerHoldsRecovery: { RecoveryStatus().partnerHolds($0) }
         )
         self.session = session
         session.start()

@@ -88,78 +88,32 @@ struct ExchangeView: View {
     // MARK: X1, X2: the exchange area
 
     private var exchangeArea: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.md) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: Theme.Space.xxs) {
-                    Text(Copy.withYourPartner).font(Theme.Typography.title3)
-                    if let date = lastEntry?.date {
-                        Text(Copy.lastExchange(date)).font(Theme.Typography.footnote).opacity(0.75)
-                    }
-                }
-                Spacer()
-                pill(Copy.pairedPill, systemImage: "checkmark")
-            }
+        DarkPanel {
+            PanelHeader(
+                title: Copy.withYourPartner,
+                subtitle: lastEntry.map { Copy.lastExchange($0.date) },
+                pill: Copy.pairedPill,
+                pillIcon: "checkmark"
+            )
             HStack(spacing: Theme.Space.xs) {
-                chip(Copy.toSendChip(outbox.count))
-                chip(Copy.waitingChip(waiting.count))
-                if !unconfirmed.isEmpty { chip(Copy.notConfirmedChip(unconfirmed.count)) }
+                PanelChip(text: Copy.toSendChip(outbox.count))
+                PanelChip(text: Copy.waitingChip(waiting.count))
+                if !unconfirmed.isEmpty { PanelChip(text: Copy.notConfirmedChip(unconfirmed.count)) }
             }
-            Button { nearby = true } label: {
-                Label(Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right")
-                    .font(Theme.Typography.body.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 52)
-                    .contentShape(Rectangle())
-            }
-            .foregroundStyle(Theme.Colors.onAccent)
-            .background(Theme.Colors.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            PanelPrimaryButton(title: Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right") { nearby = true }
             Text(outbox.isEmpty && unconfirmed.isEmpty ? Copy.nothingToSendCaption : Copy.nearbyCaption(notConfirmed: unconfirmed.count))
                 .font(Theme.Typography.footnote)
                 .opacity(0.75)
                 .frame(maxWidth: .infinity)
                 .multilineTextAlignment(.center)
-            Divider().overlay(Color.white.opacity(0.15))
-            // The fallback, a row rather than a second button.
-            Button { sendingFile = true } label: {
-                HStack {
-                    Image(systemName: "doc.badge.arrow.up")
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(Copy.sendAsFileInstead).font(Theme.Typography.body)
-                        Text(outbox.isEmpty ? Copy.addNotesFirst : Copy.fileOptionSub)
-                            .font(Theme.Typography.footnote)
-                            .opacity(0.75)
-                    }
-                    Spacer()
-                    if !outbox.isEmpty { Image(systemName: "chevron.right").font(Theme.Typography.footnote) }
-                }
-                .contentShape(Rectangle())
-            }
-            .disabled(outbox.isEmpty)
-            .opacity(outbox.isEmpty ? 0.55 : 1)
+            PanelAltRow(
+                title: Copy.sendAsFileInstead,
+                subtitle: outbox.isEmpty ? Copy.addNotesFirst : Copy.fileOptionSub,
+                systemImage: "doc.badge.arrow.up",
+                enabled: !outbox.isEmpty
+            ) { sendingFile = true }
         }
-        .foregroundStyle(Color.white)
-        .padding(Theme.Space.md)
-        .background(Theme.Colors.lockScreen, in: RoundedRectangle(cornerRadius: 20))
-        // The area reads as one dark panel in both appearances, as the board draws it.
-        .environment(\.colorScheme, .dark)
-        .accessibilityElement(children: .contain)
         .accessibilityLabel(Copy.withYourPartner)
-    }
-
-    private func chip(_ text: String) -> some View {
-        Text(text)
-            .font(Theme.Typography.footnote.weight(.semibold))
-            .padding(.vertical, Theme.Space.xxs)
-            .padding(.horizontal, Theme.Space.sm)
-            .background(Color.white.opacity(0.12), in: Capsule())
-    }
-
-    private func pill(_ text: String, systemImage: String) -> some View {
-        Label(text, systemImage: systemImage)
-            .font(Theme.Typography.footnote.weight(.semibold))
-            .foregroundStyle(Theme.Colors.onAccentTint)
-            .padding(.vertical, Theme.Space.xxs)
-            .padding(.horizontal, Theme.Space.sm)
-            .background(Theme.Colors.accentTint, in: Capsule())
     }
 
     // MARK: X1, X2: To send
@@ -253,33 +207,11 @@ struct ExchangeView: View {
 
     private var notPaired: some View {
         VStack(alignment: .leading, spacing: Theme.Space.md) {
-            VStack(alignment: .leading, spacing: Theme.Space.md) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: Theme.Space.xxs) {
-                        Text(Copy.pairFirstTitle).font(Theme.Typography.title3)
-                        Text(Copy.pairFirstSub).font(Theme.Typography.footnote).opacity(0.75)
-                    }
-                    Spacer()
-                    Text(Copy.notPairedPill)
-                        .font(Theme.Typography.footnote.weight(.semibold))
-                        .padding(.vertical, Theme.Space.xxs)
-                        .padding(.horizontal, Theme.Space.sm)
-                        .background(Color.white.opacity(0.12), in: Capsule())
-                }
+            DarkPanel {
+                PanelHeader(title: Copy.pairFirstTitle, subtitle: Copy.pairFirstSub, pill: Copy.notPairedPill, pillMuted: true)
                 Text(Copy.pairFirstBody).font(Theme.Typography.subheadline).opacity(0.85)
-                Button(action: onPairNow) {
-                    Text(Copy.pairNow)
-                        .font(Theme.Typography.body.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 52)
-                        .contentShape(Rectangle())
-                }
-                .foregroundStyle(Theme.Colors.onAccent)
-                .background(Theme.Colors.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+                PanelPrimaryButton(title: Copy.pairNow, systemImage: "iphone.radiowaves.left.and.right", action: onPairNow)
             }
-            .foregroundStyle(Color.white)
-            .padding(Theme.Space.md)
-            .background(Theme.Colors.lockScreen, in: RoundedRectangle(cornerRadius: 20))
-            .environment(\.colorScheme, .dark)
             Text(Copy.gotAFileAlready)
                 .font(Theme.Typography.footnote)
                 .foregroundStyle(Theme.Colors.secondary)
