@@ -275,6 +275,54 @@ section {
 
 .intro { padding: 88px 0 72px; }
 
+/* Inside the app: real screenshots with sample notes. Four across on wide screens, two on
+   tablets, a swipeable row on phones. */
+.screens-lead { color: var(--secondary); margin-top: 8px; }
+
+.screens {
+  list-style: none;
+  margin: 32px auto 0;
+  padding: 0 20px;
+  width: min(1100px, 100%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.screens figure { margin: 0; }
+
+.screens img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 32px rgba(15, 26, 26, 0.12);
+}
+
+.screens figcaption {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--secondary);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .screens { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .screens {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 72%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+  }
+  .screens li { scroll-snap-align: center; }
+}
+
 /* Waiting list form */
 
 .waitlist-form {
