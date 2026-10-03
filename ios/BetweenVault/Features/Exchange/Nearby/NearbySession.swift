@@ -16,6 +16,14 @@ enum NearbyMessage: Codable, Equatable {
     case declined(exchangeID: String)
     /// The package is in the partner's vault: the only thing that makes items Shared (N5).
     case imported(exchangeID: String)
+    /// The sender's recovery file (spec 20), the same bytes the file route carries.
+    case recovery(Data)
+    /// The recovery file was checked and kept, or refused, on the partner's phone.
+    case recoveryStored
+    case recoveryRefused
+    /// Sent after confirmations: whether this phone holds the other's recovery copy, so a copy sent
+    /// as a file is confirmed when the phones meet, like notes (board P1).
+    case holdsRecovery(Bool)
     case bye
 
     static let protocolVersion = 1
@@ -73,10 +81,21 @@ final class NearbySession {
     /// Why the last offer from the partner could not be shown (9a to 9d).
     private(set) var incomingFailure: ImportService.ImportFailure?
 
+    /// The recovery file over the connection: the partner's phone says it kept it, so unlike a
+    /// file there is nothing to guess.
+    enum RecoveryHandover: Equatable { case none, sending, delivered, refused }
+    private(set) var recovery = RecoveryHandover.none
+    /// The partner's recovery file arrived and was kept on this phone this session.
+    private(set) var receivedRecovery = false
+
     @ObservationIgnored private let transport: NearbyTransport
     @ObservationIgnored private let exchange: ExchangeService
     @ObservationIgnored private let importer: ImportService
     @ObservationIgnored private let log: ExchangeLogRepository
+    @ObservationIgnored private let makeRecovery: () throws -> Data
+    @ObservationIgnored private let keepRecovery: (Data) throws -> Void
+    @ObservationIgnored private let holdsRecovery: () -> Bool
+    @ObservationIgnored private let partnerHoldsRecovery: (Bool) -> Void
     @ObservationIgnored private let me: String
     @ObservationIgnored private let partner: String
     @ObservationIgnored private var outgoing: ExchangeService.Prepared?
@@ -89,8 +108,16 @@ final class NearbySession {
         importer: ImportService,
         log: ExchangeLogRepository,
         me: String,
-        partner: String
+        partner: String,
+        makeRecovery: @escaping () throws -> Data = { throw ImportService.ImportFailure.notPaired },
+        keepRecovery: @escaping (Data) throws -> Void = { _ in throw ImportService.ImportFailure.notPaired },
+        holdsRecovery: @escaping () -> Bool = { false },
+        partnerHoldsRecovery: @escaping (Bool) -> Void = { _ in }
     ) {
+        self.makeRecovery = makeRecovery
+        self.keepRecovery = keepRecovery
+        self.holdsRecovery = holdsRecovery
+        self.partnerHoldsRecovery = partnerHoldsRecovery
         self.transport = transport
         self.exchange = exchange
         self.importer = importer
@@ -156,6 +183,14 @@ final class NearbySession {
         state = .connected
     }
 
+    /// The Partner tab's main way to send the recovery file: over this connection.
+    func sendRecovery() throws {
+        guard greeted else { return }
+        let data = try makeRecovery()
+        recovery = .sending
+        send(.recovery(data))
+    }
+
     /// N5 "Stay connected to receive", or OK after a decline: back to N2.
     func resume() {
         switch state {
@@ -184,6 +219,7 @@ final class NearbySession {
             state = .connected
             start()
             send(.confirmations(Array((try? log.receivedExchangeIDs()) ?? [])))
+            send(.holdsRecovery(holdsRecovery()))
             return
         }
         switch message {
@@ -218,6 +254,22 @@ final class NearbySession {
             guard outgoing?.exchangeID == exchangeID else { return }
             outgoing = nil
             state = .partnerDeclined
+        case let .recovery(data):
+            // The same checks as a file: from the paired partner, for this phone, opening under
+            // the pair key. Only the blob is kept. Holding it changes nothing in this vault.
+            do {
+                try keepRecovery(data)
+                receivedRecovery = true
+                send(.recoveryStored)
+            } catch {
+                send(.recoveryRefused)
+            }
+        case let .holdsRecovery(holds):
+            partnerHoldsRecovery(holds)
+        case .recoveryStored:
+            if recovery == .sending { recovery = .delivered }
+        case .recoveryRefused:
+            if recovery == .sending { recovery = .refused }
         case .bye:
             transport.close()
             state = .ended(.byPartner)

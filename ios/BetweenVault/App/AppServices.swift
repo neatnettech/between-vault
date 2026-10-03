@@ -79,6 +79,7 @@ final class AppServices {
         try KeyManager.delete(Passcode.account)
         try KeyManager.delete(Pairing.pairKeyAccount)
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
+        RecoveryStatus().forget()
         Identity.reset()
         try Self.eraseRecords(in: container.mainContext)
         guardsOnboarding = false
@@ -96,15 +97,20 @@ extension AppServices {
     /// "Send recovery file to partner": this phone's vault key, wrapped for the partner, as a file
     /// in a temporary folder for the share sheet. The caller deletes it once shared.
     func recoveryFile() throws -> URL {
-        guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
-        guard let vaultKey = try KeyManager.load(Self.vaultKeyAccount),
-              let pairKey = try KeyManager.load(Pairing.pairKeyAccount)
-        else { throw PartnerError.keyMissing }
-        let data = try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: deviceID, holder: partner.deviceID)
+        let data = try recoveryFileData()
         let url = FileManager.default.temporaryDirectory
             .appending(path: "Between Vault recovery.\(Pairing.RecoveryFile.fileExtension)")
         try data.write(to: url, options: [.atomic, .completeFileProtection])
         return url
+    }
+
+    /// The recovery file's bytes, for the file route above or the nearby connection.
+    func recoveryFileData() throws -> Data {
+        guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
+        guard let vaultKey = try KeyManager.load(Self.vaultKeyAccount),
+              let pairKey = try KeyManager.load(Pairing.pairKeyAccount)
+        else { throw PartnerError.keyMissing }
+        return try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: deviceID, holder: partner.deviceID)
     }
 
     /// The partner's recovery file, opened on this phone: checked, then only its blob is kept.
@@ -114,12 +120,19 @@ extension AppServices {
         let blob = try Pairing.RecoveryFile.accept(data, pairKey: pairKey, me: deviceID, partner: partner.deviceID)
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
         try KeyManager.save(blob, account: Pairing.partnerRecoveryAccount)
+        RecoveryStatus().markReceived()
+    }
+
+    /// Whether this phone holds the partner's recovery copy, told to them when the phones meet.
+    var holdsPartnerRecovery: Bool {
+        ((try? KeyManager.load(Pairing.partnerRecoveryAccount)) ?? nil) != nil
     }
 
     /// Spec 13: unpairing stops future exchanges here. Keys first, record last: while any step
     /// fails the partner still shows, so Unpair stays on screen and a retry finishes the job.
     /// Offline, the partner's phone cannot be told; a recovery file already sent stays with them.
     func unpair() throws {
+        RecoveryStatus().forget()
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
         try KeyManager.delete(Pairing.pairKeyAccount)
         try partnerRepository.removeAll()

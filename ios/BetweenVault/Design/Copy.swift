@@ -193,6 +193,71 @@ enum Copy {
     static let notIncludedLine = "anything else in your vault."
     static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
     /// Shared means sent, not delivered: the copy never claims the partner has it.
+    // Boards P1 to P5: the Partner tab, same components as Exchange (replaces 14).
+    static let pairedWithPartner = "Paired with your partner"
+    static func pairedSince(_ date: Date, fingerprint: String) -> String {
+        "Since \(date.formatted(.dateTime.month(.abbreviated).year())) · fingerprint …\(fingerprint.suffix(4))"
+    }
+    static let verified = "Verified"
+    static let recoveryUpToDate = "Recovery up to date"
+    static let recoveryNotSent = "Recovery not sent"
+    static let recoveryNotConfirmed = "Recovery not confirmed"
+    static let recoveryNeedsUpdate = "Recovery needs updating"
+    static let allSetBody = "You can each recover the other's vault. Nothing needs doing."
+    static let waitingForTheirCopy = "Your partner holds your recovery copy. Theirs arrives when they send it from their Partner tab."
+    static let updateRecoveryCopy = "Update recovery copy"
+    static let sendRecoveryCopy = "Send recovery copy"
+    static let nearbyRecoveryCaption = "Side by side, over the nearby connection. About 10 seconds."
+    static let recoveryFileFallbackSub = "AirDrop, Messages or Files. Confirmed when you next meet."
+    static let recoverySection = "Recovery"
+    static let yourCopyOnTheirPhone = "Your copy on their phone"
+    static let theirCopyOnYourPhone = "Their copy on your phone"
+    static func updatedUpToDate(_ date: Date) -> String { "Updated \(date.formatted(.dateTime.month(.abbreviated).day())) · up to date" }
+    static let notSentYet = "Not sent yet"
+    static func sentAsFileNotConfirmedOn(_ date: Date) -> String { "Sent as a file \(date.formatted(.dateTime.month(.abbreviated).day())) · not confirmed" }
+    static let needsUpdatingPairedAgain = "Needs updating · you paired again since"
+    static let notReceivedYet = "Not received yet"
+    static let recoveryFootnoteAllSet = "Each phone holds the other's encrypted recovery copy. It is how a lost phone gets its vault back."
+    /// Honest about the key only copy (owner's choice): it brings back the key, not a snapshot.
+    static let recoveryFootnotePending = "Until your partner's phone holds your recovery copy, a lost phone could not get its vault back."
+    static let trustSection = "Trust"
+    static let compareFingerprints = "Compare fingerprints"
+    static let howRecoveryWorks = "How recovery works"
+    static let unpairRow = "Unpair"
+    static let compareFingerprintsBody = "Open this screen on both phones, side by side. They must show exactly the same."
+    static let compareFingerprintsFootnote = "Check this if you ever doubt that a file really came from your partner."
+    static let sameOnBoth = "Same on both phones"
+    static let theyAreDifferent = "They are different"
+    static let fingerprintsDifferTitle = "The fingerprints differ"
+    static let fingerprintsDifferBody = "These phones are not paired with each other as you think. Unpair on both phones, then pair again side by side."
+    static let fingerprintsMatch = "Fingerprints match"
+    static let howRecoveryWorksBody = [
+        "When you pair, each phone can hand the other a recovery copy: your vault key, encrypted so only your partner's phone can open it.",
+        "If you lose your phone, pair the new one with your partner and they send your recovery copy back. Your vault key unlocks your notes again: those in an iPhone backup of this app, and everything you shared, which your partner still has.",
+        "The recovery copy is your key, not your notes. Notes you never shared and never backed up can't come back from your partner.",
+        "Your partner can recover your vault. This is by design.",
+    ]
+    static let unpairFromPartner = "Unpair from your partner?"
+    static let unpairP5Message = "Exchanges stop. Notes you already shared stay on both phones. You can no longer recover your vault from their phone, and their phone keeps your old recovery copy until they unpair too."
+    static let typeUnpair = "Type UNPAIR to confirm"
+    static let unpairWord = "UNPAIR"
+    static let noPartnerYet = "No partner yet"
+    static let pairOnce = "Pair once, side by side"
+    static let afterPairingBody = "After pairing you can exchange notes and recover each other's vault."
+    static let howPairingWorks = "How pairing works"
+    static let pairingStep1 = "One phone shows a code"
+    static let pairingStep2 = "The other phone scans it"
+    static let pairingStep3 = "You both check six digits match"
+    static let noAccountFootnote = "No account, no internet. The pairing lives only on your two phones."
+    static let whichPhone = "Which phone are you?"
+    static let showMyCode = "Show my code"
+    static let scanTheirCodeChoice = "Scan my partner's code"
+    static let recoveryCopyUpdated = "Recovery copy updated"
+    static let recoveryCopyUpdatedBody = "Your partner's phone checked it and keeps it. You can each recover the other's vault."
+    static let recoveryCopyRefused = "Your partner's phone did not keep it"
+    static let recoveryCopyRefusedBody = "It did not pass the check there. Make sure you are paired with each other, then try again."
+    static let sendingRecoveryCopy = "Sending your recovery copy"
+    static let partnerRecoveryKept = "Your partner's recovery copy is updated on this phone."
     // Board X1 to X4: the Exchange tab with its exchange area.
     static let withYourPartner = "With your partner"
     static func lastExchange(_ date: Date) -> String { "Last exchange \(date.formatted(.dateTime.month(.abbreviated).day()))" }

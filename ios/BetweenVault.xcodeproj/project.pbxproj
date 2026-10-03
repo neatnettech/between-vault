@@ -34,6 +34,7 @@
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		57D11D06C185981911508A72 /* PendingPackageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616A311DD3CA109CC8C34870 /* PendingPackageRepository.swift */; };
 		62659BC167C941BC1FB8A3F3 /* ExchangeIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD4F444CBFD00F586C6ECBE /* ExchangeIntegrationTests.swift */; };
+		62D6013E29A98DD57A1DABA2 /* RecoveryStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F16CFA47A2971E9BA2FB4A /* RecoveryStatusTests.swift */; };
 		64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4122C2060ACA4481A1C22926 /* ThemeTests.swift */; };
 		69F4D463BFA02D7F789E1E47 /* NearbyLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A51B47EA7C6106D0D6CB077 /* NearbyLink.swift */; };
 		6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD283DBA80128A707436C5 /* LockManager.swift */; };
@@ -46,6 +47,7 @@
 		7B9C512DB3559931CCB5E256 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67C3E039C7E5333270671E1 /* Identity.swift */; };
 		83A59DF99DFE71A0A80D62EE /* PrivacyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */; };
 		84909282EED201E43A90205E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB278D67828CA7BA78523340 /* Theme.swift */; };
+		87058F4D510D9F413E5FEFFA /* RecoveryStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94330F8B345B45465FA53AC /* RecoveryStatus.swift */; };
 		89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */; };
 		8BAA54CCFDFC787DB04B3DE0 /* PartnerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C258A4C2403CD2DCC9BA155 /* PartnerRepository.swift */; };
 		8DB6F7F95D30AE88F5F15F5C /* PairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0604EB23DDB5898984D56BBD /* PairingView.swift */; };
@@ -107,6 +109,7 @@
 		3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
 		3C45078893A75B5576E623BE /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
 		4122C2060ACA4481A1C22926 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
+		47F16CFA47A2971E9BA2FB4A /* RecoveryStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryStatusTests.swift; sourceTree = "<group>"; };
 		4EEC9EF0CEEB8E6A69E499BD /* ClipboardGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardGuard.swift; sourceTree = "<group>"; };
 		4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepositoryTests.swift; sourceTree = "<group>"; };
 		583549427BD529DFF90413C4 /* ExchangePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangePackage.swift; sourceTree = "<group>"; };
@@ -147,6 +150,7 @@
 		E62B6562834B98DED89F64DA /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		E6401CB8B0F4ABD25CF32B09 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		E80D096B5A886D0EA1DEF95A /* PairingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTests.swift; sourceTree = "<group>"; };
+		E94330F8B345B45465FA53AC /* RecoveryStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryStatus.swift; sourceTree = "<group>"; };
 		EA95FEC752607E863464D22B /* Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Passcode.swift; sourceTree = "<group>"; };
 		EB278D67828CA7BA78523340 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySessionTests.swift; sourceTree = "<group>"; };
@@ -332,6 +336,7 @@
 				9ED36D99806280261613C54F /* PairingFlow.swift */,
 				0604EB23DDB5898984D56BBD /* PairingView.swift */,
 				6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */,
+				E94330F8B345B45465FA53AC /* RecoveryStatus.swift */,
 			);
 			path = Partner;
 			sourceTree = "<group>";
@@ -496,6 +501,7 @@
 				FAF4DE883CA1729E49ABD109 /* PairingFlowTests.swift */,
 				E80D096B5A886D0EA1DEF95A /* PairingTests.swift */,
 				F47C57382C6B84F187B1F582 /* PasscodeTests.swift */,
+				47F16CFA47A2971E9BA2FB4A /* RecoveryStatusTests.swift */,
 			);
 			path = Security;
 			sourceTree = "<group>";
@@ -608,6 +614,7 @@
 				4B52249D5CD776F449556B47 /* PairingTests.swift in Sources */,
 				0EA0F439C726A9AE1A242266 /* PasscodeTests.swift in Sources */,
 				4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */,
+				62D6013E29A98DD57A1DABA2 /* RecoveryStatusTests.swift in Sources */,
 				64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */,
 				335016F39ECB73051AD77B11 /* VaultResetTests.swift in Sources */,
 			);
@@ -662,6 +669,7 @@
 				A2262DF3B86DE199E146CC86 /* Passcode.swift in Sources */,
 				57D11D06C185981911508A72 /* PendingPackageRepository.swift in Sources */,
 				83A59DF99DFE71A0A80D62EE /* PrivacyOverlayView.swift in Sources */,
+				87058F4D510D9F413E5FEFFA /* RecoveryStatus.swift in Sources */,
 				DF7DD338C0D9A33CA10A77F0 /* RootView.swift in Sources */,
 				CA121E7EBC8ED8F48B3EE759 /* SettingsView.swift in Sources */,
 				84909282EED201E43A90205E /* Theme.swift in Sources */,

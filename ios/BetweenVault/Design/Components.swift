@@ -455,6 +455,112 @@ struct PasscodeEntry: View {
     }
 }
 
+// MARK: - Dark panel (boards X1, P1: the area on top of Exchange and Partner)
+
+/// The dark area on top of the Exchange and Partner tabs: dark in both appearances, as drawn.
+struct DarkPanel<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.md) { content }
+            .foregroundStyle(Color.white)
+            .padding(Theme.Space.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.Colors.lockScreen, in: RoundedRectangle(cornerRadius: 20))
+            .environment(\.colorScheme, .dark)
+            .accessibilityElement(children: .contain)
+    }
+}
+
+/// A panel's title, subtitle and the pill on the right.
+struct PanelHeader: View {
+    let title: String
+    var subtitle: String?
+    let pill: String
+    var pillIcon: String?
+    var pillMuted = false
+
+    var body: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: Theme.Space.xxs) {
+                Text(title).font(Theme.Typography.title3).accessibilityAddTraits(.isHeader)
+                if let subtitle { Text(subtitle).font(Theme.Typography.footnote).opacity(0.75) }
+            }
+            Spacer()
+            Group {
+                if let pillIcon { Label(pill, systemImage: pillIcon) } else { Text(pill) }
+            }
+            .font(Theme.Typography.footnote.weight(.semibold))
+            .foregroundStyle(pillMuted ? Color.white : Theme.Colors.onAccentTint)
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.sm)
+            .background(pillMuted ? Color.white.opacity(0.12) : Theme.Colors.accentTint, in: Capsule())
+        }
+    }
+}
+
+/// A counter on the panel; amber when it warns.
+struct PanelChip: View {
+    let text: String
+    var warning = false
+
+    var body: some View {
+        Text(text)
+            .font(Theme.Typography.footnote.weight(.semibold))
+            .foregroundStyle(warning ? Theme.Colors.sealedBadgeInk : Color.white)
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.sm)
+            .background(warning ? Theme.Colors.sealedBadgeBG : Color.white.opacity(0.12), in: Capsule())
+    }
+}
+
+/// The panel's one main action, teal, full width.
+struct PanelPrimaryButton: View {
+    let title: String
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(Theme.Typography.body.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .contentShape(Rectangle())
+        }
+        .foregroundStyle(Theme.Colors.onAccent)
+        .background(Theme.Colors.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+    }
+}
+
+/// The fallback under the main action: a row, not a second button.
+struct PanelAltRow: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    var enabled = true
+    let action: () -> Void
+
+    var body: some View {
+        VStack(spacing: Theme.Space.sm) {
+            Divider().overlay(Color.white.opacity(0.15))
+            Button(action: action) {
+                HStack {
+                    Image(systemName: systemImage)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title).font(Theme.Typography.body)
+                        Text(subtitle).font(Theme.Typography.footnote).opacity(0.75)
+                    }
+                    Spacer()
+                    if enabled { Image(systemName: "chevron.right").font(Theme.Typography.footnote) }
+                }
+                .contentShape(Rectangle())
+            }
+            .disabled(!enabled)
+            .opacity(enabled ? 1 : 0.55)
+        }
+    }
+}
+
 // MARK: - A pair of equal buttons
 
 /// Boards 8, N3, R2: a quiet action and the main one at equal size, Cancel or Decline never
