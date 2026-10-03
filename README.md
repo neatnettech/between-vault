@@ -61,7 +61,7 @@ Does not protect against: a fully compromised iOS installation, someone who know
 
 ## Protocol
 
-The exchange package is a versioned format (`protocol_version = 1`). The full PROTOCOL.md specification ships with the first app release.
+The exchange package is a versioned format (`protocol_version = 1`). The full specification is in [PROTOCOL.md](PROTOCOL.md).
 
 ## Repository layout
 
