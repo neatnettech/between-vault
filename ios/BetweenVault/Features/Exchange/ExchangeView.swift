@@ -490,12 +490,8 @@ private struct ReviewSheet: View {
             }
             .safeAreaInset(edge: .bottom) {
                 // Board 8: two equal buttons, Cancel never smaller than send.
-                HStack(spacing: Theme.Space.sm) {
-                    Button(Copy.cancel) { dismiss() }
-                        .buttonStyle(.vaultSecondary)
-                    Button(Copy.createEncryptedFile, action: share)
-                        .buttonStyle(.vaultPrimary)
-                }
+                EqualButtons(secondary: Copy.cancel, primary: Copy.createEncryptedFile,
+                             onSecondary: { dismiss() }, onPrimary: share)
                 .padding(Theme.Space.md)
                 .background(Theme.Colors.bg)
             }

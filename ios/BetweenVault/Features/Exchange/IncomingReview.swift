@@ -53,10 +53,8 @@ struct IncomingReview: View {
             Text(footnote).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
             if let failure { Text(failure).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.destructive) }
             // N3 and R2: Decline and Accept at equal size.
-            HStack(spacing: Theme.Space.sm) {
-                Button(Copy.decline, action: decline).buttonStyle(.vaultSecondary)
-                Button(Copy.acceptItems(incoming.items.count), action: startAccept).buttonStyle(.vaultPrimary)
-            }
+            EqualButtons(secondary: Copy.decline, primary: Copy.acceptItems(incoming.items.count),
+                         onSecondary: decline, onPrimary: startAccept)
             if let decideLater {
                 Button(Copy.decideLater, action: decideLater)
                     .foregroundStyle(Theme.Colors.accent)

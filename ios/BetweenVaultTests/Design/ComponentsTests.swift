@@ -1,3 +1,4 @@
+import SwiftUI
 import Foundation
 import Testing
 
@@ -143,5 +144,21 @@ struct ComponentsTests {
                 subtitle: "What your partner needs if something happens"
             ) == "Emergency, 5 notes, What your partner needs if something happens"
         )
+    }
+
+    /// Found on a real phone: "Create encrypted file" wrapped inside a half width button. Side by
+    /// side while both fit on one line in half the width, stacked otherwise.
+    @MainActor @Test func equalButtonsStackRatherThanWrap() {
+        func height(_ width: CGFloat, _ primary: String) -> CGFloat {
+            let renderer = ImageRenderer(content:
+                EqualButtons(secondary: "Cancel", primary: primary, onSecondary: {}, onPrimary: {})
+                    .frame(width: width)
+            )
+            return renderer.uiImage?.size.height ?? 0
+        }
+        let row = height(390, "Send")
+        let stacked = height(240, "Create encrypted file")
+        #expect(row > 0 && row < 70, "one row: \(row)")
+        #expect(stacked > row * 1.8, "two rows: \(stacked) vs \(row)")
     }
 }
