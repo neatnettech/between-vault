@@ -27,14 +27,14 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 * Two independent vaults, one per phone, joined by a single pairing
 * Every note carries an explicit state: Private, Sealed, or Shared
-* Sharing is an exchange: one encrypted file you hand over yourself, through AirDrop, Messages or Files
+* Sharing is an exchange. Side by side, the two phones connect directly, with no internet, and your partner accepts. Apart, one encrypted file you hand over yourself, through AirDrop, Messages or Files
 * Works fully offline. Pairing and exchange never need a network
 
 ## How an exchange works
 
 1. **Store.** Notes stay encrypted on your device.
 2. **Seal.** Mark what your partner should have, then review exactly what leaves.
-3. **Exchange.** One encrypted `.nvlt` file. Your partner reviews, then accepts. Import is atomic: all items land, or none do.
+3. **Exchange.** Side by side, the phones connect directly (Exchange nearby); apart, one encrypted `.nvlt` file by AirDrop, Messages or Files. Either way your partner reviews, then accepts, and only then is it Shared. Import is atomic: all items land, or none do.
 
 ## Principles
 
@@ -45,7 +45,7 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 ## Security at a glance
 
-* AES-GCM throughout: each record is encrypted at rest with a per device vault key, each exchange package is encrypted end to end with the couple's pair key
+* AES-GCM throughout: each record is encrypted at rest with a per device vault key, each exchange package is encrypted end to end under its own key, derived from the couple's pair key
 * Pairing: QR handoff plus a six digit verification code, compared in person
 * Exchange nearby: the two phones connect directly (peer to peer Wi-Fi, no internet, no server), only while the exchange screen is open, over TLS keyed from the pair key, so only the paired phone can connect. Nearby devices see only a random code, never a name
 * Recovery: your partner holds an encrypted copy of your vault key, by design
