@@ -64,11 +64,16 @@ struct SettingsView: View {
                     LabeledContent(Copy.attachmentsUnlock, value: Copy.comingIn11)
                 }
                 .listRowBackground(Theme.Colors.surface)
-                Section(Copy.about) {
-                    LabeledContent(Copy.version, value: version)
-                    Text(Copy.collectsNothing)
-                        .font(Theme.Typography.footnote)
-                        .foregroundStyle(Theme.Colors.secondary)
+                // Board 17's About, plus Terms of use.
+                Section {
+                    NavigationLink(Copy.privacyPolicy) { PrivacyStatementView() }
+                    NavigationLink(Copy.threatModel) { ThreatModelView() }
+                    NavigationLink { LicenseView() } label: { LabeledContent(Copy.license, value: Copy.gplv3) }
+                    NavigationLink(Copy.termsOfUse) { TermsView() }
+                } header: {
+                    Text(Copy.about)
+                } footer: {
+                    Text(Copy.versionFooter(version))
                 }
                 .listRowBackground(Theme.Colors.surface)
             }
