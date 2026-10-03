@@ -363,6 +363,7 @@ struct EmptyState: View {
             Image(systemName: systemImage)
                 .font(Theme.Typography.title2)
                 .foregroundStyle(Theme.Colors.secondary)
+                .accessibilityHidden(true)
             Text(headline)
                 .font(Theme.Typography.title3)
                 .foregroundStyle(Theme.Colors.text)
@@ -387,6 +388,7 @@ struct Toast: View {
     var body: some View {
         HStack(spacing: Theme.Space.xs) {
             Image(systemName: systemImage)
+                .accessibilityHidden(true)
             Text(text)
                 .font(Theme.Typography.footnote)
         }
@@ -472,6 +474,23 @@ struct DarkPanel<Content: View>: View {
     }
 }
 
+/// A row of text that reads side by side, and stacks at accessibility sizes so neither side is
+/// squeezed to a word per line. Leave `Spacer(minLength: 0)` in the content, not a bare Spacer:
+/// the stacked layout would give it the default minimum height.
+struct ReflowRow<Content: View>: View {
+    var alignment: VerticalAlignment = .center
+    @ViewBuilder let content: Content
+
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Theme.Space.xxs))
+            : AnyLayout(HStackLayout(alignment: alignment))
+        layout { content }
+    }
+}
+
 /// A panel's title, subtitle and the pill on the right.
 struct PanelHeader: View {
     let title: String
@@ -480,13 +499,18 @@ struct PanelHeader: View {
     var pillIcon: String?
     var pillMuted = false
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
-        HStack(alignment: .top) {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Theme.Space.xs))
+            : AnyLayout(HStackLayout(alignment: .top))
+        layout {
             VStack(alignment: .leading, spacing: Theme.Space.xxs) {
                 Text(title).font(Theme.Typography.title3).accessibilityAddTraits(.isHeader)
                 if let subtitle { Text(subtitle).font(Theme.Typography.footnote).opacity(0.75) }
             }
-            Spacer()
+            if !typeSize.isAccessibilitySize { Spacer() }
             Group {
                 if let pillIcon { Label(pill, systemImage: pillIcon) } else { Text(pill) }
             }
@@ -546,12 +570,15 @@ struct PanelAltRow: View {
             Button(action: action) {
                 HStack {
                     Image(systemName: systemImage)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(title).font(Theme.Typography.body)
                         Text(subtitle).font(Theme.Typography.footnote).opacity(0.75)
                     }
                     Spacer()
-                    if enabled { Image(systemName: "chevron.right").font(Theme.Typography.footnote) }
+                    if enabled {
+                        Image(systemName: "chevron.right").font(Theme.Typography.footnote).accessibilityHidden(true)
+                    }
                 }
                 .contentShape(Rectangle())
             }
@@ -575,9 +602,9 @@ struct EqualButtons: View {
 
     var body: some View {
         EqualOrStacked(spacing: Theme.Space.sm) {
-            Button(action: onSecondary) { Text(secondary).lineLimit(1) }
+            Button(action: onSecondary) { Text(secondary) }
                 .buttonStyle(.vaultSecondary)
-            Button(action: onPrimary) { Text(primary).lineLimit(1) }
+            Button(action: onPrimary) { Text(primary) }
                 .buttonStyle(.vaultPrimary)
         }
     }

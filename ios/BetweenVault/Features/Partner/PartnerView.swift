@@ -22,6 +22,12 @@ struct PartnerView: View {
     @State private var typesUnpair = false
     @State private var failure: String?
     @State private var unpaired = false
+    @State private var restoring = false
+    /// Notes on this phone wait for their key (rows 6.1, 6.3).
+    @State private var awaitsRestore = false
+    @State private var holdsRetired = false
+    @State private var asksNewPhone = false
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
 
     var body: some View {
         NavigationStack {
@@ -73,6 +79,15 @@ struct PartnerView: View {
                 Text(Copy.unpairP5Message)
             }
             .sheet(isPresented: $typesUnpair) { TypeToUnpair(onUnpair: unpair) }
+            // Row 6.2: one ask, nothing is lost; their copy stays for their new iPhone.
+            .confirmationDialog(Copy.newPhoneTitle, isPresented: $asksNewPhone, titleVisibility: .visible) {
+                Button(Copy.pairWithNewPhone, action: retire)
+            } message: {
+                Text(Copy.newPhoneMessage)
+            }
+            .navigationDestination(isPresented: $restoring) {
+                RestoreView(paired: partner != nil, pair: { pairing = $0 }, nearby: { nearby = true })
+            }
             .sensoryFeedback(.impact(weight: .heavy), trigger: unpaired) { _, new in new }
             .alert(Copy.notSaved, isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
                 Button(Copy.ok, role: .cancel) {}
@@ -101,7 +116,10 @@ struct PartnerView: View {
                     recoveryChip
                     if let lastExchange { PanelChip(text: Copy.lastExchange(lastExchange)) }
                 }
-                if case .upToDate = yours {
+                if awaitsRestore {
+                    // Rows 6.1, 6.3: until the vault key is back there is no copy of it to send.
+                    PanelPrimaryButton(title: Copy.restoreFromPartner, systemImage: "arrow.counterclockwise") { restoring = true }
+                } else if case .upToDate = yours {
                     Text(allSet ? Copy.allSetBody : Copy.waitingForTheirCopy)
                         .font(Theme.Typography.subheadline)
                         .opacity(0.85)
@@ -137,6 +155,9 @@ struct PartnerView: View {
                 NavigationLink { CompareFingerprints(fingerprint: partner.fingerprint) } label: { chevronRow(Copy.compareFingerprints) }
                 Divider()
                 NavigationLink { HowRecoveryWorks() } label: { chevronRow(Copy.howRecoveryWorks) }
+                Divider()
+                Button { asksNewPhone = true } label: { chevronRow(Copy.partnerHasNewPhone) }
+                    .buttonStyle(.plain)
             } footer: { nil }
 
             Button { asksUnpair = true } label: {
@@ -186,8 +207,16 @@ struct PartnerView: View {
             DarkPanel {
                 PanelHeader(title: Copy.noPartnerYet, subtitle: Copy.pairOnce, pill: Copy.notPairedPill, pillMuted: true)
                 Text(Copy.afterPairingBody).font(Theme.Typography.subheadline).opacity(0.85)
+                if holdsRetired {
+                    Text(Copy.keepingCopyForNewPhone).font(Theme.Typography.subheadline).opacity(0.85)
+                }
                 PanelPrimaryButton(title: Copy.pairWithPartner, systemImage: "iphone.radiowaves.left.and.right") { choosesRole = true }
-                // "Restore from your partner" stays out until restore works (cycle 6, owner's choice).
+                PanelAltRow(
+                    title: Copy.restoreFromPartner,
+                    subtitle: Copy.restoreFromPartnerSub,
+                    systemImage: "arrow.counterclockwise",
+                    action: { restoring = true }
+                )
             }
             section(Copy.howPairingWorks) {
                 ForEach(Array([Copy.pairingStep1, Copy.pairingStep2, Copy.pairingStep3].enumerated()), id: \.offset) { number, step in
@@ -196,7 +225,7 @@ struct PartnerView: View {
                     } icon: {
                         Text("\(number + 1)")
                             .font(Theme.Typography.footnote.weight(.semibold))
-                            .frame(width: 24, height: 24)
+                            .frame(minWidth: badgeSize, minHeight: badgeSize)
                             .background(Theme.Colors.privateBadgeBG, in: Circle())
                             .foregroundStyle(Theme.Colors.privateBadgeInk)
                     }
@@ -215,6 +244,7 @@ struct PartnerView: View {
                 .font(Theme.Typography.footnote.weight(.semibold))
                 .foregroundStyle(Theme.Colors.secondary)
                 .padding(.horizontal, Theme.Space.xs)
+                .accessibilityAddTraits(.isHeader)
             VStack(alignment: .leading, spacing: Theme.Space.sm) { content() }
                 .padding(Theme.Space.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -258,6 +288,8 @@ struct PartnerView: View {
             theirs = status.theirs(pairedAt: partner.pairedAt)
         }
         lastExchange = ((try? services.exchangeLogRepository.history()) ?? []).first?.date
+        awaitsRestore = services.awaitsRestore
+        holdsRetired = services.holdsRetiredRecovery
     }
 
     /// The fallback: the recovery copy as a file, confirmed when the phones next meet.
@@ -274,6 +306,18 @@ struct PartnerView: View {
     private func removeSharedFile() {
         try? FileManager.default.removeItem(at: FileManager.default.temporaryDirectory
             .appending(path: "Between Vault recovery.\(Pairing.RecoveryFile.fileExtension)"))
+    }
+
+    /// Row 6.2: end this pairing, keep their copy, and go straight to pairing their new iPhone.
+    private func retire() {
+        do {
+            try services.retirePairing()
+            // After the first dialog has gone, or this one does not show.
+            Task { try? await Task.sleep(for: .milliseconds(400)); choosesRole = true }
+        } catch {
+            failure = Copy.unpairFailed
+        }
+        reload()
     }
 
     private func unpair() {

@@ -262,6 +262,8 @@ enum Copy {
     static let withYourPartner = "With your partner"
     static func lastExchange(_ date: Date) -> String { "Last exchange \(date.formatted(.dateTime.month(.abbreviated).day()))" }
     static let pairedPill = "Paired"
+    static let pairedAnnouncement = "Paired with your partner"
+    static let checkingCamera = "Checking the camera"
     static let notPairedPill = "Not paired"
     static func toSendChip(_ count: Int) -> String { "\(count) to send" }
     static func waitingChip(_ count: Int) -> String { "\(count) waiting" }
@@ -498,6 +500,36 @@ enum Copy {
     static let recoverySavedTitle = "Recovery file saved"
     static let recoverySaved = "If your partner loses their iPhone, you can help them restore their vault."
     static let recoveryNotSavedTitle = "Recovery file not saved"
+    // Board 15 and rows 6.1 to 6.4: restore from the partner.
+    static let restoreFromPartner = "Restore from your partner"
+    static let restoreFromPartnerSub = "New phone? Get your vault back from their recovery copy."
+    static let restoreBody = "Your partner's iPhone holds an encrypted recovery file for your vault."
+    static let restoreStep1 = "Pair again"
+    static let restoreStep1Done = "Done. New keys for this phone."
+    static let restoreStep1Todo = "Side by side. On their phone: Partner, then Partner has a new iPhone."
+    static let restoreStep2 = "Ask your partner to send it"
+    static let restoreStep2Body = "On their phone: Partner, then Send recovery copy."
+    static let restoreStep3 = "Open it here"
+    static let restoreStep3Body = "Your vault unlocks on this phone."
+    static let getItNearby = "Get it nearby"
+    static let openRecoveryFile = "Open recovery file"
+    static let nothingToRestoreFrom = "No partner and no backup means there is nothing to restore from."
+    /// Row 6.4: a new phone with no backup has nothing the key opens, and says so before anyone tries.
+    static let nothingWaitsForKey = "No notes on this iPhone are waiting for your vault key. It brings back notes from an iPhone backup or a reset. Notes you shared are still on your partner's phone, and they can send them again."
+    static let vaultRestoredTitle = "Your vault is open again"
+    static let vaultRestored = "Your vault key came back from your partner. Your notes on this iPhone open as before. Send them your recovery copy too, so they hold the current one."
+    static let vaultNotRestoredTitle = "Vault not restored"
+    static let notThisVaultsKey = "The key in this recovery copy does not open the notes on this iPhone. It may be from an older vault. Your partner's own copy was kept."
+    static let noKeyReturned = "Your partner's copy was kept, but it did not bring your vault key back. Their phone returns it only if, before pairing again, they chose Partner has a new iPhone while still holding your copy."
+    static let noKeyOrNotThisVaults = "Your partner's copy was kept, but your vault is still locked: it brought no key that opens your notes. Their phone returns your key only if they chose Partner has a new iPhone before pairing again."
+    static let waitingForTheirCopyHere = "Waiting for your partner's copy"
+    static let waitingForTheirCopyHereBody = "On their phone: Partner, then Send recovery copy. Your vault key comes back inside it."
+    // Row 6.2, on the partner's phone.
+    static let partnerHasNewPhone = "Partner has a new iPhone"
+    static let newPhoneTitle = "Pair with their new iPhone?"
+    static let newPhoneMessage = "This pairing ends, as with their old iPhone. Your phone keeps their recovery copy, which opens their vault, and gives it to the next iPhone you pair with, once. Pair only with their new iPhone."
+    static let pairWithNewPhone = "Pair with new iPhone"
+    static let keepingCopyForNewPhone = "You keep your partner's recovery copy for their new iPhone. Pair with it, then send your recovery copy: theirs goes with it."
     static let recoveryNotPaired = "Pair first. A recovery file only opens on the partner it was made for."
     static let recoveryNotForThisPairing = "This recovery file is not from your paired partner, or not for this iPhone. Nothing was saved."
     static let recoveryUnreadable = "This file could not be read. Nothing was saved."
@@ -620,7 +652,7 @@ enum Copy {
     static let eraseVault = "Erase vault"
     static let resetFailed = "The reset did not finish. Try again; it picks up where it stopped."
     static let awaitingRestore = "These notes wait for your recovery file"
-    static let awaitingRestoreMessage = "Your partner holds it. Restore from your partner arrives in a later update."
+    static let awaitingRestoreMessage = "Your partner holds it. Partner, then Restore from your partner."
     static func digitsEntered(_ count: Int) -> String { "\(count) of 6 digits entered" }
     static let vaultUnavailable = "Vault unavailable"
     /// States only what is known: after a failed open the app cannot tell whether the data is intact.

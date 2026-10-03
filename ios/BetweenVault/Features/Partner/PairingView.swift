@@ -9,6 +9,7 @@ struct PairingView: View {
     @State private var flow: PairingFlow
     @Environment(\.dismiss) private var dismiss
     @Environment(LockManager.self) private var lockManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let start: () -> PairingFlow
 
     /// `start` makes a fresh attempt, also for "Start again": each attempt has its own keys.
@@ -30,15 +31,21 @@ struct PairingView: View {
                     case let .show(message, index): showQR(message, index: index)
                     case let .scan(index): ScanStep(flow: flow, index: index)
                     case let .compare(code): compare(code)
-                    case .paired: Color.clear.onAppear { dismiss() }
+                    case .paired:
+                        Color.clear.onAppear {
+                            AccessibilityNotification.Announcement(Copy.pairedAnnouncement).post()
+                            dismiss()
+                        }
                     case let .failed(failure): failed(failure)
                     }
                 }
                 // Each step slides in, so moving on is visible, not a silent swap.
                 .id(progressIndex ?? 0)
-                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
+                .transition(reduceMotion
+                    ? .opacity
+                    : .asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
             }
-            .animation(.snappy, value: progressIndex)
+            .animation(reduceMotion ? nil : .snappy, value: progressIndex)
             .toolbar {
                 if !isFailed {
                     ToolbarItem(placement: .cancellationAction) {
@@ -255,7 +262,9 @@ private struct ScanStep: View {
         Group {
             switch camera {
             case .checking:
-                Color.black
+                Color.black.overlay { ProgressView().tint(.white) }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Copy.checkingCamera)
             case .ready:
                 ZStack(alignment: .bottom) {
                     QRScanner { flow.scanned($0) }
@@ -423,6 +432,8 @@ private struct FailureScreen: View {
     let primary: (String, () -> Void)
     let secondary: (String, () -> Void)?
 
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Space.md) {
@@ -452,7 +463,7 @@ private struct FailureScreen: View {
                             } icon: {
                                 Text("\(number + 1)")
                                     .font(Theme.Typography.footnote.weight(.semibold))
-                                    .frame(width: 24, height: 24)
+                                    .frame(minWidth: badgeSize, minHeight: badgeSize)
                                     .background(Theme.Colors.accentTint, in: Circle())
                             }
                         }

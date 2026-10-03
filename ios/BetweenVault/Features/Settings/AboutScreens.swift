@@ -48,6 +48,7 @@ struct LicenseView: View {
             Text(Copy.inPlainWords.uppercased())
                 .font(Theme.Typography.footnote.weight(.semibold))
                 .foregroundStyle(Theme.Colors.secondary)
+                .accessibilityAddTraits(.isHeader)
             ForEach(Copy.licensePlain, id: \.self) { Label($0, systemImage: "checkmark").foregroundStyle(Theme.Colors.text) }
             VStack(spacing: Theme.Space.sm) {
                 NavigationLink { FullLicenseView() } label: {

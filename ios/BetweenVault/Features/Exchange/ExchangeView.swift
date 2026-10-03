@@ -131,9 +131,9 @@ struct ExchangeView: View {
             } else {
                 card {
                     ForEach(outbox) { item in
-                        HStack {
+                        ReflowRow {
                             Text(item.note.title).foregroundStyle(Theme.Colors.text)
-                            Spacer()
+                            Spacer(minLength: 0)
                             tag(item.isUpdate ? Copy.updateTag : Copy.newTag, amber: item.isUpdate)
                         }
                         .accessibilityElement(children: .combine)
@@ -149,10 +149,12 @@ struct ExchangeView: View {
                     card {
                         HStack {
                             Image(systemName: "doc.badge.clock").foregroundStyle(Theme.Colors.secondary)
+                                .accessibilityHidden(true)
                             Text(Copy.sentAsFileNotConfirmed).foregroundStyle(Theme.Colors.text)
                             Spacer()
                             Text("\(unconfirmed.count)").foregroundStyle(Theme.Colors.secondary)
                             Image(systemName: "chevron.right").font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.tertiary)
+                                .accessibilityHidden(true)
                         }
                     }
                 }
@@ -172,10 +174,10 @@ struct ExchangeView: View {
                 } else {
                     ForEach(waiting) { file in
                         Button { review(file) } label: {
-                            HStack {
+                            ReflowRow {
                                 Text(Copy.fileFromPartner).foregroundStyle(Theme.Colors.text)
                                 Text(Copy.itemsSuffix(file.itemCount)).foregroundStyle(Theme.Colors.secondary)
-                                Spacer()
+                                Spacer(minLength: 0)
                                 Text(Copy.review).foregroundStyle(Theme.Colors.accent)
                             }
                             .frame(minHeight: 36)
@@ -191,13 +193,14 @@ struct ExchangeView: View {
     private var historyRow: some View {
         NavigationLink { HistoryView() } label: {
             card {
-                HStack {
+                ReflowRow {
                     Text(Copy.history).foregroundStyle(Theme.Colors.text)
-                    Spacer()
+                    Spacer(minLength: 0)
                     if let lastEntry {
                         Text(Copy.historySummary(lastEntry)).foregroundStyle(Theme.Colors.secondary)
                     }
                     Image(systemName: "chevron.right").font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.tertiary)
+                        .accessibilityHidden(true)
                 }
             }
         }
@@ -221,11 +224,12 @@ struct ExchangeView: View {
     // MARK: Pieces
 
     private func sectionHeader(_ title: String, link: (String, String, () -> Void)?) -> some View {
-        HStack {
+        ReflowRow {
             Text(title.uppercased())
                 .font(Theme.Typography.footnote.weight(.semibold))
                 .foregroundStyle(Theme.Colors.secondary)
-            Spacer()
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 0)
             if let link {
                 Button(action: link.2) { Label(link.0, systemImage: link.1) }
                     .font(Theme.Typography.footnote.weight(.semibold))
@@ -322,9 +326,9 @@ private struct SentAsFileView: View {
                     .background(Theme.Colors.changedFlagBG, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
                 VStack(spacing: Theme.Space.sm) {
                     ForEach(items) { item in
-                        HStack {
+                        ReflowRow {
                             Text(item.note.title).foregroundStyle(Theme.Colors.text)
-                            Spacer()
+                            Spacer(minLength: 0)
                             StateBadge(state: .sealed, sentNotConfirmed: true)
                         }
                         .accessibilityElement(children: .combine)
@@ -363,6 +367,7 @@ private struct ReviewSheet: View {
     @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var failure: String?
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
 
     var body: some View {
         NavigationStack {
@@ -380,7 +385,7 @@ private struct ReviewSheet: View {
                         } icon: {
                             Text("\(number + 1)")
                                 .font(Theme.Typography.footnote.weight(.semibold))
-                                .frame(width: 24, height: 24)
+                                .frame(minWidth: badgeSize, minHeight: badgeSize)
                                 .background(Theme.Colors.privateBadgeBG, in: Circle())
                                 .foregroundStyle(Theme.Colors.privateBadgeInk)
                         }
@@ -413,6 +418,9 @@ private struct ReviewSheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(Theme.Colors.bg)
+            .onChange(of: failure) { _, new in
+                if let new { AccessibilityNotification.Announcement(new).post() }
+            }
             .navigationTitle(Copy.sendAsFile)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

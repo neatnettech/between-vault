@@ -4,7 +4,7 @@ import SwiftUI
 @main
 struct BetweenVaultApp: App {
     @State private var services: AppServices?
-    @State private var lockManager = LockManager()
+    @State private var lockManager: LockManager
     @State private var cover = CoverWindow()
     @State private var clipboard = ClipboardGuard()
     @State private var showsClipboardToast = false
@@ -19,7 +19,17 @@ struct BetweenVaultApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        _services = State(initialValue: try? AppServices())
+        let services = try? AppServices()
+        let lockManager = LockManager()
+        // Row 6.1: a device backup brings the store and the settings back, never the keys (this
+        // device only). Left alone, the lock asks for a passcode that is gone. A reset makes it
+        // what it is, a new phone whose notes wait for the partner's recovery copy.
+        if let services, services.cameFromDeviceBackup(onboarded: UserDefaults.standard.bool(forKey: LockManager.onboardedKey)) {
+            // Only after a full reset: a failed one keeps the flag, so the next launch tries again.
+            if (try? services.resetVault()) != nil { lockManager.forget() }
+        }
+        _services = State(initialValue: services)
+        _lockManager = State(initialValue: lockManager)
     }
 
     /// The cover and the launch prompt apply once the vault exists, and before onboarding too when
@@ -80,16 +90,8 @@ struct BetweenVaultApp: App {
             cover.alert(Copy.cantBeOpened, Copy.unknownFile)
             return
         }
-        do {
-            try services.receiveRecoveryFile(Data(contentsOf: url))
-            cover.alert(Copy.recoverySavedTitle, Copy.recoverySaved)
-        } catch AppServices.PartnerError.notPaired {
-            cover.alert(Copy.recoveryNotSavedTitle, Copy.recoveryNotPaired)
-        } catch Pairing.RecoveryFile.Problem.notForThisPairing {
-            cover.alert(Copy.recoveryNotSavedTitle, Copy.recoveryNotForThisPairing)
-        } catch {
-            cover.alert(Copy.recoveryNotSavedTitle, Copy.recoveryUnreadable)
-        }
+        let alert = RecoveryAlert.receiving { try services.receiveRecoveryFile(Data(contentsOf: url)) }
+        cover.alert(alert.title, alert.message)
     }
 
     var body: some Scene {

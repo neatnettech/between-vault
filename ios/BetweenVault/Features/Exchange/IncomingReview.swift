@@ -23,45 +23,61 @@ struct IncomingReview: View {
     @State private var failure: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.md) {
-            HStack(spacing: Theme.Space.sm) {
-                Image(systemName: "envelope")
-                    .foregroundStyle(Theme.Colors.onAccentTint)
-                    .frame(width: 48, height: 48)
-                    .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 12))
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: Theme.Space.xxs) {
-                    Text(title).font(Theme.Typography.title3).foregroundStyle(Theme.Colors.text)
-                        .accessibilityAddTraits(.isHeader)
-                    Text(sourceLine).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
+        // One scroll for header, list and footnote: at accessibility sizes in a medium sheet a
+        // list that scrolls on its own collapses to nothing. The buttons stay pinned below.
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Space.md) {
+                HStack(spacing: Theme.Space.sm) {
+                    Image(systemName: "envelope")
+                        .foregroundStyle(Theme.Colors.onAccentTint)
+                        .frame(width: 48, height: 48)
+                        .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 12))
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: Theme.Space.xxs) {
+                        Text(title).font(Theme.Typography.title3).foregroundStyle(Theme.Colors.text)
+                            .accessibilityAddTraits(.isHeader)
+                        Text(sourceLine).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
+                    }
                 }
-            }
-            ScrollView {
                 VStack(spacing: Theme.Space.sm) {
                     ForEach(incoming.items) { item in
-                        HStack {
+                        ReflowRow {
                             Text(item.incoming.title).foregroundStyle(Theme.Colors.text)
-                            Spacer()
+                            Spacer(minLength: 0)
                             trailing(item)
                         }
                         .accessibilityElement(children: .combine)
                     }
                 }
                 .padding(Theme.Space.md)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+                Text(footnote).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
             }
-            Text(footnote).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
-            if let failure { Text(failure).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.destructive) }
-            // N3 and R2: Decline and Accept at equal size.
-            EqualButtons(secondary: Copy.decline, primary: Copy.acceptItems(incoming.items.count),
-                         onSecondary: decline, onPrimary: startAccept)
-            if let decideLater {
-                Button(Copy.decideLater, action: decideLater)
-                    .foregroundStyle(Theme.Colors.accent)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
+            .padding(Theme.Space.lg)
         }
-        .padding(Theme.Space.lg)
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: Theme.Space.md) {
+                if let failure {
+                    Label(failure, systemImage: "exclamationmark.triangle")
+                        .font(Theme.Typography.footnote)
+                        .foregroundStyle(Theme.Colors.destructive)
+                }
+                // N3 and R2: Decline and Accept at equal size.
+                EqualButtons(secondary: Copy.decline, primary: Copy.acceptItems(incoming.items.count),
+                             onSecondary: decline, onPrimary: startAccept)
+                if let decideLater {
+                    Button(Copy.decideLater, action: decideLater)
+                        .foregroundStyle(Theme.Colors.accent)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+            }
+            .padding(Theme.Space.lg)
+            .background(Theme.Colors.bg)
+        }
+        .onChange(of: failure) { _, new in
+            if let new { AccessibilityNotification.Announcement(new).post() }
+        }
         .background(Theme.Colors.bg)
         .sheet(isPresented: Binding(get: { conflictIndex != nil }, set: { if !$0 { conflictIndex = nil } })) {
             if let index = conflictIndex, index < incoming.conflicts.count {

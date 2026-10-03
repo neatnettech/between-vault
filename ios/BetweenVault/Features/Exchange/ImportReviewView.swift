@@ -121,6 +121,7 @@ struct ConflictSheet: View {
                 Label(Copy.conflictCounter(index, count), systemImage: "exclamationmark.triangle")
                     .font(Theme.Typography.footnote.weight(.semibold))
                     .foregroundStyle(Theme.Colors.sealedBadgeInk)
+                    .accessibilityAddTraits(.isHeader)
                 Text(item.incoming.title)
                     .font(Theme.Typography.title2)
                     .foregroundStyle(Theme.Colors.text)

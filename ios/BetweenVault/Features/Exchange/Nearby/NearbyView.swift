@@ -14,12 +14,16 @@ struct NearbyView: View {
     @Environment(AppServices.self) private var services
     @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// N0 is shown once; after that the screen goes straight to looking.
     @AppStorage("betweenvault.nearbyPrimerSeen") private var primerSeen = false
     @State private var link: NearbyLink?
     @State private var session: NearbySession?
     @State private var available: [ExchangeService.OutboxItem] = []
     @State private var ticked = Set<UUID>()
+    /// Row 6.1: waiting for the partner's copy to bring this phone's vault key back.
+    @State private var restoring = false
+    @State private var restored = false
     @State private var failure: String?
 
     var body: some View {
@@ -33,6 +37,11 @@ struct NearbyView: View {
                         Button(session == nil ? Copy.cancel : Copy.end) { close() }
                     }
                 }
+        }
+        // Each step replaces the whole screen, which VoiceOver does not notice by itself.
+        .onChange(of: screenKey) { AccessibilityNotification.ScreenChanged().post() }
+        .onChange(of: failure) { _, new in
+            if let new { AccessibilityNotification.Announcement(new).post() }
         }
         .onChange(of: link?.state) { _, state in
             if state == .connected, session == nil, let connection = link?.connection { begin(on: connection) }
@@ -52,7 +61,11 @@ struct NearbyView: View {
         .onChange(of: session?.confirmedCount) { reloadAvailable() }
         // The partner's phone kept this phone's recovery copy: P1 says up to date.
         .onChange(of: session?.recovery) { _, recovery in
-            if recovery == .delivered { RecoveryStatus().markDelivered() }
+            if recovery == .delivered {
+                RecoveryStatus().markDelivered()
+                // Row 6.2: a returned copy is single use; their phone has it now.
+                try? services.dropRetiredRecovery()
+            }
         }
         .onChange(of: session?.notReceived) { reloadAvailable() }
         .sensoryFeedback(.success, trigger: deliveredCount) { _, new in new > 0 }
@@ -60,6 +73,28 @@ struct NearbyView: View {
 
     private var deliveredCount: Int {
         if case let .delivered(count) = session?.state { count } else { 0 }
+    }
+
+    /// Which screen `content` is drawing, so a change of state that keeps the screen (the partner's
+    /// sheet opening over the list) does not post.
+    private var screenKey: String {
+        if !primerSeen { return "primer" }
+        guard let session else {
+            switch link?.state ?? .idle {
+            case .localNetworkDenied: return "denied"
+            case .unavailable: return "unavailable"
+            default: return "looking"
+            }
+        }
+        switch session.state {
+        case .greeting: return "looking"
+        case .connected where recoveryOnly: return "recovery"
+        case .connected, .incoming: return "choose"
+        case .waitingForAnswer, .partnerAccepted: return "sending"
+        case .delivered: return "delivered"
+        case .partnerDeclined: return "declined"
+        case .ended: return "ended"
+        }
     }
 
     @ViewBuilder
@@ -122,9 +157,10 @@ struct NearbyView: View {
             Image(systemName: "dot.radiowaves.left.and.right")
                 .font(.system(size: 56))
                 .foregroundStyle(Theme.Colors.accent)
-                .symbolEffect(.variableColor.iterative, options: .repeating)
+                .symbolEffect(.variableColor.iterative, options: .repeating, isActive: !reduceMotion)
                 .frame(maxWidth: .infinity)
-                .accessibilityLabel(Copy.lookingForPartner)
+                // The text below says it.
+                .accessibilityHidden(true)
             Text(Copy.lookingForPartner)
                 .font(Theme.Typography.title3)
                 .frame(maxWidth: .infinity)
@@ -182,9 +218,9 @@ struct NearbyView: View {
                             get: { ticked.contains(item.id) },
                             set: { if $0 { ticked.insert(item.id) } else { ticked.remove(item.id) } }
                         )) {
-                            HStack {
+                            ReflowRow {
                                 Text(item.note.title).foregroundStyle(Theme.Colors.text)
-                                Spacer()
+                                Spacer(minLength: 0)
                                 let notReceived = session.notReceived.contains(item.id)
                                 Text(notReceived ? Copy.notReceived : item.isUpdate ? Copy.updateTag : Copy.newTag)
                                     .font(Theme.Typography.badge)
@@ -216,7 +252,9 @@ struct NearbyView: View {
                 .padding(Theme.Space.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-            if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
+            if let failure {
+                Label(failure, systemImage: "exclamationmark.triangle").foregroundStyle(Theme.Colors.destructive)
+            }
         } footer: {
             Button(Copy.sendItems(ticked.count)) { send(session) }
                 .buttonStyle(.vaultPrimary)
@@ -254,24 +292,52 @@ struct NearbyView: View {
             case .refused:
                 Text(Copy.recoveryCopyRefused).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
                 Text(Copy.recoveryCopyRefusedBody).foregroundStyle(Theme.Colors.secondary)
+            case .none where restoring:
+                // Rows 6.1, 6.3: no key to send yet; it comes back inside the partner's copy.
+                Text(Copy.waitingForTheirCopyHere).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                Text(Copy.waitingForTheirCopyHereBody).foregroundStyle(Theme.Colors.secondary)
+                ProgressView().progressViewStyle(.linear).tint(Theme.Colors.accent)
             case .none, .sending:
                 Text(Copy.sendingRecoveryCopy).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
                 ProgressView().progressViewStyle(.linear).tint(Theme.Colors.accent)
+            }
+            if restored {
+                Label(Copy.vaultRestoredTitle, systemImage: "lock.open")
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
             }
             if session.receivedRecovery {
                 Label(Copy.partnerRecoveryKept, systemImage: "lifepreserver")
                     .font(Theme.Typography.subheadline)
                     .foregroundStyle(Theme.Colors.onAccentTint)
             }
-            if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
+            if let failure {
+                Label(failure, systemImage: "exclamationmark.triangle").foregroundStyle(Theme.Colors.destructive)
+            }
         } footer: {
             Button(Copy.done) { close() }.buttonStyle(.vaultPrimary)
         }
         .task {
             guard session.recovery == .none else { return }
-            do { try session.sendRecovery() } catch { failure = Copy.recoveryFileNotMade }
+            restoring = services.awaitsRestore
+            if !restoring { sendRecovery(session) }
+        }
+        // Their copy arrived: if it brought the vault key back, this phone's copy can go now.
+        .onChange(of: session.receivedRecovery) { _, received in
+            guard received, restoring else { return }
+            restoring = services.awaitsRestore
+            if !restoring {
+                restored = true
+                sendRecovery(session)
+            } else {
+                failure = Copy.noKeyOrNotThisVaults
+            }
         }
         .sensoryFeedback(.success, trigger: session.recovery) { _, new in new == .delivered }
+    }
+
+    private func sendRecovery(_ session: NearbySession) {
+        do { try session.sendRecovery() } catch { failure = Copy.recoveryFileNotMade }
     }
 
     private func sending(_ session: NearbySession, count: Int) -> some View {
@@ -381,7 +447,7 @@ struct NearbyView: View {
             me: services.deviceID,
             partner: partner.deviceID,
             makeRecovery: { try services.recoveryFileData() },
-            keepRecovery: { try services.receiveRecoveryFile($0) },
+            keepRecovery: { _ = try services.receiveRecoveryFile($0) },
             holdsRecovery: { services.holdsPartnerRecovery },
             partnerHoldsRecovery: { RecoveryStatus().partnerHolds($0) }
         )
@@ -430,6 +496,7 @@ private struct CheckboxStyle: ToggleStyle {
             HStack(spacing: Theme.Space.sm) {
                 Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(configuration.isOn ? Theme.Colors.accent : Theme.Colors.tertiary)
+                    .accessibilityHidden(true)
                 configuration.label
             }
         }

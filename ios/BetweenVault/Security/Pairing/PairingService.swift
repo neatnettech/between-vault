@@ -272,33 +272,70 @@ extension Pairing {
         let ownerDeviceID: String
         let holderDeviceID: String
         let blob: Data
+        /// Rows 6.1, 6.2: the holder's own vault key coming back, from a copy the sender kept from
+        /// an earlier pairing and wrapped again for this one. Absent in files from before 6.2,
+        /// which decode as before.
+        var returned: Data?
 
         enum Problem: Error, Equatable {
             case unreadable
             case notForThisPairing
         }
 
-        static func make(vaultKey: Data, pairKey: Data, owner: String, holder: String) throws -> Data {
+        /// What the holder keeps, and the holder's own vault key if the file brought it back.
+        struct Accepted: Equatable {
+            let blob: Data
+            let returnedVaultKey: Data?
+        }
+
+        static func make(vaultKey: Data, pairKey: Data, owner: String, holder: String, returned: Data? = nil) throws -> Data {
             let file = RecoveryFile(
                 format: format,
                 version: 1,
                 ownerDeviceID: owner,
                 holderDeviceID: holder,
-                blob: try wrapRecovery(vaultKey: vaultKey, pairKey: pairKey, ownerDeviceID: owner)
+                blob: try wrapRecovery(vaultKey: vaultKey, pairKey: pairKey, ownerDeviceID: owner),
+                returned: returned
             )
             return try JSONEncoder().encode(file)
         }
 
         /// The holder's side: only a file from the paired partner, made for this phone, whose blob
-        /// opens under the pair key, is kept. Returns the blob to store, never the unwrapped key.
-        static func accept(_ data: Data, pairKey: Data, me: String, partner: String) throws -> Data {
+        /// opens under the pair key, is kept. Returns the blob to store, never the partner's key.
+        static func accept(_ data: Data, pairKey: Data, me: String, partner: String) throws -> Accepted {
             guard let file = try? JSONDecoder().decode(RecoveryFile.self, from: data),
                   file.format == format, file.version == 1
             else { throw Problem.unreadable }
             guard file.ownerDeviceID == partner, file.holderDeviceID == me,
                   (try? unwrapRecovery(file.blob, pairKey: pairKey, ownerDeviceID: partner)) != nil
             else { throw Problem.notForThisPairing }
-            return file.blob
+            var returnedKey: Data?
+            if let returned = file.returned {
+                // Wrapped for this phone under this pairing, or the whole file is refused.
+                guard let key = try? unwrapRecovery(returned, pairKey: pairKey, ownerDeviceID: me) else {
+                    throw Problem.notForThisPairing
+                }
+                returnedKey = key
+            }
+            return Accepted(blob: file.blob, returnedVaultKey: returnedKey)
         }
+    }
+
+    /// Row 6.2. Keychain account for the partner's recovery copy kept from a pairing that ended
+    /// because they got a new iPhone. One generation: retiring again replaces it.
+    static let retiredRecoveryAccount = "betweenvault.retiredRecovery"
+
+    /// The partner's copy with what opens it: the old pair key and the old device ID it is bound to.
+    struct RetiredCopy: Codable, Equatable {
+        let blob: Data
+        let pairKey: Data
+        let ownerDeviceID: String
+    }
+
+    /// Spec 20.1: unwrap with the old pair key, wrap again under the new one, bound to the
+    /// partner's new device ID. The vault key exists unwrapped only inside this call.
+    static func rewrap(_ retired: RetiredCopy, pairKey: Data, newOwnerDeviceID: String) throws -> Data {
+        let vaultKey = try unwrapRecovery(retired.blob, pairKey: retired.pairKey, ownerDeviceID: retired.ownerDeviceID)
+        return try wrapRecovery(vaultKey: vaultKey, pairKey: pairKey, ownerDeviceID: newOwnerDeviceID)
     }
 }

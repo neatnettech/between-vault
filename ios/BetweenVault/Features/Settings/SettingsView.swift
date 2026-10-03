@@ -2,7 +2,15 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(LockManager.self) private var lockManager
+    @Environment(\.dynamicTypeSize) private var typeSize
     @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
+
+    private var appearancePicker: some View {
+        Picker(Copy.appearance, selection: $appearance) {
+            ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+        }
+        .accessibilityLabel(Copy.appearance)
+    }
 
     /// Read from the bundle, which project.yml fills from MARKETING_VERSION and
     /// CURRENT_PROJECT_VERSION, so the screen follows every version bump.
@@ -40,11 +48,12 @@ struct SettingsView: View {
                 .listRowBackground(Theme.Colors.surface)
                 Section {
                     // The handoff's default is the system setting; Light and Dark are for this app.
-                    Picker(Copy.appearance, selection: $appearance) {
-                        ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+                    // Segments do not fit side by side at accessibility sizes.
+                    if typeSize.isAccessibilitySize {
+                        appearancePicker.pickerStyle(.menu)
+                    } else {
+                        appearancePicker.pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel(Copy.appearance)
                 } header: {
                     Text(Copy.appearance)
                 } footer: {

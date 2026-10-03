@@ -274,7 +274,7 @@ struct NearbySessionTests {
         let sa = NearbySession(transport: la, exchange: a.send, importer: a.receive, log: a.log, me: idA, partner: idB,
                                makeRecovery: { try Pairing.RecoveryFile.make(vaultKey: vaultKeyA, pairKey: key, owner: self.idA, holder: self.idB) })
         let sb = NearbySession(transport: lb, exchange: b.send, importer: b.receive, log: b.log, me: idB, partner: idA,
-                               keepRecovery: { keptOnB = try Pairing.RecoveryFile.accept($0, pairKey: key, me: self.idB, partner: self.idA) })
+                               keepRecovery: { keptOnB = try Pairing.RecoveryFile.accept($0, pairKey: key, me: self.idB, partner: self.idA).blob })
         sa.start()
         sb.start()
 
