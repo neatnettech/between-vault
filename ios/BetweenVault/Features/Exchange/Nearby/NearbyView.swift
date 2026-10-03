@@ -296,31 +296,11 @@ struct NearbyView: View {
     }
 
     private func delivered(_ session: NearbySession, count: Int) -> some View {
-        screen {
-            Image(systemName: "checkmark")
-                .font(.title)
-                .foregroundStyle(Theme.Colors.onAccentTint)
-                .frame(width: 64, height: 64)
-                .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 18))
-                .accessibilityHidden(true)
-            Text(Copy.deliveredAndAccepted).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
-            Text(Copy.partnerHasAll(count)).foregroundStyle(Theme.Colors.secondary)
-            VStack(spacing: Theme.Space.sm) {
-                LabeledContent(Copy.sent, value: "\(session.sentCount)")
-                LabeledContent(Copy.earlierFileSendsConfirmed, value: "\(session.confirmedCount)")
-                LabeledContent(Copy.received, value: "\(session.receivedCount)")
-                LabeledContent(Copy.conflicts, value: session.conflictsCount == 0 ? Copy.noneWord : "\(session.conflictsCount)")
-            }
-            .padding(Theme.Space.md)
-            .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-        } footer: {
-            Button(Copy.done) { close() }.buttonStyle(.vaultPrimary)
-            Button(Copy.stayConnected) { reloadAvailable(); backToConnected(session) }.buttonStyle(.vaultSecondary)
-            Text(Copy.doneEndsSession)
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.secondary)
-                .multilineTextAlignment(.center)
-        }
+        NearbyDelivered(
+            count: count, sent: session.sentCount, confirmed: session.confirmedCount,
+            received: session.receivedCount, conflicts: session.conflictsCount,
+            onDone: close, onStay: { reloadAvailable(); backToConnected(session) }
+        )
     }
 
     private func ended(_ ending: NearbySession.Ending) -> some View {
@@ -455,5 +435,54 @@ private struct CheckboxStyle: ToggleStyle {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
+    }
+}
+
+/// Board N5, on its own so the demo mode can show it without a live session.
+struct NearbyDelivered: View {
+    let count: Int
+    let sent: Int
+    let confirmed: Int
+    let received: Int
+    let conflicts: Int
+    let onDone: () -> Void
+    let onStay: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Space.md) {
+                Image(systemName: "checkmark")
+                    .font(.title)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
+                    .frame(width: 64, height: 64)
+                    .background(Theme.Colors.accentTint, in: RoundedRectangle(cornerRadius: 18))
+                    .accessibilityHidden(true)
+                Text(Copy.deliveredAndAccepted).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                Text(Copy.partnerHasAll(count)).foregroundStyle(Theme.Colors.secondary)
+                VStack(spacing: Theme.Space.sm) {
+                    LabeledContent(Copy.sent, value: "\(sent)")
+                    LabeledContent(Copy.earlierFileSendsConfirmed, value: "\(confirmed)")
+                    LabeledContent(Copy.received, value: "\(received)")
+                    LabeledContent(Copy.conflicts, value: conflicts == 0 ? Copy.noneWord : "\(conflicts)")
+                }
+                .padding(Theme.Space.md)
+                .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            }
+            .padding(Theme.Space.lg)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: Theme.Space.sm) {
+                Button(Copy.done, action: onDone).buttonStyle(.vaultPrimary)
+                Button(Copy.stayConnected, action: onStay).buttonStyle(.vaultSecondary)
+                Text(Copy.doneEndsSession)
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(Theme.Space.lg)
+            .background(Theme.Colors.bg)
+        }
+        .background(Theme.Colors.bg.ignoresSafeArea())
     }
 }

@@ -14,6 +14,15 @@ A notes vault for two people. It lives on your iPhones, and nothing leaves them 
 
 No server. No account. No analytics. No automatic sync. Open source.
 
+<p align="center">
+  <img src="web/screenshots/vault.webp" width="200" alt="The vault, sorted into categories">
+  <img src="web/screenshots/note.webp" width="200" alt="A note marked Shared and Changed since sent">
+  <img src="web/screenshots/exchange.webp" width="200" alt="The Exchange tab with Exchange nearby">
+  <img src="web/screenshots/delivered.webp" width="200" alt="Delivered and accepted after a phone to phone exchange">
+</p>
+
+<p align="center"><sub>Real screens from the app, with sample notes.</sub></p>
+
 ## What it is
 
 * Two independent vaults, one per phone, joined by a single pairing
