@@ -64,7 +64,11 @@ struct AppIconPicker: View {
                     .accessibilityAddTraits(choice == selected ? .isSelected : [])
                 }
             } footer: {
-                Text(failed ? Copy.iconNotChanged : Copy.iconFooter)
+                if failed {
+                    Label(Copy.iconNotChanged, systemImage: "exclamationmark.triangle")
+                } else {
+                    Text(Copy.iconFooter)
+                }
             }
             .listRowBackground(Theme.Colors.surface)
         }
@@ -83,6 +87,7 @@ struct AppIconPicker: View {
                     failed = false
                 } else {
                     failed = true
+                    AccessibilityNotification.Announcement(Copy.iconNotChanged).post()
                 }
             }
         }

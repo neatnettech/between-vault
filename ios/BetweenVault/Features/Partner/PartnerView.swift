@@ -27,6 +27,7 @@ struct PartnerView: View {
     @State private var awaitsRestore = false
     @State private var holdsRetired = false
     @State private var asksNewPhone = false
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
 
     var body: some View {
         NavigationStack {
@@ -224,7 +225,7 @@ struct PartnerView: View {
                     } icon: {
                         Text("\(number + 1)")
                             .font(Theme.Typography.footnote.weight(.semibold))
-                            .frame(width: 24, height: 24)
+                            .frame(minWidth: badgeSize, minHeight: badgeSize)
                             .background(Theme.Colors.privateBadgeBG, in: Circle())
                             .foregroundStyle(Theme.Colors.privateBadgeInk)
                     }
@@ -243,6 +244,7 @@ struct PartnerView: View {
                 .font(Theme.Typography.footnote.weight(.semibold))
                 .foregroundStyle(Theme.Colors.secondary)
                 .padding(.horizontal, Theme.Space.xs)
+                .accessibilityAddTraits(.isHeader)
             VStack(alignment: .leading, spacing: Theme.Space.sm) { content() }
                 .padding(Theme.Space.md)
                 .frame(maxWidth: .infinity, alignment: .leading)

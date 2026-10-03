@@ -56,6 +56,9 @@ struct PrivacyOverlayView: View {
         .accessibilityElement(children: .contain)
         // Modal, so VoiceOver cannot swipe past the lock into the vault drawn underneath.
         .accessibilityAddTraits(.isModal)
+        .onChange(of: screen) { _, new in
+            if case .wait = new { AccessibilityNotification.ScreenChanged().post() }
+        }
         // Row 2.4, first ask. The second is typing RESET.
         .alert(Copy.resetAlertTitle, isPresented: $asksReset) {
             Button(Copy.cancel, role: .cancel) {}

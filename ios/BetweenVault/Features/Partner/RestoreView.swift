@@ -13,6 +13,7 @@ struct RestoreView: View {
     @State private var awaits = false
     @State private var alert: RecoveryAlert?
     @State private var choosesRole = false
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
 
     var body: some View {
         ScrollView {
@@ -85,14 +86,16 @@ struct RestoreView: View {
             }
         } icon: {
             Group {
-                if done { Image(systemName: "checkmark") } else { Text("\(number)") }
+                if done { Image(systemName: "checkmark").accessibilityHidden(true) } else { Text("\(number)") }
             }
             .font(Theme.Typography.footnote.weight(.semibold))
-            .frame(width: 24, height: 24)
+            .frame(minWidth: badgeSize, minHeight: badgeSize)
             .background(done ? Theme.Colors.accentTint : Theme.Colors.privateBadgeBG, in: Circle())
             .foregroundStyle(done ? Theme.Colors.onAccentTint : Theme.Colors.privateBadgeInk)
         }
         .accessibilityElement(children: .combine)
+        // The icon is a checkmark to VoiceOver; the word is what the step means.
+        .accessibilityValue(done ? Copy.done : "")
     }
 }
 

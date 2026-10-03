@@ -14,6 +14,7 @@ struct NearbyView: View {
     @Environment(AppServices.self) private var services
     @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// N0 is shown once; after that the screen goes straight to looking.
     @AppStorage("betweenvault.nearbyPrimerSeen") private var primerSeen = false
     @State private var link: NearbyLink?
@@ -36,6 +37,11 @@ struct NearbyView: View {
                         Button(session == nil ? Copy.cancel : Copy.end) { close() }
                     }
                 }
+        }
+        // Each step replaces the whole screen, which VoiceOver does not notice by itself.
+        .onChange(of: screenKey) { AccessibilityNotification.ScreenChanged().post() }
+        .onChange(of: failure) { _, new in
+            if let new { AccessibilityNotification.Announcement(new).post() }
         }
         .onChange(of: link?.state) { _, state in
             if state == .connected, session == nil, let connection = link?.connection { begin(on: connection) }
@@ -67,6 +73,28 @@ struct NearbyView: View {
 
     private var deliveredCount: Int {
         if case let .delivered(count) = session?.state { count } else { 0 }
+    }
+
+    /// Which screen `content` is drawing, so a change of state that keeps the screen (the partner's
+    /// sheet opening over the list) does not post.
+    private var screenKey: String {
+        if !primerSeen { return "primer" }
+        guard let session else {
+            switch link?.state ?? .idle {
+            case .localNetworkDenied: return "denied"
+            case .unavailable: return "unavailable"
+            default: return "looking"
+            }
+        }
+        switch session.state {
+        case .greeting: return "looking"
+        case .connected where recoveryOnly: return "recovery"
+        case .connected, .incoming: return "choose"
+        case .waitingForAnswer, .partnerAccepted: return "sending"
+        case .delivered: return "delivered"
+        case .partnerDeclined: return "declined"
+        case .ended: return "ended"
+        }
     }
 
     @ViewBuilder
@@ -129,9 +157,10 @@ struct NearbyView: View {
             Image(systemName: "dot.radiowaves.left.and.right")
                 .font(.system(size: 56))
                 .foregroundStyle(Theme.Colors.accent)
-                .symbolEffect(.variableColor.iterative, options: .repeating)
+                .symbolEffect(.variableColor.iterative, options: .repeating, isActive: !reduceMotion)
                 .frame(maxWidth: .infinity)
-                .accessibilityLabel(Copy.lookingForPartner)
+                // The text below says it.
+                .accessibilityHidden(true)
             Text(Copy.lookingForPartner)
                 .font(Theme.Typography.title3)
                 .frame(maxWidth: .infinity)
@@ -189,9 +218,9 @@ struct NearbyView: View {
                             get: { ticked.contains(item.id) },
                             set: { if $0 { ticked.insert(item.id) } else { ticked.remove(item.id) } }
                         )) {
-                            HStack {
+                            ReflowRow {
                                 Text(item.note.title).foregroundStyle(Theme.Colors.text)
-                                Spacer()
+                                Spacer(minLength: 0)
                                 let notReceived = session.notReceived.contains(item.id)
                                 Text(notReceived ? Copy.notReceived : item.isUpdate ? Copy.updateTag : Copy.newTag)
                                     .font(Theme.Typography.badge)
@@ -223,7 +252,9 @@ struct NearbyView: View {
                 .padding(Theme.Space.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-            if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
+            if let failure {
+                Label(failure, systemImage: "exclamationmark.triangle").foregroundStyle(Theme.Colors.destructive)
+            }
         } footer: {
             Button(Copy.sendItems(ticked.count)) { send(session) }
                 .buttonStyle(.vaultPrimary)
@@ -280,7 +311,9 @@ struct NearbyView: View {
                     .font(Theme.Typography.subheadline)
                     .foregroundStyle(Theme.Colors.onAccentTint)
             }
-            if let failure { Text(failure).foregroundStyle(Theme.Colors.destructive) }
+            if let failure {
+                Label(failure, systemImage: "exclamationmark.triangle").foregroundStyle(Theme.Colors.destructive)
+            }
         } footer: {
             Button(Copy.done) { close() }.buttonStyle(.vaultPrimary)
         }
@@ -463,6 +496,7 @@ private struct CheckboxStyle: ToggleStyle {
             HStack(spacing: Theme.Space.sm) {
                 Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(configuration.isOn ? Theme.Colors.accent : Theme.Colors.tertiary)
+                    .accessibilityHidden(true)
                 configuration.label
             }
         }

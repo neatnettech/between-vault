@@ -262,6 +262,8 @@ enum Copy {
     static let withYourPartner = "With your partner"
     static func lastExchange(_ date: Date) -> String { "Last exchange \(date.formatted(.dateTime.month(.abbreviated).day()))" }
     static let pairedPill = "Paired"
+    static let pairedAnnouncement = "Paired with your partner"
+    static let checkingCamera = "Checking the camera"
     static let notPairedPill = "Not paired"
     static func toSendChip(_ count: Int) -> String { "\(count) to send" }
     static func waitingChip(_ count: Int) -> String { "\(count) waiting" }
