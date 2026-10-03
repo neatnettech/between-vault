@@ -57,19 +57,30 @@ final class ExchangeService {
         self.directory = directory
     }
 
-    /// Board 7: sealed notes, newest first.
+    /// Board 7: sealed notes waiting to be sent, newest first. Notes already sent as a file and
+    /// waiting for confirmation are not in it; they are in `unconfirmed()`.
     func outbox() throws -> [OutboxItem] {
+        try items { $0.state == .sealed && $0.pendingExchangeID == nil }
+    }
+
+    /// Board F2: sent as a file, not yet confirmed by the partner's phone.
+    func unconfirmed() throws -> [OutboxItem] {
+        try items(where: \.isSentNotConfirmed)
+    }
+
+    private func items(where include: (Note) -> Bool) throws -> [OutboxItem] {
         let names = Dictionary(uniqueKeysWithValues: try categories.categories().map { ($0.id, $0.name) })
         return try notes.notes(in: nil)
-            .filter { $0.state == .sealed }
+            .filter(include)
             .map { OutboxItem(note: $0, categoryName: $0.categoryID.flatMap { names[$0] }) }
     }
 
-    /// Board 8, Encrypt & Share: every sealed note in one package, written to a temporary file for
-    /// the share sheet. Nothing about the notes changes yet.
-    func prepare(now: Date = .now) throws -> Prepared {
+    /// Board F1, Create encrypted file: the outbox in one package, written to a temporary file for
+    /// the share sheet. `resend` packs the notes still waiting for confirmation instead (F2, Send
+    /// the file again). Nothing about the notes changes yet.
+    func prepare(resend: Bool = false, now: Date = .now) throws -> Prepared {
         guard let partner = try partners.partner(), let key = try pairKey() else { throw ExchangeError.notPaired }
-        let sealed = try notes.notes(in: nil).filter { $0.state == .sealed }
+        let sealed = try notes.notes(in: nil).filter { resend ? $0.isSentNotConfirmed : $0.state == .sealed && $0.pendingExchangeID == nil }
         guard !sealed.isEmpty else { throw ExchangeError.nothingSealed }
         let byID = Dictionary(uniqueKeysWithValues: try categories.categories().map { ($0.id, $0) })
         let items = sealed.map { note in
@@ -99,7 +110,8 @@ final class ExchangeService {
         return Prepared(exchangeID: exchangeID, file: file, versions: Dictionary(uniqueKeysWithValues: sealed.map { ($0.id, $0.version) }))
     }
 
-    /// The owner said it arrived. Each note that is still sealed becomes Shared at
+    /// Exchange nearby (row C): the partner's phone accepted and imported it. Each note that is
+    /// still sealed becomes Shared at
     /// the version that left; the partner is now taken to hold it, so it is also the common
     /// ancestor for their fast forward check (spec 16, 18). If it never arrived, a later package
     /// shows them a conflict, never a silent overwrite. An edit made while the sheet was up stays
@@ -116,6 +128,46 @@ final class ExchangeService {
         }
         // Saves the shared context, notes included.
         try log.record(prepared.exchangeID, direction: .sent, itemCount: prepared.versions.count, at: now)
+    }
+
+    /// Board F2: the share sheet handed the file over. Nobody can see whether it arrived, so the
+    /// notes stay Sealed, marked "Sent · not confirmed" with this exchange and the version that
+    /// left, until the partner's phone confirms it (`confirm`). They leave the outbox. Found on two
+    /// phones: an interrupted AirDrop still reports done, so this is all a handover proves.
+    func markHandedOver(_ prepared: Prepared, now: Date = .now) throws {
+        defer { discard(prepared) }
+        for (id, sentVersion) in prepared.versions {
+            guard var note = try notes.note(id: id), note.state == .sealed else { continue }
+            note.pendingExchangeID = prepared.exchangeID
+            note.pendingVersion = sentVersion
+            try notes.save(note, commit: false)
+        }
+        try log.record(prepared.exchangeID, direction: .sent, itemCount: prepared.versions.count, at: now, unconfirmed: true)
+    }
+
+    /// The partner's phone reports which exchanges it imported (during an exchange nearby). Every
+    /// note waiting on one of them becomes Shared at the version that left, which the partner now
+    /// holds: also the common ancestor for their fast forward check (spec 16, 18). An edit made
+    /// since stays as "Changed since sent". One save. Returns how many notes were confirmed.
+    @discardableResult
+    func confirm(importedExchangeIDs: Set<String>) throws -> Int {
+        var confirmed = 0
+        var exchanges = Set<String>()
+        for var note in try notes.notes(in: nil) {
+            guard let pending = note.pendingExchangeID, importedExchangeIDs.contains(pending) else { continue }
+            note.state = .shared
+            note.partnerKnownVersion = note.pendingVersion
+            note.baseVersion = note.pendingVersion
+            note.pendingExchangeID = nil
+            note.pendingVersion = 0
+            try notes.save(note, commit: false)
+            exchanges.insert(pending)
+            confirmed += 1
+        }
+        guard confirmed > 0 else { return 0 }
+        for id in exchanges { try log.stageConfirmed(id) }
+        try notes.commit()
+        return confirmed
     }
 
     /// Cancelled, or done: the file does not linger.

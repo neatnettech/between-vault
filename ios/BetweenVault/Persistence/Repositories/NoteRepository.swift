@@ -51,7 +51,9 @@ final class NoteRepository {
             partnerKnownVersion: record.partnerKnownVersion,
             createdAt: record.createdAt,
             updatedAt: record.updatedAt,
-            origin: NoteOrigin(rawValue: record.originRaw) ?? .local
+            origin: NoteOrigin(rawValue: record.originRaw) ?? .local,
+            pendingExchangeID: record.pendingExchangeID,
+            pendingVersion: record.pendingVersion
         )
     }
 
@@ -97,6 +99,8 @@ final class NoteRepository {
             existing.baseVersion = note.baseVersion
             existing.partnerKnownVersion = note.partnerKnownVersion
             existing.originRaw = note.origin.rawValue
+            existing.pendingExchangeID = note.pendingExchangeID
+            existing.pendingVersion = note.pendingVersion
             existing.ciphertext = ciphertext
             existing.updatedAt = note.updatedAt
         } else {
@@ -112,9 +116,16 @@ final class NoteRepository {
                     updatedAt: note.updatedAt
                 )
             record.originRaw = note.origin.rawValue
+            record.pendingExchangeID = note.pendingExchangeID
+            record.pendingVersion = note.pendingVersion
             context.insert(record)
         }
         if commit { try context.saveOrRollback() }
+    }
+
+    /// Commits writes staged with `save(_:commit: false)`, or rolls all of them back.
+    func commit() throws {
+        try context.saveOrRollback()
     }
 
     func delete(id: UUID) throws {

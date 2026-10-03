@@ -193,13 +193,22 @@ enum Copy {
     static let notIncludedLine = "anything else in your vault."
     static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
     /// Shared means sent, not delivered: the copy never claims the partner has it.
-    static let sentNotDelivered = "After you hand it over, you say whether it arrived. Only then do these notes become Shared."
-    /// Not on a board: found on two phones, an interrupted AirDrop still reports done, so the
-    /// owner says whether it arrived. Their word, not the system's, makes notes Shared.
-    static let didItArrive = "Did it arrive?"
-    static let didItArriveMessage = "Check with your partner. Notes become Shared only when you say it arrived. Not sure? Keep them Sealed and send again."
-    static let yesItArrived = "Yes, mark as sent"
-    static let noKeepSealed = "No, keep them Sealed"
+    // Boards F1, F2: Send as a file, the fallback for when the phones are not side by side.
+    static let sendAsFile = "Send as a file"
+    static let sendAsFileBody = "For when you are not side by side. The file is encrypted so only your partner's iPhone can open it."
+    static let fileStep1 = "Choose AirDrop, Messages or Files"
+    static let fileStep2 = "With AirDrop, pick your partner's iPhone"
+    static let fileStep3 = "They open the file and review it in the app"
+    static let cantSeeArrival = "This app can't see whether the file arrived. It is confirmed the next time you exchange nearby."
+    static let createEncryptedFile = "Create encrypted file"
+    static let sentNotConfirmed = "Sent · not confirmed"
+    static let sentNotConfirmedVoiceOver = "Sent as a file. Not confirmed by your partner's phone yet."
+    static func sentAsFileBanner(_ date: Date?) -> String {
+        let when = date.map { " \($0.formatted(date: .abbreviated, time: .shortened))" } ?? ""
+        return "Sent as a file\(when.isEmpty ? "" : ",")\(when). Shown as confirmed once your partner's phone says it accepted them."
+    }
+    static let sendFileAgain = "Send the file again"
+    static let toastFileHandedOver = "File handed over"
     static let packageNotMade = "The encrypted file could not be made. Nothing was sent and nothing changed."
     static let sentNotRecorded = "The file was handed over, but this iPhone could not mark the notes as sent. They are still Sealed."
     static func sentItems(_ count: Int) -> String { count == 1 ? "Sent 1 item" : "Sent \(count) items" }

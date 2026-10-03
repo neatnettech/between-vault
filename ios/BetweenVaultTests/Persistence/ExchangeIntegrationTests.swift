@@ -254,4 +254,42 @@ struct ExchangeIntegrationTests {
         #expect(created.symbol == "leaf")
         #expect(try b.notes.note(id: note.id)?.categoryID == created.id)
     }
+
+    /// Board F2 end to end: A hands a file over, B imports it, and B's imported exchange IDs (sent
+    /// during an exchange nearby) confirm A's notes as Shared. B's later edit then fast forwards
+    /// on A, since the ancestor was only set once B really had it.
+    @Test func aFileSendIsConfirmedByThePartnersImportedIDs() throws {
+        let (a, b) = try makePhones()
+        let note = try a.write("Boiler", body: "v1")
+        let prepared = try a.send.prepare()
+        let file = try Data(contentsOf: prepared.file)
+        try a.send.markHandedOver(prepared)
+        #expect(try a.notes.note(id: note.id)?.isSentNotConfirmed == true)
+
+        try b.receive.accept(try b.receive.inspect(file))
+        #expect(try a.send.confirm(importedExchangeIDs: try b.log.receivedExchangeIDs()) == 1)
+        #expect(try a.notes.note(id: note.id)?.state == .shared)
+
+        try b.edit(note.id, body: "b's edit")
+        let back = try a.receive.inspect(try b.sendAll())
+        guard case .update = back.items.first?.change else { Issue.record("\(back.items)"); return }
+    }
+
+    /// Lost on the way: the file never reached B. A's notes stay "Sent · not confirmed", and a
+    /// second file still lands on B as new.
+    @Test func aLostFileStaysUnconfirmedAndCanBeSentAgain() throws {
+        let (a, b) = try makePhones()
+        let note = try a.write("Boiler")
+        try a.send.markHandedOver(try a.send.prepare())
+        #expect(try a.send.confirm(importedExchangeIDs: try b.log.receivedExchangeIDs()) == 0)
+        #expect(try a.notes.note(id: note.id)?.isSentNotConfirmed == true)
+
+        let again = try a.send.prepare(resend: true)
+        let file = try Data(contentsOf: again.file)
+        try a.send.markHandedOver(again)
+        let incoming = try b.receive.inspect(file)
+        #expect(incoming.items.map(\.change) == [.new])
+        try b.receive.accept(incoming)
+        #expect(try a.send.confirm(importedExchangeIDs: try b.log.receivedExchangeIDs()) == 1)
+    }
 }

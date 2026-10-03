@@ -7,6 +7,9 @@ import SwiftUI
 struct StateBadge: View {
     let state: NoteState
     var changedSinceSent: Bool = false
+    /// Board F2: sent as a file, not yet confirmed. Drawn in place of Sealed, as an outlined teal
+    /// flag, the Shared side counterpart of "Changed since sent".
+    var sentNotConfirmed: Bool = false
 
     struct Spec: Equatable {
         let word: String
@@ -54,6 +57,26 @@ struct StateBadge: View {
     }
 
     var body: some View {
+        if sentNotConfirmed && state == .sealed {
+            HStack(spacing: Theme.Space.xxs) {
+                Image(systemName: "paperplane")
+                    .imageScale(.small)
+                Text(Copy.sentNotConfirmed)
+            }
+            .font(Theme.Typography.badge)
+            .foregroundStyle(Theme.Colors.sharedBadgeInk)
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.sm)
+            .background(Theme.Colors.surface, in: Capsule())
+            .overlay { Capsule().stroke(Theme.Colors.sentNotConfirmedRing, lineWidth: 1) }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Copy.sentNotConfirmedVoiceOver)
+        } else {
+            badge
+        }
+    }
+
+    private var badge: some View {
         HStack(spacing: Theme.Space.xxs) {
             Image(systemName: spec.symbol)
                 .imageScale(.small)
@@ -127,7 +150,7 @@ struct NoteRow: View {
                 // lineLimit only shortens what is drawn; VoiceOver would read the whole body.
                 .accessibilityLabel(String(note.body.prefix(120)))
             HStack(spacing: Theme.Space.xs) {
-                StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
+                StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent, sentNotConfirmed: note.isSentNotConfirmed)
                 // Never colour alone: the bar is paired with words.
                 if note.origin == .partner {
                     Text(Copy.fromPartnerLabel)
@@ -550,6 +573,7 @@ private struct ComponentGallery: View {
                     StateBadge(state: .shared)
                 }
                 StateBadge(state: .shared, changedSinceSent: true)
+                StateBadge(state: .sealed, sentNotConfirmed: true)
 
                 NoteRow(note: note)
                 CategoryTile(
