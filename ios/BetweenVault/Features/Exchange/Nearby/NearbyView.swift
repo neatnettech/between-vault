@@ -43,6 +43,11 @@ struct NearbyView: View {
             }
         }
         .onDisappear { link?.stop() }
+        // The partner's confirmations arrive just after connecting and can turn a note sent as a
+        // file into Shared: the send list follows, or it offers a note that is no longer sealed.
+        // Found on two phones.
+        .onChange(of: session?.confirmedCount) { reloadAvailable() }
+        .onChange(of: session?.notReceived) { reloadAvailable() }
         .sensoryFeedback(.success, trigger: deliveredCount) { _, new in new > 0 }
     }
 
@@ -358,6 +363,10 @@ struct NearbyView: View {
     private func send(_ session: NearbySession) {
         do {
             try session.send(ticked)
+            failure = nil
+        } catch ExchangeService.ExchangeError.nothingSealed {
+            // What was ticked is no longer sealed (confirmed meanwhile): show what is left.
+            reloadAvailable()
             failure = nil
         } catch {
             failure = Copy.packageNotMade
