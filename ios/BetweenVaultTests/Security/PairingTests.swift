@@ -179,7 +179,7 @@ struct RecoveryFileTests {
         let file = try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: idA, holder: idB)
 
         #expect(!file.contains(vaultKey))
-        let blob = try Pairing.RecoveryFile.accept(file, pairKey: pairKey, me: idB, partner: idA)
+        let blob = try Pairing.RecoveryFile.accept(file, pairKey: pairKey, me: idB, partner: idA).blob
         #expect(try Pairing.unwrapRecovery(blob, pairKey: pairKey, ownerDeviceID: idA) == vaultKey)
     }
 

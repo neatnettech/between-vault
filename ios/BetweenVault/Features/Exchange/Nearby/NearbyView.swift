@@ -20,6 +20,9 @@ struct NearbyView: View {
     @State private var session: NearbySession?
     @State private var available: [ExchangeService.OutboxItem] = []
     @State private var ticked = Set<UUID>()
+    /// Row 6.1: waiting for the partner's copy to bring this phone's vault key back.
+    @State private var restoring = false
+    @State private var restored = false
     @State private var failure: String?
 
     var body: some View {
@@ -254,9 +257,19 @@ struct NearbyView: View {
             case .refused:
                 Text(Copy.recoveryCopyRefused).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
                 Text(Copy.recoveryCopyRefusedBody).foregroundStyle(Theme.Colors.secondary)
+            case .none where restoring:
+                // Rows 6.1, 6.3: no key to send yet; it comes back inside the partner's copy.
+                Text(Copy.waitingForTheirCopyHere).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
+                Text(Copy.waitingForTheirCopyHereBody).foregroundStyle(Theme.Colors.secondary)
+                ProgressView().progressViewStyle(.linear).tint(Theme.Colors.accent)
             case .none, .sending:
                 Text(Copy.sendingRecoveryCopy).font(Theme.Typography.title2).accessibilityAddTraits(.isHeader)
                 ProgressView().progressViewStyle(.linear).tint(Theme.Colors.accent)
+            }
+            if restored {
+                Label(Copy.vaultRestoredTitle, systemImage: "lock.open")
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.onAccentTint)
             }
             if session.receivedRecovery {
                 Label(Copy.partnerRecoveryKept, systemImage: "lifepreserver")
@@ -269,9 +282,25 @@ struct NearbyView: View {
         }
         .task {
             guard session.recovery == .none else { return }
-            do { try session.sendRecovery() } catch { failure = Copy.recoveryFileNotMade }
+            restoring = services.awaitsRestore
+            if !restoring { sendRecovery(session) }
+        }
+        // Their copy arrived: if it brought the vault key back, this phone's copy can go now.
+        .onChange(of: session.receivedRecovery) { _, received in
+            guard received, restoring else { return }
+            restoring = services.awaitsRestore
+            if !restoring {
+                restored = true
+                sendRecovery(session)
+            } else {
+                failure = Copy.notThisVaultsKey
+            }
         }
         .sensoryFeedback(.success, trigger: session.recovery) { _, new in new == .delivered }
+    }
+
+    private func sendRecovery(_ session: NearbySession) {
+        do { try session.sendRecovery() } catch { failure = Copy.recoveryFileNotMade }
     }
 
     private func sending(_ session: NearbySession, count: Int) -> some View {
@@ -381,7 +410,7 @@ struct NearbyView: View {
             me: services.deviceID,
             partner: partner.deviceID,
             makeRecovery: { try services.recoveryFileData() },
-            keepRecovery: { try services.receiveRecoveryFile($0) },
+            keepRecovery: { _ = try services.receiveRecoveryFile($0) },
             holdsRecovery: { services.holdsPartnerRecovery },
             partnerHoldsRecovery: { RecoveryStatus().partnerHolds($0) }
         )

@@ -79,6 +79,7 @@ final class AppServices {
         try KeyManager.delete(Passcode.account)
         try KeyManager.delete(Pairing.pairKeyAccount)
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
+        try KeyManager.delete(Pairing.retiredRecoveryAccount)
         RecoveryStatus().forget()
         Identity.reset()
         try Self.eraseRecords(in: container.mainContext)
@@ -110,17 +111,63 @@ extension AppServices {
         guard let vaultKey = try KeyManager.load(Self.vaultKeyAccount),
               let pairKey = try KeyManager.load(Pairing.pairKeyAccount)
         else { throw PartnerError.keyMissing }
-        return try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: deviceID, holder: partner.deviceID)
+        // Row 6.2: a copy kept from their old iPhone goes back to them, wrapped for this pairing.
+        let returned = try KeyManager.load(Pairing.retiredRecoveryAccount).map {
+            try Pairing.rewrap(JSONDecoder().decode(Pairing.RetiredCopy.self, from: $0), pairKey: pairKey, newOwnerDeviceID: partner.deviceID)
+        }
+        return try Pairing.RecoveryFile.make(vaultKey: vaultKey, pairKey: pairKey, owner: deviceID, holder: partner.deviceID, returned: returned)
     }
 
-    /// The partner's recovery file, opened on this phone: checked, then only its blob is kept.
-    func receiveRecoveryFile(_ data: Data) throws {
+    /// The partner's recovery file, opened on this phone: checked, then only its blob is kept. If it
+    /// brings this phone's own vault key back while notes wait for it, the vault opens again
+    /// (rows 6.1, 6.3).
+    enum RecoveryReceipt: Equatable {
+        case kept
+        case restored
+        /// Their copy is kept, but the key it returned does not open the waiting notes: a copy
+        /// from an older vault.
+        case notThisVaultsKey
+    }
+
+    @discardableResult
+    func receiveRecoveryFile(_ data: Data) throws -> RecoveryReceipt {
         guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
         guard let pairKey = try KeyManager.load(Pairing.pairKeyAccount) else { throw PartnerError.keyMissing }
-        let blob = try Pairing.RecoveryFile.accept(data, pairKey: pairKey, me: deviceID, partner: partner.deviceID)
+        let accepted = try Pairing.RecoveryFile.accept(data, pairKey: pairKey, me: deviceID, partner: partner.deviceID)
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
-        try KeyManager.save(blob, account: Pairing.partnerRecoveryAccount)
+        try KeyManager.save(accepted.blob, account: Pairing.partnerRecoveryAccount)
         RecoveryStatus().markReceived()
+        // Nothing waiting: a fresh phone with no backup has no notes this key opens, and a vault
+        // that has its key keeps it.
+        guard let key = accepted.returnedVaultKey, awaitsRestore else { return .kept }
+        return try Self.restore(key, in: container.mainContext) ? .restored : .notThisVaultsKey
+    }
+
+    /// Onboarded, yet neither the passcode nor the vault key is in the Keychain: only a device
+    /// backup leaves that. Definite absence only, as in `awaitsRestore`.
+    func cameFromDeviceBackup(onboarded: Bool) -> Bool {
+        guard onboarded,
+              case .some(.none) = try? KeyManager.load(Passcode.account),
+              case .some(.none) = try? KeyManager.load(Self.vaultKeyAccount)
+        else { return false }
+        return true
+    }
+
+    /// Notes kept without their key: after a reset (2.4) or a device backup (keys never travel in
+    /// one). Only a definite "no key" counts; a Keychain error is not a missing key.
+    var awaitsRestore: Bool {
+        guard case .some(.none) = try? KeyManager.load(Self.vaultKeyAccount) else { return false }
+        return ((try? container.mainContext.fetchCount(FetchDescriptor<NoteRecord>())) ?? 0) > 0
+    }
+
+    /// Saves the returned key only if it opens a waiting note: a copy from an older vault would
+    /// otherwise become the key and strand them.
+    static func restore(_ key: Data, in context: ModelContext, save: (Data) throws -> Void = { try KeyManager.save($0, account: vaultKeyAccount) }) throws -> Bool {
+        var one = FetchDescriptor<NoteRecord>()
+        one.fetchLimit = 1
+        guard let note = try context.fetch(one).first, (try? CryptoEngine.decrypt(note.ciphertext, key: key)) != nil else { return false }
+        try save(key)
+        return true
     }
 
     /// Whether this phone holds the partner's recovery copy, told to them when the phones meet.
@@ -132,6 +179,30 @@ extension AppServices {
     /// fails the partner still shows, so Unpair stays on screen and a retry finishes the job.
     /// Offline, the partner's phone cannot be told; a recovery file already sent stays with them.
     func unpair() throws {
+        try KeyManager.delete(Pairing.retiredRecoveryAccount)
+        try endPairing()
+    }
+
+    /// Row 6.2, "Partner has a new iPhone": this pairing ends like Unpair, but their recovery copy
+    /// is kept with the old pair key, to go back to their new iPhone once paired. With no copy
+    /// held, an earlier retired one stays.
+    func retirePairing() throws {
+        guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
+        if let blob = try KeyManager.load(Pairing.partnerRecoveryAccount),
+           let pairKey = try KeyManager.load(Pairing.pairKeyAccount) {
+            let retired = try JSONEncoder().encode(Pairing.RetiredCopy(blob: blob, pairKey: pairKey, ownerDeviceID: partner.deviceID))
+            try KeyManager.delete(Pairing.retiredRecoveryAccount)
+            try KeyManager.save(retired, account: Pairing.retiredRecoveryAccount)
+        }
+        try endPairing()
+    }
+
+    /// Whether this phone keeps a copy for a partner's new iPhone.
+    var holdsRetiredRecovery: Bool {
+        ((try? KeyManager.load(Pairing.retiredRecoveryAccount)) ?? nil) != nil
+    }
+
+    private func endPairing() throws {
         RecoveryStatus().forget()
         try KeyManager.delete(Pairing.partnerRecoveryAccount)
         try KeyManager.delete(Pairing.pairKeyAccount)
