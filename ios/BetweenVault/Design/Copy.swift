@@ -683,4 +683,51 @@ enum Copy {
     static let iconNotChanged = "The icon could not be changed. Try again."
     static let version = "Version"
     static let collectsNothing = "This app collects nothing and has no server to send it to."
+    static func versionFooter(_ version: String) -> String { "Version \(version). \(collectsNothing)" }
+    // Settings > About (board 17, 17d, 17e), plus Terms of use (owner request; no board).
+    static let privacyPolicy = "Privacy policy"
+    static let threatModel = "Threat model"
+    static let license = "License"
+    static let gplv3 = "GPLv3"
+    static let termsOfUse = "Terms of use"
+    static let privacyStatement = [
+        "Between Vault collects nothing. There is no account, no analytics, no tracking and no server.",
+        "Your notes stay on this iPhone, encrypted. They leave only when you send them to your paired partner, phone to phone or as a file you hand over yourself.",
+        "Nothing is sent to us, because we have nothing to receive it with.",
+    ]
+    static let privacyWebsiteNote = "The website and waiting list have their own policy."
+    static let fullPrivacyPolicy = "Full privacy policy"
+    static let threatModelTitle = "What this app protects"
+    static let protectsAgainst = "Protects against"
+    static let protectsList = [
+        "Someone with your locked or lost iPhone reading the vault",
+        "Someone who intercepts an exchange file reading it",
+        "A changed or fake exchange file being imported",
+    ]
+    static let doesNotProtect = "Does not protect against"
+    static let doesNotProtectList = [
+        "Anyone who knows your vault passcode or has your unlocked vault open",
+        "Your partner. They can recover your vault, by design",
+        "A compromised or jailbroken iPhone",
+        "Losing both phones with no backup",
+    ]
+    static let fullThreatModel = "Full threat model"
+    static let licenseIntro = "This app is free software under the GNU General Public License, version 3."
+    static let inPlainWords = "In plain words"
+    static let licensePlain = [
+        "You can read, build and change the code",
+        "If you share a changed version, you share its code under GPLv3 too",
+        "No warranty. The full text is the binding version",
+    ]
+    static let fullLicenseText = "Full license text"
+    static let offline = "Offline"
+    static let thirdPartyNotices = "Third-party notices"
+    static let thirdPartyNone = "None. The app uses only Apple's own frameworks and includes no third-party code."
+    static let sourceCode = "Source code"
+    static let licenseFootnote = "Source code opens in Safari. Everything else on this screen is bundled with the app."
+    static let termsBody = [
+        "Between Vault is free. Your use of it is covered by Apple's standard licence agreement for App Store apps.",
+        "The app's code is open source under GPLv3. There is no account and no service from us, so there are no other terms.",
+    ]
+    static let appleStandardEULA = "Apple's standard licence agreement"
 }

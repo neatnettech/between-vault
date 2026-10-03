@@ -16,4 +16,14 @@ struct PromiseLineTests {
         let html = try String(contentsOf: index, encoding: .utf8)
         #expect(html.contains(Copy.promiseHero + " No cloud required."))
     }
+
+    /// Settings > License reads a copy of the GPLv3 bundled with the app (board 17d). It lives
+    /// inside ios/ because a file outside it gets machine dependent IDs in the generated project;
+    /// this keeps the copy identical to the repository's LICENSE.
+    @Test func theBundledLicenseIsTheRepositoryLicense() throws {
+        let ios = URL(filePath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let bundled = try Data(contentsOf: ios.appending(path: "BetweenVault/Resources/LICENSE.txt"))
+        let repository = try Data(contentsOf: ios.deletingLastPathComponent().appending(path: "LICENSE"))
+        #expect(bundled == repository)
+    }
 }

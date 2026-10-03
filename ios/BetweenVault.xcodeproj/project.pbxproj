@@ -23,6 +23,7 @@
 		243DD1740368E0434FC774C4 /* IncomingReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DB933319C735C7C018BD7C /* IncomingReview.swift */; };
 		2B22EC8E7D834DA33A236A8A /* PackageValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC529AE18B505426C1456254 /* PackageValidator.swift */; };
 		335016F39ECB73051AD77B11 /* VaultResetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF110A4E469C0714B0C1727 /* VaultResetTests.swift */; };
+		373EA69C4E9D9B6841C0D41D /* AboutScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF06A11D01927B8EE9091BF0 /* AboutScreens.swift */; };
 		400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62B6562834B98DED89F64DA /* AppServices.swift */; };
 		47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */; };
 		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
@@ -47,6 +48,7 @@
 		7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649468903C22D4E5EB8E541 /* CryptoEngine.swift */; };
 		7B9C512DB3559931CCB5E256 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67C3E039C7E5333270671E1 /* Identity.swift */; };
 		83A59DF99DFE71A0A80D62EE /* PrivacyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */; };
+		83CC49948D5048595B89671A /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */; };
 		84909282EED201E43A90205E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB278D67828CA7BA78523340 /* Theme.swift */; };
 		87058F4D510D9F413E5FEFFA /* RecoveryStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94330F8B345B45465FA53AC /* RecoveryStatus.swift */; };
 		89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */; };
@@ -137,6 +139,7 @@
 		AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		B36FFA6FC07E4E6F6A07A557 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		B906AE325310BB2D212B6013 /* AddNotesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNotesSheet.swift; sourceTree = "<group>"; };
+		BF06A11D01927B8EE9091BF0 /* AboutScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutScreens.swift; sourceTree = "<group>"; };
 		C47A3E24A32707DF8716A835 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		C55E2066BD0141E940EF2472 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C67C3E039C7E5333270671E1 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
@@ -163,6 +166,7 @@
 		F649468903C22D4E5EB8E541 /* CryptoEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngine.swift; sourceTree = "<group>"; };
 		F94297C58F2F7298CAA902D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		FAF4DE883CA1729E49ABD109 /* PairingFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingFlowTests.swift; sourceTree = "<group>"; };
+		FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -307,6 +311,7 @@
 		7238265A71AAC878E1141260 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				BF06A11D01927B8EE9091BF0 /* AboutScreens.swift */,
 				EB3E697EDF1A1A091BDAE7BD /* Appearance.swift */,
 				591F4FB6D9757B6DF18483AD /* AppIconPicker.swift */,
 				DA0AB0C54F88EB3040B8503A /* SettingsView.swift */,
@@ -365,6 +370,7 @@
 				48886F212F21C9AEBE510956 /* Features */,
 				B9EA0260EF6317CF13A51DEF /* Persistence */,
 				B53B46E4D260A33B30DF8686 /* Protocol */,
+				E2B09C45D2D1A103FC5B127B /* Resources */,
 				28F06C5F60AE6D490A6F8A62 /* Security */,
 			);
 			path = BetweenVault;
@@ -446,6 +452,14 @@
 				6E4019E724CC4067D6FE7112 /* NotesView.swift */,
 			);
 			path = Notes;
+			sourceTree = "<group>";
+		};
+		E2B09C45D2D1A103FC5B127B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		E2C812E8914E2D9D05075B55 /* App */ = {
@@ -592,6 +606,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */,
+				83CC49948D5048595B89671A /* LICENSE.txt in Resources */,
 				0644DBDA971BA5283CEAFF41 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -627,6 +642,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				373EA69C4E9D9B6841C0D41D /* AboutScreens.swift in Sources */,
 				103EFDA920289D27AEB7A440 /* AddNotesSheet.swift in Sources */,
 				747CD640CF4879541FDE9B5B /* AppIconPicker.swift in Sources */,
 				400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */,
