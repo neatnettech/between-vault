@@ -42,6 +42,9 @@ final class NoteRecord {
     var partnerKnownVersion: Int = 0
     /// `NoteOrigin`. Defaulted, so adding it stays a lightweight migration.
     var originRaw: String = "local"
+    /// Board F2's pending file exchange. Defaulted, so adding them stays a lightweight migration.
+    var pendingExchangeID: String?
+    var pendingVersion: Int = 0
     /// AES-GCM(nonce + ciphertext + tag) under the vault key. Title and body live inside.
     var ciphertext: Data
     var createdAt: Date

@@ -18,6 +18,14 @@ struct Note: Identifiable, Equatable, Sendable {
     var updatedAt: Date
     /// Who made it: notes that arrived from the partner are drawn in the partner colour.
     var origin: NoteOrigin = .local
+    /// Sent in this file exchange and not yet confirmed by the partner's phone (board F2). Only a
+    /// confirmation from the partner makes it Shared: nobody can see whether a file arrived.
+    var pendingExchangeID: String?
+    /// The version that left in that file.
+    var pendingVersion = 0
+
+    /// Board F2: "Sent · not confirmed". A flag on Sealed, never a fourth state.
+    var isSentNotConfirmed: Bool { state == .sealed && pendingExchangeID != nil }
 
     /// Board U1: a flag on Shared, never a fourth state. Edited since the last time this note left
     /// the device.

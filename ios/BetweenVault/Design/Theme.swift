@@ -82,6 +82,9 @@ enum Theme {
         static var sharedBadgeBG: Color { dyn(0xDD_F0EE, 0x12_3532) }
         static var sharedBadgeInk: Color { dyn(0x0B_5F5A, 0x7E_D3CA) }
         static var changedFlagBG: Color { dyn(0xFB_F6EA, 0x3A_2A0C) }
+        /// Board F2's "Sent · not confirmed" ring: #7FBDB6 on light; derived for dark from the
+        /// Shared ink so it keeps its contrast there.
+        static var sentNotConfirmedRing: Color { dyn(0x7F_BDB6, 0x4F_8F89) }
         static var changedFlagInk: Color { dyn(0x4A_3500, 0xD9_B56A) }
     }
 

@@ -190,6 +190,76 @@ struct ExchangeServiceTests {
         _ = noteID
     }
 
+    // MARK: Send as a file (boards F1, F2)
+
+    /// A handover proves only that the file left: Sealed, "Sent · not confirmed", out of the outbox.
+    @Test func aHandoverLeavesNotesSentNotConfirmed() throws {
+        let setup = try makeSetup()
+        let note = try addNote(setup, title: "Boiler", state: .sealed, version: 3)
+        let prepared = try setup.service.prepare()
+        try setup.service.markHandedOver(prepared)
+
+        let after = try #require(try setup.notes.note(id: note.id))
+        #expect(after.state == .sealed)
+        #expect(after.isSentNotConfirmed)
+        #expect(after.pendingVersion == 3)
+        #expect(after.partnerKnownVersion == 0, "nothing is assumed about the partner yet")
+        #expect(try setup.service.outbox().isEmpty)
+        #expect(try setup.service.unconfirmed().map(\.note.id) == [note.id])
+        #expect(try setup.log.history().first?.unconfirmed == true)
+        #expect(!FileManager.default.fileExists(atPath: prepared.file.path))
+    }
+
+    /// The partner's phone reports the exchange imported: Shared at the version that left.
+    @Test func aConfirmationMakesThemShared() throws {
+        let setup = try makeSetup()
+        let note = try addNote(setup, title: "Boiler", state: .sealed, version: 3)
+        let other = try addNote(setup, title: "Other", state: .sealed)
+        let prepared = try setup.service.prepare()
+        try setup.service.markHandedOver(prepared)
+
+        #expect(try setup.service.confirm(importedExchangeIDs: ["someone-else"]) == 0)
+        #expect(try setup.service.confirm(importedExchangeIDs: [prepared.exchangeID]) == 2)
+        let after = try #require(try setup.notes.note(id: note.id))
+        #expect(after.state == .shared)
+        #expect(after.partnerKnownVersion == 3)
+        #expect(after.baseVersion == 3)
+        #expect(!after.isSentNotConfirmed)
+        #expect(try setup.notes.note(id: other.id)?.state == .shared)
+        #expect(try setup.log.history().first?.unconfirmed == false)
+    }
+
+    /// An edit after the handover stays as "Changed since sent" once confirmed.
+    @Test func anEditAfterTheHandoverStaysFlagged() throws {
+        let setup = try makeSetup()
+        let note = try addNote(setup, title: "Boiler", state: .sealed, version: 2)
+        let prepared = try setup.service.prepare()
+        try setup.service.markHandedOver(prepared)
+        var edited = try #require(try setup.notes.note(id: note.id)).edited(title: "Boiler v3", body: "b", categoryID: nil)
+        edited.state = .sealed
+        try setup.notes.save(edited)
+
+        try setup.service.confirm(importedExchangeIDs: [prepared.exchangeID])
+        let after = try #require(try setup.notes.note(id: note.id))
+        #expect(after.partnerKnownVersion == 2)
+        #expect(after.hasChangedSinceSent)
+    }
+
+    /// F2 Send the file again packs exactly the notes still waiting.
+    @Test func sendingTheFileAgainPacksTheWaitingNotes() throws {
+        let setup = try makeSetup()
+        try addNote(setup, title: "Waiting", state: .sealed)
+        try setup.service.markHandedOver(try setup.service.prepare())
+        try addNote(setup, title: "Fresh", state: .sealed)
+
+        let again = try setup.service.prepare(resend: true)
+        let package = try PackageSerializer.package(fromFile: Data(contentsOf: again.file))
+        #expect(try PackageSerializer.open(package, pairKey: pairKey).items.map(\.title) == ["Waiting"])
+        let fresh = try setup.service.prepare()
+        let freshPackage = try PackageSerializer.package(fromFile: Data(contentsOf: fresh.file))
+        #expect(try PackageSerializer.open(freshPackage, pairKey: pairKey).items.map(\.title) == ["Fresh"])
+    }
+
     private func service(context: ModelContext, key: Data) -> ExchangeService {
         let pair = pairKey
         return ExchangeService(

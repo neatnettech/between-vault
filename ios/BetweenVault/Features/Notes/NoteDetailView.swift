@@ -96,7 +96,7 @@ struct NoteDetailView: View {
     /// fit (accessibility sizes, a long category). The text is one Text, so VoiceOver reads it in
     /// one stop.
     private var metaLine: some View {
-        let badge = StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent)
+        let badge = StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent, sentNotConfirmed: note.isSentNotConfirmed)
         let meta = Text(
             [
                 categoryName,

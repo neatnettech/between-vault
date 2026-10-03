@@ -7,8 +7,11 @@ struct ExchangeView: View {
     @Environment(AppServices.self) private var services
     @State private var tab = Tab.ready
     @State private var outbox: [ExchangeService.OutboxItem] = []
+    @State private var unconfirmed: [ExchangeService.OutboxItem] = []
+    @State private var lastFileSend: Date?
     @State private var paired = false
     @State private var reviewing = false
+    @State private var resending = false
     @State private var sentToast = false
 
     private enum Tab: Hashable { case ready, waiting }
@@ -40,18 +43,21 @@ struct ExchangeView: View {
             .task { reload() }
             .refreshable { reload() }
             .sheet(isPresented: $reviewing, onDismiss: reload) {
-                ReviewSheet(items: outbox) { sentToast = true }
+                ReviewSheet(items: outbox, resend: false) { sentToast = true }
+            }
+            .sheet(isPresented: $resending, onDismiss: reload) {
+                ReviewSheet(items: unconfirmed, resend: true) { sentToast = true }
             }
             .overlay(alignment: .bottom) {
                 if sentToast {
-                    Toast(systemImage: "checkmark.circle", text: Copy.toastExchangeReady)
+                    Toast(systemImage: "paperplane", text: Copy.toastFileHandedOver)
                         .padding(.bottom, Theme.Space.lg)
                         .transition(.opacity)
                 }
             }
             .task(id: sentToast) {
                 guard sentToast else { return }
-                AccessibilityNotification.Announcement(Copy.toastExchangeReady).post()
+                AccessibilityNotification.Announcement(Copy.toastFileHandedOver).post()
                 try? await Task.sleep(for: .seconds(2))
                 withAnimation { sentToast = false }
             }
@@ -63,6 +69,7 @@ struct ExchangeView: View {
 
     @ViewBuilder
     private var readyToSend: some View {
+        if !unconfirmed.isEmpty { sentNotConfirmed }
         if outbox.isEmpty {
             Section {
                 EmptyState(systemImage: "tray", headline: Copy.nothingSealedYet, message: Copy.sealANote)
@@ -89,7 +96,7 @@ struct ExchangeView: View {
             .listRowBackground(Theme.Colors.surface)
 
             Section {
-                Button(Copy.reviewAndSend) { reviewing = true }
+                Button(Copy.sendAsFile) { reviewing = true }
                     .buttonStyle(.vaultPrimary)
                     .disabled(!paired)
                 if !paired {
@@ -102,6 +109,29 @@ struct ExchangeView: View {
         }
     }
 
+    /// Board F2: sent as a file, waiting for the partner's phone to confirm it. Nobody can see
+    /// whether a file arrived, so this stays until it is confirmed during an exchange nearby.
+    private var sentNotConfirmed: some View {
+        Section {
+            Text(Copy.sentAsFileBanner(lastFileSend))
+                .font(Theme.Typography.subheadline)
+                .foregroundStyle(Theme.Colors.changedFlagInk)
+                .listRowBackground(Theme.Colors.changedFlagBG)
+            ForEach(unconfirmed) { item in
+                HStack {
+                    Text(item.note.title).foregroundStyle(Theme.Colors.text)
+                    Spacer()
+                    StateBadge(state: .sealed, sentNotConfirmed: true)
+                }
+                .accessibilityElement(children: .combine)
+            }
+            Button(Copy.sendFileAgain) { resending = true }
+                .foregroundStyle(Theme.Colors.accent)
+                .disabled(!paired)
+        }
+        .listRowBackground(Theme.Colors.surface)
+    }
+
     private var waitingForMe: some View {
         Section {
             EmptyState(systemImage: "tray.and.arrow.down", headline: Copy.nothingWaiting, message: Copy.openPartnerFile)
@@ -111,36 +141,57 @@ struct ExchangeView: View {
 
     private func reload() {
         outbox = (try? services.exchangeService.outbox()) ?? []
+        unconfirmed = (try? services.exchangeService.unconfirmed()) ?? []
+        lastFileSend = ((try? services.exchangeLogRepository.history()) ?? []).first { $0.unconfirmed }?.date
         paired = ((try? services.partnerRepository.partner()) ?? nil) != nil
     }
 }
 
-// MARK: - Board 8
+// MARK: - Boards 8 and F1
 
-/// "Exactly what leaves this iPhone": names and categories, never body text. Cancel is the same
-/// size as Encrypt & Share. Nothing changes until the share sheet reports the handoff done.
+/// Send as a file: board F1's explanation over board 8's "exactly what leaves": names and
+/// categories, never body text. Cancel is the same size as Create encrypted file. After the
+/// handoff the notes are "Sent · not confirmed" (F2); only the partner's phone confirms them.
 private struct ReviewSheet: View {
     let items: [ExchangeService.OutboxItem]
+    /// F2's Send the file again: the notes still waiting for confirmation.
+    let resend: Bool
     let onSent: () -> Void
 
     @Environment(AppServices.self) private var services
     @Environment(LockManager.self) private var lockManager
     @Environment(\.dismiss) private var dismiss
     @State private var failure: String?
-    /// A handoff iOS called done, waiting for the owner to say whether it arrived.
-    @State private var awaitingWord: ExchangeService.Prepared?
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Text(Copy.itemsEncrypted(items.count))
+                    Text(Copy.sendAsFileBody)
                         .font(Theme.Typography.body)
                         .foregroundStyle(Theme.Colors.text)
                 }
                 .listRowBackground(Color.clear)
                 Section {
+                    ForEach(Array([Copy.fileStep1, Copy.fileStep2, Copy.fileStep3].enumerated()), id: \.offset) { number, step in
+                        Label {
+                            Text(step)
+                        } icon: {
+                            Text("\(number + 1)")
+                                .font(Theme.Typography.footnote.weight(.semibold))
+                                .frame(width: 24, height: 24)
+                                .background(Theme.Colors.privateBadgeBG, in: Circle())
+                                .foregroundStyle(Theme.Colors.privateBadgeInk)
+                        }
+                    }
+                } footer: {
+                    Text(Copy.cantSeeArrival)
+                }
+                .listRowBackground(Theme.Colors.surface)
+                Section {
                     ForEach(items) { ReviewRow(title: $0.note.title, categoryName: $0.categoryName) }
+                } header: {
+                    Text(Copy.itemsEncrypted(items.count))
                 }
                 .listRowBackground(Theme.Colors.surface)
                 Section {
@@ -150,8 +201,6 @@ private struct ReviewSheet: View {
                         Text(Copy.handOverNext).foregroundStyle(Theme.Colors.secondary)
                     }
                     .font(Theme.Typography.subheadline)
-                } footer: {
-                    Text(Copy.sentNotDelivered)
                 }
                 .listRowBackground(Theme.Colors.surface)
                 if let failure {
@@ -163,25 +212,19 @@ private struct ReviewSheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(Theme.Colors.bg)
-            .navigationTitle(Copy.exactlyWhatLeaves)
+            .navigationTitle(Copy.sendAsFile)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(Copy.cancel) { dismiss() }
                 }
             }
-            .alert(Copy.didItArrive, isPresented: Binding(get: { awaitingWord != nil }, set: { if !$0 { awaitingWord = nil } }), presenting: awaitingWord) { prepared in
-                Button(Copy.yesItArrived) { arrived(prepared) }
-                Button(Copy.noKeepSealed, role: .cancel) { services.exchangeService.discard(prepared) }
-            } message: { _ in
-                Text(Copy.didItArriveMessage)
-            }
             .safeAreaInset(edge: .bottom) {
                 // Board 8: two equal buttons, Cancel never smaller than send.
                 HStack(spacing: Theme.Space.sm) {
                     Button(Copy.cancel) { dismiss() }
                         .buttonStyle(.vaultSecondary)
-                    Button(Copy.encryptAndShare, action: share)
+                    Button(Copy.createEncryptedFile, action: share)
                         .buttonStyle(.vaultPrimary)
                 }
                 .padding(Theme.Space.md)
@@ -193,7 +236,7 @@ private struct ReviewSheet: View {
     private func share() {
         let prepared: ExchangeService.Prepared
         do {
-            prepared = try services.exchangeService.prepare()
+            prepared = try services.exchangeService.prepare(resend: resend)
         } catch {
             failure = Copy.packageNotMade
             return
@@ -218,26 +261,21 @@ private struct ReviewSheet: View {
                 return
             }
             keepAwake.cancel()
-            // iOS reports AirDrop done even when the transfer was interrupted, so "completed" is
-            // not proof. The owner's word is: tested on two phones, an interrupted AirDrop came
-            // back as completed.
-            awaitingWord = prepared
-        }
-    }
-
-    private func arrived(_ prepared: ExchangeService.Prepared) {
-        do {
-            try services.exchangeService.markSent(prepared)
-            onSent()
-            dismiss()
-        } catch {
-            failure = Copy.sentNotRecorded
+            // iOS reports AirDrop done even when the transfer was interrupted (found on two
+            // phones), so a handover proves only that the file left: "Sent · not confirmed".
+            do {
+                try services.exchangeService.markHandedOver(prepared)
+                onSent()
+                dismiss()
+            } catch {
+                failure = Copy.sentNotRecorded
+            }
         }
     }
 }
 
 /// The system share sheet, from UIKit: SwiftUI's ShareLink cannot tell a completed handoff from a
-/// cancelled one, and "Shared means sent" depends on exactly that.
+/// cancelled one, and a cancel must leave the notes in the outbox.
 @MainActor
 /// `completion(completed, sheetClosed)`: no activity type means the sheet itself was dismissed.
 private func presentShareSheet(_ file: URL, completion: @escaping (Bool, Bool) -> Void) {
