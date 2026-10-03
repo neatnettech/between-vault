@@ -25,16 +25,13 @@ final class AppServices {
     /// old key becomes unreachable, so it is frozen from the first TestFlight build onward.
     static let vaultKeyAccount = "betweenvault.vaultKey"
 
-    /// `demoKey` is for the debug only demo mode (screenshots): an in-memory store and a key that
-    /// never touches the Keychain. The app itself always passes nothing.
-    init(demoKey: Data? = nil) throws {
+    init() throws {
         let schema = Schema([CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: demoKey != nil)
+        let configuration = ModelConfiguration(schema: schema)
         container = try ModelContainer(for: schema, configurations: [configuration])
 
         let context = container.mainContext
         let vaultKey: () throws -> Data = {
-            if let demoKey { return demoKey }
             if let key = try KeyManager.load(Self.vaultKeyAccount) { return key }
             // Notes without their key were kept by a reset for restore from the partner. A new
             // key here would strand them for good, so none is made until they are restored.

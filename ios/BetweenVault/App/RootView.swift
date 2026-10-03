@@ -1,11 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
-    @State private var tab: AppTab
-
-    init(tab: AppTab = .vault) {
-        _tab = State(initialValue: tab)
-    }
+    @State private var tab: AppTab = .vault
 
     var body: some View {
         TabView(selection: $tab) {

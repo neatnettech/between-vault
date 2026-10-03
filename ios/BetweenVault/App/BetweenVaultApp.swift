@@ -19,13 +19,6 @@ struct BetweenVaultApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        #if DEBUG
-        // Screenshots only: an in-memory demo vault, never the real store or Keychain.
-        if DemoMode.screen != nil {
-            _services = State(initialValue: try? DemoMode.services())
-            return
-        }
-        #endif
         _services = State(initialValue: try? AppServices())
     }
 
@@ -101,7 +94,7 @@ struct BetweenVaultApp: App {
 
     var body: some Scene {
         WindowGroup {
-            scene
+            lifecycle(feedback(root))
         }
         // Spec 21 and 22, decided in LockManager so row 2.7 can test it.
         .onChange(of: scenePhase, initial: true) { _, phase in
@@ -109,19 +102,6 @@ struct BetweenVaultApp: App {
                 Task { await lockManager.unlock() }
             }
         }
-    }
-
-    @ViewBuilder
-    private var scene: some View {
-        #if DEBUG
-        if let screen = DemoMode.screen, let services {
-            DemoRoot(screen: screen, services: services).environment(lockManager)
-        } else {
-            lifecycle(feedback(root))
-        }
-        #else
-        lifecycle(feedback(root))
-        #endif
     }
 
     /// The vault, onboarding, or why the store could not open.

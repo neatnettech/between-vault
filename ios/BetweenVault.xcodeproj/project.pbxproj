@@ -23,7 +23,6 @@
 		243DD1740368E0434FC774C4 /* IncomingReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DB933319C735C7C018BD7C /* IncomingReview.swift */; };
 		2B22EC8E7D834DA33A236A8A /* PackageValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC529AE18B505426C1456254 /* PackageValidator.swift */; };
 		335016F39ECB73051AD77B11 /* VaultResetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF110A4E469C0714B0C1727 /* VaultResetTests.swift */; };
-		36AE5E5082DF552B587D445B /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C2E9D8B9718F958EE0B27 /* DemoMode.swift */; };
 		400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E62B6562834B98DED89F64DA /* AppServices.swift */; };
 		47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */; };
 		4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */; };
@@ -103,7 +102,6 @@
 		17D93BC6A2D9ED15380D3427 /* PackageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageTests.swift; sourceTree = "<group>"; };
 		1A51B47EA7C6106D0D6CB077 /* NearbyLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyLink.swift; sourceTree = "<group>"; };
 		1C258A4C2403CD2DCC9BA155 /* PartnerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRepository.swift; sourceTree = "<group>"; };
-		1C8C2E9D8B9718F958EE0B27 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoMode.swift; sourceTree = "<group>"; };
 		22E156D950FED97901EB412F /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
 		26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BetweenVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28310679148BD0779616585A /* PromiseLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromiseLineTests.swift; sourceTree = "<group>"; };
@@ -224,14 +222,6 @@
 			path = Vault;
 			sourceTree = "<group>";
 		};
-		2EDDAA18E405F966CAD47221 /* Demo */ = {
-			isa = PBXGroup;
-			children = (
-				1C8C2E9D8B9718F958EE0B27 /* DemoMode.swift */,
-			);
-			path = Demo;
-			sourceTree = "<group>";
-		};
 		315AF443EA2D386DEE491010 /* BetweenVaultTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -246,7 +236,6 @@
 		48886F212F21C9AEBE510956 /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				2EDDAA18E405F966CAD47221 /* Demo */,
 				AB89D65C31376E849963596B /* Exchange */,
 				D8CE92B044A2B291EFD11E39 /* Notes */,
 				FC9E3394074AA5D56FDA5767 /* Onboarding */,
@@ -652,7 +641,6 @@
 				02409F9A40BE4D676A3638EF /* Copy.swift in Sources */,
 				5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */,
 				7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */,
-				36AE5E5082DF552B587D445B /* DemoMode.swift in Sources */,
 				19652E3568718B7700239C89 /* ExchangeLogRepository.swift in Sources */,
 				FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */,
 				4CC5B655319E137113430EAE /* ExchangeService.swift in Sources */,

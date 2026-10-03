@@ -438,7 +438,7 @@ private struct CheckboxStyle: ToggleStyle {
     }
 }
 
-/// Board N5, on its own so the demo mode can show it without a live session.
+/// Board N5, "Delivered and accepted".
 struct NearbyDelivered: View {
     let count: Int
     let sent: Int
