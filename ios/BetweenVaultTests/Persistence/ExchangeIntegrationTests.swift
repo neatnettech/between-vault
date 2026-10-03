@@ -17,14 +17,16 @@ struct ExchangeIntegrationTests {
         let log: ExchangeLogRepository
         let send: ExchangeService
         let receive: ImportService
+        let pending: PendingPackageRepository
 
         init(id: String, partner: String, pairKey: Data) throws {
             self.id = id
             container = try ModelContainer(
-                for: CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self,
+                for: CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )
             let context = container.mainContext
+            pending = PendingPackageRepository(context: context)
             let vaultKey = CryptoEngine.randomKey()
             notes = NoteRepository(context: context, vaultKey: { vaultKey })
             categories = CategoryRepository(context: context)
@@ -291,5 +293,37 @@ struct ExchangeIntegrationTests {
         #expect(incoming.items.map(\.change) == [.new])
         try b.receive.accept(incoming)
         #expect(try a.send.confirm(importedExchangeIDs: try b.log.receivedExchangeIDs()) == 1)
+    }
+
+    /// R2 Decide later: the file waits encrypted, opens to the same review later, and stops
+    /// waiting once accepted. Nothing lands before that.
+    @Test func decideLaterKeepsTheFileUntilAccepted() throws {
+        let (a, b) = try makePhones()
+        let note = try a.write("Doctor", body: "Dr Smith")
+        let file = try a.sendAll()
+        let incoming = try b.receive.inspect(file)
+        try b.pending.keep(exchangeID: incoming.exchangeID, data: file, itemCount: incoming.items.count)
+
+        let waiting = try b.pending.all()
+        #expect(waiting.map(\.itemCount) == [1])
+        #expect(!waiting[0].data.contains(Data("Dr Smith".utf8)), "kept as it arrived, encrypted")
+        #expect(try b.notes.note(id: note.id) == nil, "nothing lands before Accept")
+
+        let again = try b.receive.inspect(waiting[0].data)
+        try b.receive.accept(again)
+        try b.pending.remove(again.exchangeID)
+        #expect(try b.pending.all().isEmpty)
+        #expect(try b.notes.note(id: note.id)?.body == "Dr Smith")
+    }
+
+    /// Keeping the same file twice keeps it once.
+    @Test func theSameFileWaitsOnce() throws {
+        let (a, b) = try makePhones()
+        try a.write("Doctor")
+        let file = try a.sendAll()
+        let incoming = try b.receive.inspect(file)
+        try b.pending.keep(exchangeID: incoming.exchangeID, data: file, itemCount: 1)
+        try b.pending.keep(exchangeID: incoming.exchangeID, data: file, itemCount: 1)
+        #expect(try b.pending.all().count == 1)
     }
 }

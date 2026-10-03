@@ -75,13 +75,15 @@ struct PrivacyOverlayView: View {
             Spacer()
             VStack(spacing: Theme.Space.md) {
                 VaultMark()
-                Text(Copy.productName)
+                // R1: a file opened while locked. Its titles wait until after unlocking.
+                Text(lockManager.fileWaiting ? Copy.aFileFromPartner : Copy.productName)
                     .font(.system(.title2, design: .serif).weight(.semibold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.Colors.text)
                     .accessibilityAddTraits(.isHeader)
-                Text(Copy.locked)
+                Text(lockManager.fileWaiting ? Copy.unlockToCheck : Copy.locked)
                     .font(Theme.Typography.subheadline)
+                    .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.Colors.secondary)
             }
             Spacer()

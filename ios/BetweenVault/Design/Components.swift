@@ -455,6 +455,67 @@ struct PasscodeEntry: View {
     }
 }
 
+// MARK: - A pair of equal buttons
+
+/// Boards 8, N3, R2: a quiet action and the main one at equal size, Cancel or Decline never
+/// smaller than send. Side by side while the wider label fits half the width on one line;
+/// otherwise stacked full width, the main action on top. A label never wraps inside a half width
+/// button (found on a real phone: "Create encrypted file" broke over two lines).
+struct EqualButtons: View {
+    let secondary: String
+    let primary: String
+    let onSecondary: () -> Void
+    let onPrimary: () -> Void
+
+    var body: some View {
+        EqualOrStacked(spacing: Theme.Space.sm) {
+            Button(action: onSecondary) { Text(secondary).lineLimit(1) }
+                .buttonStyle(.vaultSecondary)
+            Button(action: onPrimary) { Text(primary).lineLimit(1) }
+                .buttonStyle(.vaultPrimary)
+        }
+    }
+}
+
+/// Two subviews: equal widths in a row when the wider one's single line width fits half the
+/// space, else a column with the second (main) one on top.
+private struct EqualOrStacked: Layout {
+    let spacing: CGFloat
+
+    private func sideBySide(_ subviews: Subviews, width: CGFloat) -> Bool {
+        let widest = subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
+        return widest * 2 + spacing <= width
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? subviews.map { $0.sizeThatFits(.unspecified).width }.reduce(spacing, +)
+        if sideBySide(subviews, width: width) {
+            let half = (width - spacing) / 2
+            let height = subviews.map { $0.sizeThatFits(ProposedViewSize(width: half, height: nil)).height }.max() ?? 0
+            return CGSize(width: width, height: height)
+        }
+        let heights = subviews.map { $0.sizeThatFits(ProposedViewSize(width: width, height: nil)).height }
+        return CGSize(width: width, height: heights.reduce(0, +) + spacing * CGFloat(max(subviews.count - 1, 0)))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        if sideBySide(subviews, width: bounds.width) {
+            let half = (bounds.width - spacing) / 2
+            for (index, subview) in subviews.enumerated() {
+                let x = bounds.minX + CGFloat(index) * (half + spacing)
+                subview.place(at: CGPoint(x: x, y: bounds.minY), proposal: ProposedViewSize(width: half, height: bounds.height))
+            }
+        } else {
+            var y = bounds.minY
+            for subview in subviews.reversed() {
+                let height = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+                subview.place(at: CGPoint(x: bounds.minX, y: y), proposal: ProposedViewSize(width: bounds.width, height: height))
+                y += height + spacing
+            }
+        }
+    }
+}
+
 // MARK: - Button styles
 
 struct PrimaryButtonStyle: ButtonStyle {

@@ -1,177 +1,418 @@
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
-/// Rows 4.2, 4.3, 4.5, 4.6: board 7 (with U3's New and Update), the review sheet (8), the handoff
-/// and Recently exchanged (18). Receiving lands with cycle 5; "Waiting for me" is its shell.
+/// Board X1 to X3: the Exchange tab with its exchange area (replaces boards 7 and 9). The area
+/// on top holds the partner, the counts and the one main action, Exchange nearby; below it, what
+/// is to send, files waiting for a decision, and History. Not paired, only the way to pair.
 struct ExchangeView: View {
+    /// X3 Pair now: the Partner tab, where pairing starts.
+    var onPairNow: () -> Void = {}
+
     @Environment(AppServices.self) private var services
-    @State private var tab = Tab.ready
     @State private var outbox: [ExchangeService.OutboxItem] = []
     @State private var unconfirmed: [ExchangeService.OutboxItem] = []
+    @State private var waiting: [PendingPackage] = []
+    @State private var lastEntry: ExchangeLogEntry?
     @State private var lastFileSend: Date?
-    @State private var paired = false
-    @State private var reviewing = false
+    @State private var partner: Partner?
+    @State private var sendingFile = false
     @State private var resending = false
     @State private var nearby = false
-    @State private var partner: Partner?
-    @State private var sentToast = false
-
-    private enum Tab: Hashable { case ready, waiting }
+    @State private var addingNotes = false
+    @State private var opening = false
+    @State private var reviewing: ImportReviewView.Content?
+    @State private var toast: String?
 
     var body: some View {
         NavigationStack {
-            List {
-                Picker(Copy.tabExchange, selection: $tab) {
-                    Text(Copy.readyToSendCount(outbox.count)).tag(Tab.ready)
-                    Text(Copy.waitingForMe).tag(Tab.waiting)
-                }
-                .pickerStyle(.segmented)
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-
-                // The main action once paired: both phones side by side, every step in the app.
-                if paired {
-                    Section {
-                        Button {
-                            nearby = true
-                        } label: {
-                            Label(Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right")
-                        }
-                        .buttonStyle(.vaultPrimary)
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Space.lg) {
+                    if partner == nil {
+                        notPaired
+                    } else {
+                        exchangeArea
+                        toSend
+                        waitingForYou
+                        historyRow
                     }
-                    .listRowBackground(Color.clear)
                 }
-
-                switch tab {
-                case .ready: readyToSend
-                case .waiting: waitingForMe
-                }
-
-                Section {
-                    NavigationLink(Copy.recentlyExchanged) { HistoryView() }
-                }
-                .listRowBackground(Theme.Colors.surface)
+                .padding(Theme.Space.md)
             }
-            .scrollContentBackground(.hidden)
             .background(Theme.Colors.bg)
             .navigationTitle(Copy.tabExchange)
             .task { reload() }
             .refreshable { reload() }
-            .sheet(isPresented: $reviewing, onDismiss: reload) {
-                ReviewSheet(items: outbox, resend: false) { sentToast = true }
+            .sheet(isPresented: $sendingFile, onDismiss: reload) {
+                ReviewSheet(items: outbox, resend: false) { toast = Copy.toastFileHandedOver }
             }
             .sheet(isPresented: $resending, onDismiss: reload) {
-                ReviewSheet(items: unconfirmed, resend: true) { sentToast = true }
+                ReviewSheet(items: unconfirmed, resend: true) { toast = Copy.toastFileHandedOver }
+            }
+            .sheet(isPresented: $addingNotes, onDismiss: reload) { AddNotesSheet() }
+            .sheet(item: $reviewing, onDismiss: reload) { content in
+                ImportReviewView(content: content) { outcome in
+                    reviewing = nil
+                    toast = BetweenVaultApp.toast(for: outcome)
+                }
             }
             .fullScreenCover(isPresented: $nearby, onDismiss: reload) {
                 if let partner, let key = try? KeyManager.load(Pairing.pairKeyAccount) {
                     NearbyView(partner: partner, pairKey: key) {
-                        // Board N0/N1 "Send as a file instead": after the cover is gone.
-                        Task { try? await Task.sleep(for: .milliseconds(400)); reviewing = !outbox.isEmpty }
+                        // N0, N1 "Send as a file instead": once the cover is gone.
+                        Task { try? await Task.sleep(for: .milliseconds(400)); sendingFile = !outbox.isEmpty }
                     }
                 }
             }
+            // Waiting for you: Open a file, for a file saved in the Files app.
+            .fileImporter(isPresented: $opening, allowedContentTypes: [UTType(exportedAs: "tech.neatnet.nvlt")]) { result in
+                if case let .success(url) = result { review(fileAt: url) }
+            }
             .overlay(alignment: .bottom) {
-                if sentToast {
-                    Toast(systemImage: "paperplane", text: Copy.toastFileHandedOver)
+                if let toast {
+                    Toast(systemImage: "checkmark.circle", text: toast)
                         .padding(.bottom, Theme.Space.lg)
                         .transition(.opacity)
                 }
             }
-            .task(id: sentToast) {
-                guard sentToast else { return }
-                AccessibilityNotification.Announcement(Copy.toastFileHandedOver).post()
+            .task(id: toast) {
+                guard let toast else { return }
+                AccessibilityNotification.Announcement(toast).post()
                 try? await Task.sleep(for: .seconds(2))
-                withAnimation { sentToast = false }
+                withAnimation { self.toast = nil }
             }
-            .sensoryFeedback(.success, trigger: sentToast) { _, new in new }
+            .sensoryFeedback(.success, trigger: toast) { _, new in new != nil }
         }
     }
 
-    // MARK: Board 7, U3
+    // MARK: X1, X2: the exchange area
 
-    @ViewBuilder
-    private var readyToSend: some View {
-        if !unconfirmed.isEmpty { sentNotConfirmed }
-        if outbox.isEmpty {
-            Section {
-                EmptyState(systemImage: "tray", headline: Copy.nothingSealedYet, message: Copy.sealANote)
-            }
-            .listRowBackground(Theme.Colors.bg)
-        } else {
-            Section {
-                ForEach(outbox) { item in
-                    HStack {
-                        ReviewRow(title: item.note.title, categoryName: item.categoryName)
-                        Spacer()
-                        Text(item.isUpdate ? Copy.updateTag : Copy.newTag)
-                            .font(Theme.Typography.badge)
-                            .foregroundStyle(item.isUpdate ? Theme.Colors.sharedBadgeInk : Theme.Colors.sealedBadgeInk)
+    private var exchangeArea: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.md) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: Theme.Space.xxs) {
+                    Text(Copy.withYourPartner).font(Theme.Typography.title3)
+                    if let date = lastEntry?.date {
+                        Text(Copy.lastExchange(date)).font(Theme.Typography.footnote).opacity(0.75)
                     }
-                    .accessibilityElement(children: .combine)
                 }
-            } footer: {
-                VStack(alignment: .leading, spacing: Theme.Space.xs) {
-                    Text(Copy.outboxFooter)
-                    if outbox.contains(where: \.isUpdate) { Text(Copy.updateFooter) }
-                }
+                Spacer()
+                pill(Copy.pairedPill, systemImage: "checkmark")
             }
-            .listRowBackground(Theme.Colors.surface)
-
-            Section {
-                // F1: the fallback for when the phones are not side by side.
-                Button(Copy.sendAsFile) { reviewing = true }
-                    .buttonStyle(.vaultSecondary)
-                    .disabled(!paired)
-                if !paired {
-                    Text(Copy.pairFirstToSend)
-                        .font(Theme.Typography.footnote)
-                        .foregroundStyle(Theme.Colors.secondary)
-                }
+            HStack(spacing: Theme.Space.xs) {
+                chip(Copy.toSendChip(outbox.count))
+                chip(Copy.waitingChip(waiting.count))
+                if !unconfirmed.isEmpty { chip(Copy.notConfirmedChip(unconfirmed.count)) }
             }
-            .listRowBackground(Color.clear)
-        }
-    }
-
-    /// Board F2: sent as a file, waiting for the partner's phone to confirm it. Nobody can see
-    /// whether a file arrived, so this stays until it is confirmed during an exchange nearby.
-    private var sentNotConfirmed: some View {
-        Section {
-            Text(Copy.sentAsFileBanner(lastFileSend))
-                .font(Theme.Typography.subheadline)
-                .foregroundStyle(Theme.Colors.changedFlagInk)
-                .listRowBackground(Theme.Colors.changedFlagBG)
-            ForEach(unconfirmed) { item in
+            Button { nearby = true } label: {
+                Label(Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right")
+                    .font(Theme.Typography.body.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .contentShape(Rectangle())
+            }
+            .foregroundStyle(Theme.Colors.onAccent)
+            .background(Theme.Colors.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            Text(outbox.isEmpty && unconfirmed.isEmpty ? Copy.nothingToSendCaption : Copy.nearbyCaption(notConfirmed: unconfirmed.count))
+                .font(Theme.Typography.footnote)
+                .opacity(0.75)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+            Divider().overlay(Color.white.opacity(0.15))
+            // The fallback, a row rather than a second button.
+            Button { sendingFile = true } label: {
                 HStack {
-                    Text(item.note.title).foregroundStyle(Theme.Colors.text)
+                    Image(systemName: "doc.badge.arrow.up")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Copy.sendAsFileInstead).font(Theme.Typography.body)
+                        Text(outbox.isEmpty ? Copy.addNotesFirst : Copy.fileOptionSub)
+                            .font(Theme.Typography.footnote)
+                            .opacity(0.75)
+                    }
                     Spacer()
-                    StateBadge(state: .sealed, sentNotConfirmed: true)
+                    if !outbox.isEmpty { Image(systemName: "chevron.right").font(Theme.Typography.footnote) }
                 }
-                .accessibilityElement(children: .combine)
+                .contentShape(Rectangle())
             }
-            Button(Copy.confirmNearbyNow) { nearby = true }
-                .foregroundStyle(Theme.Colors.accent)
-                .disabled(!paired)
-            Button(Copy.sendFileAgain) { resending = true }
-                .foregroundStyle(Theme.Colors.accent)
-                .disabled(!paired)
+            .disabled(outbox.isEmpty)
+            .opacity(outbox.isEmpty ? 0.55 : 1)
         }
-        .listRowBackground(Theme.Colors.surface)
+        .foregroundStyle(Color.white)
+        .padding(Theme.Space.md)
+        .background(Theme.Colors.lockScreen, in: RoundedRectangle(cornerRadius: 20))
+        // The area reads as one dark panel in both appearances, as the board draws it.
+        .environment(\.colorScheme, .dark)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Copy.withYourPartner)
     }
 
-    private var waitingForMe: some View {
-        Section {
-            EmptyState(systemImage: "tray.and.arrow.down", headline: Copy.nothingWaiting, message: Copy.openPartnerFile)
-        }
-        .listRowBackground(Theme.Colors.bg)
+    private func chip(_ text: String) -> some View {
+        Text(text)
+            .font(Theme.Typography.footnote.weight(.semibold))
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.sm)
+            .background(Color.white.opacity(0.12), in: Capsule())
     }
+
+    private func pill(_ text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .font(Theme.Typography.footnote.weight(.semibold))
+            .foregroundStyle(Theme.Colors.onAccentTint)
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.sm)
+            .background(Theme.Colors.accentTint, in: Capsule())
+    }
+
+    // MARK: X1, X2: To send
+
+    private var toSend: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            sectionHeader(Copy.toSendSection(outbox.count), link: outbox.isEmpty ? nil : (Copy.addNotes, "plus", { addingNotes = true }))
+            if outbox.isEmpty {
+                card {
+                    Button { addingNotes = true } label: {
+                        Label(Copy.addNotesToSend, systemImage: "plus").frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .foregroundStyle(Theme.Colors.accent)
+                }
+            } else {
+                card {
+                    ForEach(outbox) { item in
+                        HStack {
+                            Text(item.note.title).foregroundStyle(Theme.Colors.text)
+                            Spacer()
+                            tag(item.isUpdate ? Copy.updateTag : Copy.newTag, amber: item.isUpdate)
+                        }
+                        .accessibilityElement(children: .combine)
+                        if item.id != outbox.last?.id { Divider() }
+                    }
+                }
+            }
+            // F2 as a drill-in: notes sent as a file, waiting for confirmation.
+            if !unconfirmed.isEmpty {
+                NavigationLink {
+                    SentAsFileView(items: unconfirmed, sentAt: lastFileSend, onNearby: { nearby = true }, onResend: { resending = true })
+                } label: {
+                    card {
+                        HStack {
+                            Image(systemName: "doc.badge.clock").foregroundStyle(Theme.Colors.secondary)
+                            Text(Copy.sentAsFileNotConfirmed).foregroundStyle(Theme.Colors.text)
+                            Spacer()
+                            Text("\(unconfirmed.count)").foregroundStyle(Theme.Colors.secondary)
+                            Image(systemName: "chevron.right").font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.tertiary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: X1, X2: Waiting for you
+
+    private var waitingForYou: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            sectionHeader(Copy.waitingSection(waiting.count), link: (Copy.openAFile, "folder", { opening = true }))
+            card {
+                if waiting.isEmpty {
+                    Text(Copy.nothingWaiting).foregroundStyle(Theme.Colors.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    ForEach(waiting) { file in
+                        Button { review(file) } label: {
+                            HStack {
+                                Text(Copy.fileFromPartner).foregroundStyle(Theme.Colors.text)
+                                Text(Copy.itemsSuffix(file.itemCount)).foregroundStyle(Theme.Colors.secondary)
+                                Spacer()
+                                Text(Copy.review).foregroundStyle(Theme.Colors.accent)
+                            }
+                            .frame(minHeight: 36)
+                            .contentShape(Rectangle())
+                        }
+                        if file.id != waiting.last?.id { Divider() }
+                    }
+                }
+            }
+        }
+    }
+
+    private var historyRow: some View {
+        NavigationLink { HistoryView() } label: {
+            card {
+                HStack {
+                    Text(Copy.history).foregroundStyle(Theme.Colors.text)
+                    Spacer()
+                    if let lastEntry {
+                        Text(Copy.historySummary(lastEntry)).foregroundStyle(Theme.Colors.secondary)
+                    }
+                    Image(systemName: "chevron.right").font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.tertiary)
+                }
+            }
+        }
+    }
+
+    // MARK: X3: not paired
+
+    private var notPaired: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.md) {
+            VStack(alignment: .leading, spacing: Theme.Space.md) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: Theme.Space.xxs) {
+                        Text(Copy.pairFirstTitle).font(Theme.Typography.title3)
+                        Text(Copy.pairFirstSub).font(Theme.Typography.footnote).opacity(0.75)
+                    }
+                    Spacer()
+                    Text(Copy.notPairedPill)
+                        .font(Theme.Typography.footnote.weight(.semibold))
+                        .padding(.vertical, Theme.Space.xxs)
+                        .padding(.horizontal, Theme.Space.sm)
+                        .background(Color.white.opacity(0.12), in: Capsule())
+                }
+                Text(Copy.pairFirstBody).font(Theme.Typography.subheadline).opacity(0.85)
+                Button(action: onPairNow) {
+                    Text(Copy.pairNow)
+                        .font(Theme.Typography.body.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .contentShape(Rectangle())
+                }
+                .foregroundStyle(Theme.Colors.onAccent)
+                .background(Theme.Colors.accent, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            }
+            .foregroundStyle(Color.white)
+            .padding(Theme.Space.md)
+            .background(Theme.Colors.lockScreen, in: RoundedRectangle(cornerRadius: 20))
+            .environment(\.colorScheme, .dark)
+            Text(Copy.gotAFileAlready)
+                .font(Theme.Typography.footnote)
+                .foregroundStyle(Theme.Colors.secondary)
+        }
+    }
+
+    // MARK: Pieces
+
+    private func sectionHeader(_ title: String, link: (String, String, () -> Void)?) -> some View {
+        HStack {
+            Text(title.uppercased())
+                .font(Theme.Typography.footnote.weight(.semibold))
+                .foregroundStyle(Theme.Colors.secondary)
+            Spacer()
+            if let link {
+                Button(action: link.2) { Label(link.0, systemImage: link.1) }
+                    .font(Theme.Typography.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.Colors.accent)
+            }
+        }
+        .padding(.horizontal, Theme.Space.xs)
+    }
+
+    private func card(@ViewBuilder _ content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: Theme.Space.sm) { content() }
+            .padding(Theme.Space.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+    }
+
+    /// X1: New grey, Update amber.
+    private func tag(_ text: String, amber: Bool) -> some View {
+        Text(text)
+            .font(Theme.Typography.badge)
+            .foregroundStyle(amber ? Theme.Colors.sealedBadgeInk : Theme.Colors.privateBadgeInk)
+            .padding(.vertical, Theme.Space.xxs)
+            .padding(.horizontal, Theme.Space.xs)
+            .background(amber ? Theme.Colors.sealedBadgeBG : Theme.Colors.privateBadgeBG, in: Capsule())
+    }
+
+    // MARK: Actions
 
     private func reload() {
+        partner = (try? services.partnerRepository.partner()) ?? nil
         outbox = (try? services.exchangeService.outbox()) ?? []
         unconfirmed = (try? services.exchangeService.unconfirmed()) ?? []
-        lastFileSend = ((try? services.exchangeLogRepository.history()) ?? []).first { $0.unconfirmed }?.date
-        partner = (try? services.partnerRepository.partner()) ?? nil
-        paired = partner != nil
+        waiting = (try? services.pendingPackages.all()) ?? []
+        let history = (try? services.exchangeLogRepository.history()) ?? []
+        lastEntry = history.first
+        lastFileSend = history.first { $0.unconfirmed }?.date
+    }
+
+    /// A waiting file: checked again, then the same review as when it arrived. One that no longer
+    /// opens (already imported, or the pairing changed) stops waiting and says why.
+    private func review(_ file: PendingPackage) {
+        do {
+            reviewing = .review(try services.importService.inspect(file.data), data: file.data, receivedAt: file.receivedAt)
+        } catch let failure as ImportService.ImportFailure {
+            try? services.pendingPackages.remove(file.exchangeID)
+            reviewing = .failed(failure)
+        } catch {
+            reviewing = .failed(.damaged)
+        }
+    }
+
+    /// Open a file: a .nvlt picked in the Files app.
+    private func review(fileAt url: URL) {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        do {
+            let data = try Data(contentsOf: url)
+            reviewing = .review(try services.importService.inspect(data), data: data, receivedAt: .now)
+        } catch let failure as ImportService.ImportFailure {
+            reviewing = .failed(failure)
+        } catch {
+            reviewing = .failed(.damaged)
+        }
+    }
+}
+
+extension ImportReviewView.Content: Identifiable {
+    var id: String {
+        switch self {
+        case let .review(incoming, _, _): incoming.exchangeID
+        case let .failed(failure): "\(failure)"
+        }
+    }
+}
+
+// MARK: - F2, drilled into from To send
+
+/// Board F2: notes sent as a file, not yet confirmed. A nearby exchange confirms them, or sends
+/// them again if they never arrived.
+private struct SentAsFileView: View {
+    let items: [ExchangeService.OutboxItem]
+    let sentAt: Date?
+    let onNearby: () -> Void
+    let onResend: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Space.md) {
+                Text(Copy.sentAsFileF2Banner(sentAt))
+                    .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.changedFlagInk)
+                    .padding(Theme.Space.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.Colors.changedFlagBG, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+                VStack(spacing: Theme.Space.sm) {
+                    ForEach(items) { item in
+                        HStack {
+                            Text(item.note.title).foregroundStyle(Theme.Colors.text)
+                            Spacer()
+                            StateBadge(state: .sealed, sentNotConfirmed: true)
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+                .padding(Theme.Space.md)
+                .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+            }
+            .padding(Theme.Space.md)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: Theme.Space.sm) {
+                Button(Copy.exchangeNearbyToConfirm, action: onNearby).buttonStyle(.vaultPrimary)
+                Button(Copy.sendFileAgain, action: onResend).foregroundStyle(Theme.Colors.accent).frame(minHeight: 44)
+            }
+            .padding(Theme.Space.md)
+            .background(Theme.Colors.bg)
+        }
+        .background(Theme.Colors.bg)
+        .navigationTitle(Copy.sendAsFile)
     }
 }
 
@@ -249,12 +490,8 @@ private struct ReviewSheet: View {
             }
             .safeAreaInset(edge: .bottom) {
                 // Board 8: two equal buttons, Cancel never smaller than send.
-                HStack(spacing: Theme.Space.sm) {
-                    Button(Copy.cancel) { dismiss() }
-                        .buttonStyle(.vaultSecondary)
-                    Button(Copy.createEncryptedFile, action: share)
-                        .buttonStyle(.vaultPrimary)
-                }
+                EqualButtons(secondary: Copy.cancel, primary: Copy.createEncryptedFile,
+                             onSecondary: { dismiss() }, onPrimary: share)
                 .padding(Theme.Space.md)
                 .background(Theme.Colors.bg)
             }

@@ -14,6 +14,9 @@ final class LockManager {
     @ObservationIgnored private var lastActivity = Date.distantPast
     /// Why biometrics cannot open the vault right now, for the lock screen. `nil` when they can.
     private(set) var blocked: LAError.Code?
+    /// Board R1: a file from the partner was opened while locked. The lock screen says so, and
+    /// shows nothing of it before unlocking.
+    var fileWaiting = false
     /// The enrolled faces or fingers changed since the vault passcode last opened the vault.
     private(set) var biometryChanged = false
     /// True at launch, so opening the app counts as a return.

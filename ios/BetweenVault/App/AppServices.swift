@@ -12,6 +12,7 @@ final class AppServices {
     let categoryRepository: CategoryRepository
     let partnerRepository: PartnerRepository
     let exchangeLogRepository: ExchangeLogRepository
+    let pendingPackages: PendingPackageRepository
     let exchangeService: ExchangeService
     let importService: ImportService
     /// Read each time: a reset hands the installation a new one.
@@ -25,7 +26,7 @@ final class AppServices {
     static let vaultKeyAccount = "betweenvault.vaultKey"
 
     init() throws {
-        let schema = Schema([CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self])
+        let schema = Schema([CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self])
         let configuration = ModelConfiguration(schema: schema)
         container = try ModelContainer(for: schema, configurations: [configuration])
 
@@ -42,6 +43,7 @@ final class AppServices {
         categoryRepository = CategoryRepository(context: context)
         partnerRepository = PartnerRepository(context: context)
         exchangeLogRepository = ExchangeLogRepository(context: context)
+        pendingPackages = PendingPackageRepository(context: context)
         exchangeService = ExchangeService(
             notes: noteRepository,
             categories: categoryRepository,
@@ -130,6 +132,7 @@ extension AppServices {
         let keepNotes = try PartnerRepository(context: context).partner() != nil
         try context.delete(model: PartnerRecord.self)
         try context.delete(model: ExchangeLogRecord.self)
+        try context.delete(model: PendingPackageRecord.self)
         if !keepNotes {
             try context.delete(model: NoteRecord.self)
             try context.delete(model: CategoryRecord.self)
