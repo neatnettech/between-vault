@@ -73,6 +73,11 @@ final class CoverWindow {
         presented?.dismiss(animated: true)
     }
 
+    /// Settings > Appearance, on the app window only: the cover keeps board 1's dark lock screen.
+    func apply(_ appearance: Appearance) {
+        appWindow?.overrideUserInterfaceStyle = appearance.style
+    }
+
     func show(_ visible: Bool) {
         guard let window else { return }
         if visible {

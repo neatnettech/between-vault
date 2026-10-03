@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(LockManager.self) private var lockManager
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
 
     /// Read from the bundle, which project.yml fills from MARKETING_VERSION and
     /// CURRENT_PROJECT_VERSION, so the screen follows every version bump.
@@ -35,6 +36,19 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.navigationLink)
                     LabeledContent(Copy.clearClipboard, value: Copy.after60s)
+                }
+                .listRowBackground(Theme.Colors.surface)
+                Section {
+                    // The handoff's default is the system setting; Light and Dark are for this app.
+                    Picker(Copy.appearance, selection: $appearance) {
+                        ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityLabel(Copy.appearance)
+                } header: {
+                    Text(Copy.appearance)
+                } footer: {
+                    Text(Copy.appearanceFooter)
                 }
                 .listRowBackground(Theme.Colors.surface)
                 Section {
