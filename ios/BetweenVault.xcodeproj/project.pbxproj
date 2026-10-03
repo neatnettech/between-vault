@@ -50,6 +50,7 @@
 		99A75C7C8DC1BE88506C44C3 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */; };
 		A2262DF3B86DE199E146CC86 /* Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95FEC752607E863464D22B /* Passcode.swift */; };
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
+		ABD30BF649B4101D97AB8A9C /* NearbySessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */; };
 		BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000683975CBD7601FC489A79 /* NoteDetailView.swift */; };
 		C26D963F54F09212D4BBA778 /* ClipboardGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEC9EF0CEEB8E6A69E499BD /* ClipboardGuard.swift */; };
 		C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47A3E24A32707DF8716A835 /* VaultView.swift */; };
@@ -65,6 +66,7 @@
 		E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A47012B8F91AB4BD7554FCB /* Category.swift */; };
 		E8A141490102176A2745B9C9 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */; };
 		F680C837F9E19F1F4E8CC174 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DB9ECF6FC12466EAB06444 /* OnboardingView.swift */; };
+		F7E3F79E91974845C2332CCB /* NearbySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950BD6EA322C0A556C766F7C /* NearbySession.swift */; };
 		FC2118C8E85C03332CA47EB3 /* ClipboardGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */; };
 		FDCF33966808FD1464662693 /* ExchangePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583549427BD529DFF90413C4 /* ExchangePackage.swift */; };
 /* End PBXBuildFile section */
@@ -112,6 +114,7 @@
 		86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepositoryTests.swift; sourceTree = "<group>"; };
 		8A47012B8F91AB4BD7554FCB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		8F378B970C775E0AA86C1AC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		950BD6EA322C0A556C766F7C /* NearbySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySession.swift; sourceTree = "<group>"; };
 		99695F85D8BA477356642B65 /* NoteState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteState.swift; sourceTree = "<group>"; };
 		9AAE9DDAD28955148A530265 /* ImportReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportReviewView.swift; sourceTree = "<group>"; };
 		9E3F989DF102D93A114D9B6C /* ExchangeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeServiceTests.swift; sourceTree = "<group>"; };
@@ -136,6 +139,7 @@
 		E80D096B5A886D0EA1DEF95A /* PairingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTests.swift; sourceTree = "<group>"; };
 		EA95FEC752607E863464D22B /* Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Passcode.swift; sourceTree = "<group>"; };
 		EB278D67828CA7BA78523340 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySessionTests.swift; sourceTree = "<group>"; };
 		ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetweenVaultApp.swift; sourceTree = "<group>"; };
 		EDAAA8D6367B609ED601EEB5 /* BetweenVault.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BetweenVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F43E1D64920DB238BA840D24 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
@@ -276,6 +280,7 @@
 				4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */,
 				CCD4F444CBFD00F586C6ECBE /* ExchangeIntegrationTests.swift */,
 				9E3F989DF102D93A114D9B6C /* ExchangeServiceTests.swift */,
+				EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */,
 				86BA8B4A868C04EAAED083FE /* NoteRepositoryTests.swift */,
 				0DF110A4E469C0714B0C1727 /* VaultResetTests.swift */,
 			);
@@ -289,6 +294,14 @@
 				DA0AB0C54F88EB3040B8503A /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		760D6F0801D01A236E677A29 /* Nearby */ = {
+			isa = PBXGroup;
+			children = (
+				950BD6EA322C0A556C766F7C /* NearbySession.swift */,
+			);
+			path = Nearby;
 			sourceTree = "<group>";
 		};
 		76E70C4D7C532B5956BACD3E /* Authentication */ = {
@@ -353,6 +366,7 @@
 				AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */,
 				9AAE9DDAD28955148A530265 /* ImportReviewView.swift */,
 				B36FFA6FC07E4E6F6A07A557 /* ImportService.swift */,
+				760D6F0801D01A236E677A29 /* Nearby */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -572,6 +586,7 @@
 				62659BC167C941BC1FB8A3F3 /* ExchangeIntegrationTests.swift in Sources */,
 				14198B0158DE7E4AD7419C1B /* ExchangeServiceTests.swift in Sources */,
 				D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */,
+				ABD30BF649B4101D97AB8A9C /* NearbySessionTests.swift in Sources */,
 				4AFA8C66154718D8D1BECFBA /* NoteRepositoryTests.swift in Sources */,
 				73153977095EE863A27F519C /* PackageTests.swift in Sources */,
 				C76685E48D93FEFBB736B115 /* PairingFlowTests.swift in Sources */,
@@ -609,6 +624,7 @@
 				22E68C04E8663ACDA5843ABD /* KeyManager.swift in Sources */,
 				6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */,
 				CFD8A955C2AFE144261F24C0 /* Models.swift in Sources */,
+				F7E3F79E91974845C2332CCB /* NearbySession.swift in Sources */,
 				D09D3E2B9181D763332A00DB /* Note.swift in Sources */,
 				BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */,
 				4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */,
