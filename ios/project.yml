@@ -30,6 +30,9 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSFaceIDUsageDescription: Unlock your vault with Face ID.
         NSCameraUsageDescription: Scan your partner's pairing code. Nothing is recorded or saved.
+        # Exchange nearby: the two phones connect directly, only while that screen is open.
+        NSLocalNetworkUsageDescription: Exchange nearby connects directly to your partner's iPhone, with no internet and no server. Only while that screen is open.
+        NSBonjourServices: [_bvexchange._tcp]
         ITSAppUsesNonExemptEncryption: false
         LSSupportsOpeningDocumentsInPlace: true
         # Ours, so exported, not imported (rows 3.7, 5.1).

@@ -51,10 +51,16 @@
 	<false/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_bvexchange._tcp</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan your partner's pairing code. Nothing is recorded or saved.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlock your vault with Face ID.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Exchange nearby connects directly to your partner's iPhone, with no internet and no server. Only while that screen is open.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

@@ -193,6 +193,59 @@ enum Copy {
     static let notIncludedLine = "anything else in your vault."
     static let handOverNext = "You choose how to hand it over next: AirDrop, Messages or Files."
     /// Shared means sent, not delivered: the copy never claims the partner has it.
+    // Boards N0 to N5: Exchange nearby.
+    static let exchangeNearby = "Exchange nearby"
+    static let exchangeSideBySide = "Exchange side by side"
+    static let nearbyPrimerBody = "The two phones talk directly, with no internet and no server. iOS will ask you to allow local network access."
+    static let nearbyOnlyWhileOpen = "Only looks while this screen is open"
+    static let nearbyOnlyPartner = "Only your paired partner's iPhone can connect"
+    static let nearbyRadios = "Wi-Fi and Bluetooth must be on. No Wi-Fi network is needed"
+    static let sendAsFileInstead = "Send as a file instead"
+    static let lookingForPartner = "Looking for your partner's iPhone"
+    static let lookingHint = "On your partner's phone: open Exchange, then Exchange nearby. Keep both phones unlocked and close together."
+    static let randomCodeOnly = "Nearby devices see only a random code, never your name or your partner's."
+    static let end = "End"
+    static func connectedTo(_ fingerprint: String) -> String { "Connected to your partner · …\(fingerprint.suffix(4))" }
+    static let sendToPartner = "Send to your partner"
+    static let untickToKeep = "Your sealed notes. Untick any you want to keep back. Nothing else leaves this iPhone."
+    static let partnerCanSendToo = "Your partner can send to you in the same session."
+    static let nothingSealedNearby = "Nothing sealed. Seal a note to send it, or wait for your partner to send."
+    static func sendItems(_ count: Int) -> String { count == 1 ? "Send 1 item" : "Send \(count) items" }
+    static func partnerWantsToSend(_ count: Int) -> String {
+        count == 1 ? "Your partner wants to send you 1 item" : "Your partner wants to send you \(count) items"
+    }
+    static let updatesYours = "Updates yours"
+    static let titlesUntilAccept = "You see titles only until you accept. Nothing is added to your vault if you decline."
+    static let waitingForPartner = "Waiting for your partner to accept"
+    static let partnerAccepted = "Your partner accepted"
+    static func sendingItems(_ count: Int) -> String { count == 1 ? "Sending 1 item" : "Sending \(count) items" }
+    static let encryptedChecked = "Encrypted on this iPhone. Your partner's phone checks it before importing."
+    static let stopNothingImported = "If you stop now, nothing is imported on your partner's phone."
+    static let stop = "Stop"
+    static let deliveredAndAccepted = "Delivered and accepted"
+    static func partnerHasAll(_ count: Int) -> String {
+        count == 1 ? "Your partner has the item. It is now marked Shared." : "Your partner has all \(count) items. They are now marked Shared."
+    }
+    static let sent = "Sent"
+    static let received = "Received"
+    static let conflicts = "Conflicts"
+    static let noneWord = "None"
+    static let stayConnected = "Stay connected to receive"
+    static let doneEndsSession = "Done ends the session and stops the phone looking for others."
+    static let partnerDeclinedTitle = "Your partner declined"
+    static let partnerDeclinedBody = "Nothing was added to their vault. Your notes stay Sealed; send again when you are both ready."
+    static func confirmedEarlier(_ count: Int) -> String {
+        count == 1 ? "1 note you sent as a file is now confirmed." : "\(count) notes you sent as a file are now confirmed."
+    }
+    static let localNetworkOffTitle = "Local network access is off"
+    static let localNetworkOffBody = "Exchange nearby needs it to find your partner's iPhone. Turn it on in Settings, or send as a file."
+    static let nearbyUnavailableTitle = "Exchange nearby isn't available"
+    static let nearbyUnavailableBody = "Turn on Wi-Fi and Bluetooth, keep both phones unlocked, then try again. No Wi-Fi network is needed."
+    static let sessionEnded = "The session ended"
+    static let sessionEndedBody = "The phones are no longer connected. Anything accepted before is in place; anything not yet accepted was not sent."
+    static let notYourPartnerTitle = "That isn't your partner's iPhone"
+    static let notYourPartnerBody = "Only the phone you paired with can exchange with this one. Nothing was sent."
+    static let confirmNearbyNow = "Confirm nearby now"
     // Boards F1, F2: Send as a file, the fallback for when the phones are not side by side.
     static let sendAsFile = "Send as a file"
     static let sendAsFileBody = "For when you are not side by side. The file is encrypted so only your partner's iPhone can open it."

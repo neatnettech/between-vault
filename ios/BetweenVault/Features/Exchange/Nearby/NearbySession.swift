@@ -153,6 +153,14 @@ final class NearbySession {
         state = .connected
     }
 
+    /// N5 "Stay connected to receive", or OK after a decline: back to N2.
+    func resume() {
+        switch state {
+        case .delivered, .partnerDeclined: state = .connected
+        default: break
+        }
+    }
+
     /// Done on N5, End on N2: the session ends on both phones.
     func end() {
         send(.bye)
