@@ -19,9 +19,6 @@ targets:
       - path: BetweenVault
         # Local tool state (gitignored) must never become an app resource.
         excludes: ["**/.omc"]
-      # Settings > License > Full license text reads it offline (board 17d).
-      - path: ../LICENSE
-        buildPhase: resources
     info:
       path: BetweenVault/Info.plist
       properties:

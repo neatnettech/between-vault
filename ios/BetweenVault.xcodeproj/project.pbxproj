@@ -48,6 +48,7 @@
 		7A451617CC40CC8DED18313A /* CryptoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649468903C22D4E5EB8E541 /* CryptoEngine.swift */; };
 		7B9C512DB3559931CCB5E256 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67C3E039C7E5333270671E1 /* Identity.swift */; };
 		83A59DF99DFE71A0A80D62EE /* PrivacyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */; };
+		83CC49948D5048595B89671A /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */; };
 		84909282EED201E43A90205E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB278D67828CA7BA78523340 /* Theme.swift */; };
 		87058F4D510D9F413E5FEFFA /* RecoveryStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94330F8B345B45465FA53AC /* RecoveryStatus.swift */; };
 		89D799CC300A6EC1698EC229 /* CategoryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0E10468C4186EC9E58F6B0 /* CategoryRepositoryTests.swift */; };
@@ -74,7 +75,6 @@
 		E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E156D950FED97901EB412F /* CategoryRepository.swift */; };
 		E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A47012B8F91AB4BD7554FCB /* Category.swift */; };
 		E8A141490102176A2745B9C9 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */; };
-		EE775657CFCE04987F9845E9 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 36055DEF36CBC591E593E535 /* LICENSE */; };
 		F680C837F9E19F1F4E8CC174 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DB9ECF6FC12466EAB06444 /* OnboardingView.swift */; };
 		F7E3F79E91974845C2332CCB /* NearbySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950BD6EA322C0A556C766F7C /* NearbySession.swift */; };
 		FC2118C8E85C03332CA47EB3 /* ClipboardGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */; };
@@ -109,7 +109,6 @@
 		28310679148BD0779616585A /* PromiseLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromiseLineTests.swift; sourceTree = "<group>"; };
 		30DB933319C735C7C018BD7C /* IncomingReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingReview.swift; sourceTree = "<group>"; };
 		312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverWindow.swift; sourceTree = "<group>"; };
-		36055DEF36CBC591E593E535 /* LICENSE */ = {isa = PBXFileReference; path = LICENSE; sourceTree = "<group>"; };
 		3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
 		3C45078893A75B5576E623BE /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
 		4122C2060ACA4481A1C22926 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
@@ -167,6 +166,7 @@
 		F649468903C22D4E5EB8E541 /* CryptoEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoEngine.swift; sourceTree = "<group>"; };
 		F94297C58F2F7298CAA902D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		FAF4DE883CA1729E49ABD109 /* PairingFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingFlowTests.swift; sourceTree = "<group>"; };
+		FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -354,7 +354,6 @@
 			children = (
 				9CBAA7ED563ADC71042D2CF5 /* BetweenVault */,
 				315AF443EA2D386DEE491010 /* BetweenVaultTests */,
-				E3B2AB1DBE4DFCD67D72637C /* private-couple-vault */,
 				16A6830FDF98C458F44E557D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -371,6 +370,7 @@
 				48886F212F21C9AEBE510956 /* Features */,
 				B9EA0260EF6317CF13A51DEF /* Persistence */,
 				B53B46E4D260A33B30DF8686 /* Protocol */,
+				E2B09C45D2D1A103FC5B127B /* Resources */,
 				28F06C5F60AE6D490A6F8A62 /* Security */,
 			);
 			path = BetweenVault;
@@ -454,6 +454,14 @@
 			path = Notes;
 			sourceTree = "<group>";
 		};
+		E2B09C45D2D1A103FC5B127B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FD2F0C7365FDCCFA7AC72CD2 /* LICENSE.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		E2C812E8914E2D9D05075B55 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -464,15 +472,6 @@
 				D0E3AEA809ED556F3068F402 /* RootView.swift */,
 			);
 			path = App;
-			sourceTree = "<group>";
-		};
-		E3B2AB1DBE4DFCD67D72637C /* private-couple-vault */ = {
-			isa = PBXGroup;
-			children = (
-				36055DEF36CBC591E593E535 /* LICENSE */,
-			);
-			name = "private-couple-vault";
-			path = ..;
 			sourceTree = "<group>";
 		};
 		EDACE117F389F150D22C484B /* Design */ = {
@@ -607,7 +606,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */,
-				EE775657CFCE04987F9845E9 /* LICENSE in Resources */,
+				83CC49948D5048595B89671A /* LICENSE.txt in Resources */,
 				0644DBDA971BA5283CEAFF41 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -71,7 +71,7 @@ struct LicenseView: View {
 /// The GPLv3 text bundled with the app, readable offline.
 private struct FullLicenseView: View {
     private var text: String {
-        Bundle.main.url(forResource: "LICENSE", withExtension: nil)
+        Bundle.main.url(forResource: "LICENSE", withExtension: "txt")
             .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
     }
 
