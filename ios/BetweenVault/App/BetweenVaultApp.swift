@@ -15,6 +15,7 @@ struct BetweenVaultApp: App {
     @State private var fileToast: String?
     /// Row 2.2: onboarding is shown once. Frozen key, like the other persisted names.
     @AppStorage(LockManager.onboardedKey) private var onboarded = false
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -168,6 +169,7 @@ struct BetweenVaultApp: App {
     /// Files opened from elsewhere, the cover window and auto lock.
     private func lifecycle(_ content: some View) -> some View {
         content
+            .onChange(of: appearance) { _, appearance in cover.apply(appearance) }
             .onOpenURL { openedFile = $0 }
             // R1: the lock screen says a file from the partner waits behind it, and nothing more.
             .onChange(of: openedFile) { _, file in lockManager.fileWaiting = file != nil }
@@ -177,6 +179,7 @@ struct BetweenVaultApp: App {
             .onAppear {
                 clipboard.observe()
                 cover.install(lockManager: lockManager, services: services)
+                cover.apply(appearance)
                 cover.show(covered)
             }
             .onChange(of: covered) { _, covered in

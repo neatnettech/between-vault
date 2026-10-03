@@ -669,6 +669,12 @@ enum Copy {
     static let attachmentsUnlock = "Attachments unlock"
     static let comingIn11 = "1.1"
     static let about = "About"
+    // Settings > Appearance: System is the handoff's default.
+    static let appearance = "Appearance"
+    static let appearanceSystem = "System"
+    static let appearanceLight = "Light"
+    static let appearanceDark = "Dark"
+    static let appearanceFooter = "System follows your iPhone's setting. The lock screen stays dark in every choice."
     // App icon picker: the two directions of the "App icon concepts" board.
     static let appIcon = "App icon"
     static let iconTwoOfYou = "Two of you"

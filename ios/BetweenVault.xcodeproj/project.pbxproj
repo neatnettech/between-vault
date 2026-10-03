@@ -32,6 +32,7 @@
 		4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F738238F6615CC5CC47F33E /* NoteEditorView.swift */; };
 		5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */; };
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
+		559E75583A964439CAE511EA /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3E697EDF1A1A091BDAE7BD /* Appearance.swift */; };
 		57D11D06C185981911508A72 /* PendingPackageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616A311DD3CA109CC8C34870 /* PendingPackageRepository.swift */; };
 		62659BC167C941BC1FB8A3F3 /* ExchangeIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD4F444CBFD00F586C6ECBE /* ExchangeIntegrationTests.swift */; };
 		62D6013E29A98DD57A1DABA2 /* RecoveryStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F16CFA47A2971E9BA2FB4A /* RecoveryStatusTests.swift */; };
@@ -153,6 +154,7 @@
 		E94330F8B345B45465FA53AC /* RecoveryStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryStatus.swift; sourceTree = "<group>"; };
 		EA95FEC752607E863464D22B /* Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Passcode.swift; sourceTree = "<group>"; };
 		EB278D67828CA7BA78523340 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		EB3E697EDF1A1A091BDAE7BD /* Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbySessionTests.swift; sourceTree = "<group>"; };
 		ED1FC6331158BC599EEA7669 /* BetweenVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetweenVaultApp.swift; sourceTree = "<group>"; };
 		EDAAA8D6367B609ED601EEB5 /* BetweenVault.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BetweenVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,6 +307,7 @@
 		7238265A71AAC878E1141260 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				EB3E697EDF1A1A091BDAE7BD /* Appearance.swift */,
 				591F4FB6D9757B6DF18483AD /* AppIconPicker.swift */,
 				DA0AB0C54F88EB3040B8503A /* SettingsView.swift */,
 			);
@@ -627,6 +630,7 @@
 				103EFDA920289D27AEB7A440 /* AddNotesSheet.swift in Sources */,
 				747CD640CF4879541FDE9B5B /* AppIconPicker.swift in Sources */,
 				400116B6B8AC545DD0452D17 /* AppServices.swift in Sources */,
+				559E75583A964439CAE511EA /* Appearance.swift in Sources */,
 				47ACFC4645000E5A0E78D8F9 /* BetweenVaultApp.swift in Sources */,
 				73E96A8D5271D1AF5EDF102A /* BuiltInCategory.swift in Sources */,
 				E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */,
