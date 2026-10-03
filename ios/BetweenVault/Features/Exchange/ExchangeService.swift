@@ -57,6 +57,11 @@ final class ExchangeService {
         self.directory = directory
     }
 
+    /// Board N2: every sealed note, waiting for confirmation or not.
+    func sealedForNearby() throws -> [OutboxItem] {
+        try items { $0.state == .sealed }
+    }
+
     /// Board 7: sealed notes waiting to be sent, newest first. Notes already sent as a file and
     /// waiting for confirmation are not in it; they are in `unconfirmed()`.
     func outbox() throws -> [OutboxItem] {
@@ -78,9 +83,15 @@ final class ExchangeService {
     /// Board F1, Create encrypted file: the outbox in one package, written to a temporary file for
     /// the share sheet. `resend` packs the notes still waiting for confirmation instead (F2, Send
     /// the file again). Nothing about the notes changes yet.
-    func prepare(resend: Bool = false, now: Date = .now) throws -> Prepared {
+    ///
+    /// `only` is board N2's ticked notes: any sealed note, waiting for confirmation or not, since a
+    /// nearby exchange confirms as it goes.
+    func prepare(resend: Bool = false, only: Set<UUID>? = nil, now: Date = .now) throws -> Prepared {
         guard let partner = try partners.partner(), let key = try pairKey() else { throw ExchangeError.notPaired }
-        let sealed = try notes.notes(in: nil).filter { resend ? $0.isSentNotConfirmed : $0.state == .sealed && $0.pendingExchangeID == nil }
+        let sealed = try notes.notes(in: nil).filter { note in
+            if let only { return note.state == .sealed && only.contains(note.id) }
+            return resend ? note.isSentNotConfirmed : note.state == .sealed && note.pendingExchangeID == nil
+        }
         guard !sealed.isEmpty else { throw ExchangeError.nothingSealed }
         let byID = Dictionary(uniqueKeysWithValues: try categories.categories().map { ($0.id, $0) })
         let items = sealed.map { note in
@@ -124,6 +135,8 @@ final class ExchangeService {
             note.state = .shared
             note.partnerKnownVersion = sentVersion
             note.baseVersion = sentVersion
+            note.pendingExchangeID = nil
+            note.pendingVersion = 0
             try notes.save(note, commit: false)
         }
         // Saves the shared context, notes included.
