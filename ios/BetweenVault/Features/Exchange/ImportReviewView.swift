@@ -189,7 +189,7 @@ struct ImportReviewView: View {
 
 /// One item changed on both phones: dates and length, never a diff of content, all three answers
 /// always visible, none chosen for the owner.
-private struct ConflictSheet: View {
+struct ConflictSheet: View {
     let item: ImportService.Item
     let index: Int
     let count: Int

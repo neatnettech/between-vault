@@ -12,6 +12,8 @@ struct ExchangeView: View {
     @State private var paired = false
     @State private var reviewing = false
     @State private var resending = false
+    @State private var nearby = false
+    @State private var partner: Partner?
     @State private var sentToast = false
 
     private enum Tab: Hashable { case ready, waiting }
@@ -26,6 +28,19 @@ struct ExchangeView: View {
                 .pickerStyle(.segmented)
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
+
+                // The main action once paired: both phones side by side, every step in the app.
+                if paired {
+                    Section {
+                        Button {
+                            nearby = true
+                        } label: {
+                            Label(Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right")
+                        }
+                        .buttonStyle(.vaultPrimary)
+                    }
+                    .listRowBackground(Color.clear)
+                }
 
                 switch tab {
                 case .ready: readyToSend
@@ -47,6 +62,14 @@ struct ExchangeView: View {
             }
             .sheet(isPresented: $resending, onDismiss: reload) {
                 ReviewSheet(items: unconfirmed, resend: true) { sentToast = true }
+            }
+            .fullScreenCover(isPresented: $nearby, onDismiss: reload) {
+                if let partner, let key = try? KeyManager.load(Pairing.pairKeyAccount) {
+                    NearbyView(partner: partner, pairKey: key) {
+                        // Board N0/N1 "Send as a file instead": after the cover is gone.
+                        Task { try? await Task.sleep(for: .milliseconds(400)); reviewing = !outbox.isEmpty }
+                    }
+                }
             }
             .overlay(alignment: .bottom) {
                 if sentToast {
@@ -96,8 +119,9 @@ struct ExchangeView: View {
             .listRowBackground(Theme.Colors.surface)
 
             Section {
+                // F1: the fallback for when the phones are not side by side.
                 Button(Copy.sendAsFile) { reviewing = true }
-                    .buttonStyle(.vaultPrimary)
+                    .buttonStyle(.vaultSecondary)
                     .disabled(!paired)
                 if !paired {
                     Text(Copy.pairFirstToSend)
@@ -125,6 +149,9 @@ struct ExchangeView: View {
                 }
                 .accessibilityElement(children: .combine)
             }
+            Button(Copy.confirmNearbyNow) { nearby = true }
+                .foregroundStyle(Theme.Colors.accent)
+                .disabled(!paired)
             Button(Copy.sendFileAgain) { resending = true }
                 .foregroundStyle(Theme.Colors.accent)
                 .disabled(!paired)
@@ -143,7 +170,8 @@ struct ExchangeView: View {
         outbox = (try? services.exchangeService.outbox()) ?? []
         unconfirmed = (try? services.exchangeService.unconfirmed()) ?? []
         lastFileSend = ((try? services.exchangeLogRepository.history()) ?? []).first { $0.unconfirmed }?.date
-        paired = ((try? services.partnerRepository.partner()) ?? nil) != nil
+        partner = (try? services.partnerRepository.partner()) ?? nil
+        paired = partner != nil
     }
 }
 

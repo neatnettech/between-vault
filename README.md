@@ -38,12 +38,15 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 * AES-GCM throughout: each record is encrypted at rest with a per device vault key, each exchange package is encrypted end to end with the couple's pair key
 * Pairing: QR handoff plus a six digit verification code, compared in person
+* Exchange nearby: the two phones connect directly (peer to peer Wi-Fi, no internet, no server), only while the exchange screen is open, over TLS keyed from the pair key, so only the paired phone can connect. Nearby devices see only a random code, never a name
 * Recovery: your partner holds an encrypted copy of your vault key, by design
 * Honest limit: if both phones are lost and there is no backup, the data is gone. We cannot restore it, because we never had it
 
 ## Threat model
 
 Protects against: a lost or stolen locked device, intercepted or tampered exchange files, wrong recipient, replay and duplicate imports.
+
+No automatic sync, and one exception spelled out: when both of you open Exchange nearby, your phones tell each other which earlier files they imported (exchange IDs only, never content), so notes you sent as a file can show as confirmed. It happens only in a session one of you started.
 
 Does not protect against: a fully compromised iOS installation, someone who knows your vault passcode, your partner (who can recover your vault by design), screenshots taken by the recipient.
 

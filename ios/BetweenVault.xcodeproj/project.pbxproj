@@ -32,6 +32,7 @@
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		62659BC167C941BC1FB8A3F3 /* ExchangeIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD4F444CBFD00F586C6ECBE /* ExchangeIntegrationTests.swift */; };
 		64E8457591964040DBE23E73 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4122C2060ACA4481A1C22926 /* ThemeTests.swift */; };
+		69F4D463BFA02D7F789E1E47 /* NearbyLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A51B47EA7C6106D0D6CB077 /* NearbyLink.swift */; };
 		6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD283DBA80128A707436C5 /* LockManager.swift */; };
 		6F8ECDB9C17171137F92FDEA /* PairingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796A83D62D755B7619B9B8D3 /* PairingService.swift */; };
 		724769FCD787E5B3244C3E17 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4019E724CC4067D6FE7112 /* NotesView.swift */; };
@@ -48,6 +49,7 @@
 		8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */; };
 		9251F62EFA42B7F440FD4258 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36FFA6FC07E4E6F6A07A557 /* ImportService.swift */; };
 		99A75C7C8DC1BE88506C44C3 /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */; };
+		A0DD41049A5A0F4626FBF6B8 /* NearbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A65F945ED4C2D9E6363B1843 /* NearbyView.swift */; };
 		A2262DF3B86DE199E146CC86 /* Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95FEC752607E863464D22B /* Passcode.swift */; };
 		A98911E8E5CDFCA58AE69470 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F378B970C775E0AA86C1AC0 /* Assets.xcassets */; };
 		ABD30BF649B4101D97AB8A9C /* NearbySessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCE9F6CE6795BD1C347D178 /* NearbySessionTests.swift */; };
@@ -92,6 +94,7 @@
 		1553B454DCDC33314C1A9B83 /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
 		17BF8FDCD9DA6268D61EFA82 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		17D93BC6A2D9ED15380D3427 /* PackageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageTests.swift; sourceTree = "<group>"; };
+		1A51B47EA7C6106D0D6CB077 /* NearbyLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyLink.swift; sourceTree = "<group>"; };
 		1C258A4C2403CD2DCC9BA155 /* PartnerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerRepository.swift; sourceTree = "<group>"; };
 		22E156D950FED97901EB412F /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
 		26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BetweenVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,6 +124,7 @@
 		9ED36D99806280261613C54F /* PairingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingFlow.swift; sourceTree = "<group>"; };
 		A3D1A9BC6DD2621344C2F5F5 /* ExchangeLogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeLogRepository.swift; sourceTree = "<group>"; };
 		A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockManagerTests.swift; sourceTree = "<group>"; };
+		A65F945ED4C2D9E6363B1843 /* NearbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyView.swift; sourceTree = "<group>"; };
 		AFD5A8E26D9DCB49ACF0868A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		B36FFA6FC07E4E6F6A07A557 /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
 		C47A3E24A32707DF8716A835 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
@@ -299,7 +303,9 @@
 		760D6F0801D01A236E677A29 /* Nearby */ = {
 			isa = PBXGroup;
 			children = (
+				1A51B47EA7C6106D0D6CB077 /* NearbyLink.swift */,
 				950BD6EA322C0A556C766F7C /* NearbySession.swift */,
+				A65F945ED4C2D9E6363B1843 /* NearbyView.swift */,
 			);
 			path = Nearby;
 			sourceTree = "<group>";
@@ -624,7 +630,9 @@
 				22E68C04E8663ACDA5843ABD /* KeyManager.swift in Sources */,
 				6DD790686BAB7B8B31C4BB5E /* LockManager.swift in Sources */,
 				CFD8A955C2AFE144261F24C0 /* Models.swift in Sources */,
+				69F4D463BFA02D7F789E1E47 /* NearbyLink.swift in Sources */,
 				F7E3F79E91974845C2332CCB /* NearbySession.swift in Sources */,
+				A0DD41049A5A0F4626FBF6B8 /* NearbyView.swift in Sources */,
 				D09D3E2B9181D763332A00DB /* Note.swift in Sources */,
 				BCB09F6137BEF28A55ECB0D3 /* NoteDetailView.swift in Sources */,
 				4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */,
