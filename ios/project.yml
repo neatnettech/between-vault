@@ -85,3 +85,14 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/BetweenVault.app/BetweenVault
         BUNDLE_LOADER: $(TEST_HOST)
+# Shared, so Xcode Cloud can see it: an autocreated scheme lives only on one Mac.
+schemes:
+  BetweenVault:
+    build:
+      targets:
+        BetweenVault: all
+        BetweenVaultTests: [test]
+    test:
+      targets: [BetweenVaultTests]
+    archive:
+      config: Release
