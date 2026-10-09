@@ -21,6 +21,9 @@ final class LockManager {
     private(set) var biometryChanged = false
     /// True at launch, so opening the app counts as a return.
     @ObservationIgnored private var promptOnActive = true
+    /// Not active, the cover shows only the vault mark: it is what the app switcher keeps, and a
+    /// keypad there reads as an invitation. The lock screen is back once the app is.
+    private(set) var isSceneActive = false
 
     /// Set while the biometric prompt is up, so the app root and a sheet's cover never prompt twice.
     private var isAuthenticating = false
@@ -142,6 +145,7 @@ final class LockManager {
     /// Returns whether to ask for biometrics now. Before onboarding nothing is guarded, so nothing
     /// asks; the pending ask waits for the next return, which sets it again anyway.
     func sceneChanged(to phase: ScenePhase, guarded: Bool) -> Bool {
+        isSceneActive = phase == .active
         switch phase {
         case .active:
             guard guarded, promptOnActive else { return false }

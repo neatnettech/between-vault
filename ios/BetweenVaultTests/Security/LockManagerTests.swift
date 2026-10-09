@@ -268,6 +268,20 @@ struct LockManagerTests {
         #expect(lock.sceneChanged(to: .active, guarded: true))
     }
 
+    /// The app switcher keeps a picture of the app as it leaves: only the mark then, never the
+    /// keypad. The lock screen is back once the app is active.
+    @Test func theCoverShowsOnlyTheMarkWhileNotActive() {
+        let lock = makeLock()
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(lock.isSceneActive)
+        _ = lock.sceneChanged(to: .inactive, guarded: true)
+        #expect(lock.isLocked && !lock.isSceneActive)
+        _ = lock.sceneChanged(to: .background, guarded: true)
+        #expect(!lock.isSceneActive)
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(lock.isSceneActive)
+    }
+
     /// Lock now stays locked: no prompt until the app actually leaves and comes back.
     @Test func lockNowDoesNotAsk() {
         let lock = makeLock()

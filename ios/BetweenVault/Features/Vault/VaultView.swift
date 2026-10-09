@@ -8,6 +8,10 @@ struct VaultView: View {
     @State private var snapshot = Snapshot()
     @State private var managingCategories = false
     @State private var composingNote = false
+    @State private var addingCategory = false
+    @State private var draftName = ""
+    /// The repository's refusal or failure, worded for the user.
+    @State private var failure: String?
 
     /// Categories, per category counts and the unfiltered total, read in one pass so the two halves
     /// of the screen can never disagree about the same vault.
@@ -32,7 +36,6 @@ struct VaultView: View {
                     }
                     filterChips
                     categoryGrid
-                    localOnlyFooter
                 }
                 .padding(.horizontal, Theme.Space.md)
                 .padding(.bottom, Theme.Space.md)
@@ -50,13 +53,35 @@ struct VaultView: View {
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button(Copy.edit) { managingCategories = true }
-                    Button {
-                        composingNote = true
+                    Menu {
+                        Button(Copy.newNote, systemImage: "square.and.pencil") { composingNote = true }
+                        Button(Copy.newCategory, systemImage: "folder.badge.plus") {
+                            draftName = ""
+                            addingCategory = true
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel(Copy.newNote)
+                    .accessibilityLabel(Copy.add)
                 }
+            }
+            // On the screen, not in the Menu: an alert declared inside a toolbar menu never shows.
+            .alert(Copy.newCategoryPrompt, isPresented: $addingCategory) {
+                TextField(Copy.name, text: $draftName)
+                Button(Copy.cancel, role: .cancel) {}
+                Button(Copy.add) { addCategory() }
+            }
+            .alert(
+                Copy.notSaved,
+                isPresented: Binding(
+                    get: { failure != nil },
+                    set: { if !$0 { failure = nil } }
+                ),
+                presenting: failure
+            ) { _ in
+                Button(Copy.ok, role: .cancel) {}
+            } message: { message in
+                Text(message)
             }
             .sheet(isPresented: $managingCategories, onDismiss: {
                 Task { await load() }
@@ -81,6 +106,18 @@ struct VaultView: View {
         snapshot = Snapshot(categories: categories, counts: counts, totalNotes: total)
     }
 
+    /// The same add as the Categories sheet, so a refusal or a failed save is shown, not swallowed.
+    private func addCategory() {
+        let name = draftName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        do {
+            _ = try services.categoryRepository.add(name: name)
+        } catch {
+            failure = Copy.categoryFailure(error)
+        }
+        Task { await load() }
+    }
+
     private var firstRunPrompt: some View {
         VStack(alignment: .leading, spacing: Theme.Space.xs) {
             Text(Copy.startWithEmergency)
@@ -99,10 +136,6 @@ struct VaultView: View {
                 .buttonStyle(.vaultPrimary)
                 .padding(.top, Theme.Space.xs)
             }
-            Text(Copy.starterCategoriesNote)
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.tertiary)
-                .padding(.top, Theme.Space.xxs)
         }
         .padding(Theme.Space.md)
         .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
@@ -167,38 +200,8 @@ struct VaultView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                Button {
-                    managingCategories = true
-                } label: {
-                    HStack(spacing: Theme.Space.xs) {
-                        Image(systemName: "plus")
-                        Text(Copy.newCategory)
-                            .font(Theme.Typography.subheadline.weight(.semibold))
-                    }
-                    .foregroundStyle(Theme.Colors.accent)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 120)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Theme.Radius.panel)
-                            .stroke(Theme.Colors.borderStrong)
-                    }
-                }
-                .buttonStyle(.plain)
             }
         }
-    }
-
-    private var localOnlyFooter: some View {
-        HStack(spacing: Theme.Space.xs) {
-            Image(systemName: "icloud.slash")
-                .imageScale(.small)
-            Text(Copy.localOnlyFooter)
-                .font(Theme.Typography.footnote)
-        }
-        .font(Theme.Typography.footnote)
-        .foregroundStyle(Theme.Colors.secondary)
-        .padding(.top, Theme.Space.xxs)
-        .accessibilityElement(children: .combine)
     }
 }
 

@@ -23,7 +23,7 @@ struct NoteDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Space.lg) {
                 metaLine
-                Text(note.body)
+                Text(NoteFormatting.rendered(note.body))
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.text)
                     .frame(maxWidth: .infinity, alignment: .leading)
