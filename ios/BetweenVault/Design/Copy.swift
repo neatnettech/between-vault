@@ -40,10 +40,6 @@ enum Copy {
     static let startWithEmergency = "Start with Emergency"
     static let emergencyPrompt = "If something happened to you today, what would your partner need? Doctor, insurance, who to call, where the papers are."
     static let writeTheFirstNote = "Write the first note"
-    static let starterCategoriesNote = "Six starter categories are created with the vault. Emergency and Other always exist, so the vault is never without a category."
-    /// True for iCloud Backup users too: a device backup may hold the store, but the app itself
-    /// never uploads anything (spec 24).
-    static let localOnlyFooter = "Stored on this iPhone. This app never uploads it."
     static let filterAll = "All"
     static let newCategory = "New category"
     static let lockNow = "Lock now"
@@ -104,11 +100,13 @@ enum Copy {
     static let editNoteTitle = "Edit note"
     static let title = "Title"
     static let body = "Body"
+    static let bold = "Bold"
+    static let italic = "Italic"
+    static let strikethrough = "Strikethrough"
+    static let bulletedList = "Bulleted list"
+    static let numberedList = "Numbered list"
     static let category = "Category"
     static let none = "None"
-    static let addAttachment = "Add attachment"
-    static let unlock = "Unlock"
-    static let attachmentsArriveLater = "Attachments arrive in a later update."
     static let state = "State"
     static let sharedSetBySending = "Shared is set automatically after you send it. Nothing is shared by editing."
     static let sealForPartner = "Seal for partner"
@@ -176,12 +174,9 @@ enum Copy {
     static func readyToSendCount(_ count: Int) -> String { count == 0 ? readyToSend : "\(readyToSend) · \(count)" }
     static let newTag = "New"
     static let updateTag = "Update"
-    static let outboxFooter = "These are sealed. They stay on this iPhone until you review them and send one encrypted file."
     /// Sent, not delivered: never claims the partner holds a copy.
     static let updateFooter = "Update replaces the version you sent before, unless your partner changed it too. Then they choose which to keep."
     static let reviewAndSend = "Review and send"
-    static let pairFirstToSend = "Pair with your partner first. A package only opens on their paired iPhone."
-    static let exactlyWhatLeaves = "Exactly what leaves this iPhone"
     static func itemsEncrypted(_ count: Int) -> String {
         "\(count == 1 ? "1 item" : "\(count) items"), encrypted so only your partner's paired iPhone can open them."
     }
@@ -241,14 +236,12 @@ enum Copy {
     static let unpairP5Message = "Exchanges stop. Notes you already shared stay on both phones. You can no longer recover your vault from their phone, and their phone keeps your old recovery copy until they unpair too."
     static let typeUnpair = "Type UNPAIR to confirm"
     static let unpairWord = "UNPAIR"
-    static let noPartnerYet = "No partner yet"
     static let pairOnce = "Pair once, side by side"
     static let afterPairingBody = "After pairing you can exchange notes and recover each other's vault."
     static let howPairingWorks = "How pairing works"
     static let pairingStep1 = "One phone shows a code"
     static let pairingStep2 = "The other phone scans it"
     static let pairingStep3 = "You both check six digits match"
-    static let noAccountFootnote = "No account, no internet. The pairing lives only on your two phones."
     static let whichPhone = "Which phone are you?"
     static let showMyCode = "Show my code"
     static let scanTheirCodeChoice = "Scan my partner's code"
@@ -264,15 +257,16 @@ enum Copy {
     static let pairedPill = "Paired"
     static let pairedAnnouncement = "Paired with your partner"
     static let checkingCamera = "Checking the camera"
-    static let notPairedPill = "Not paired"
     static func toSendChip(_ count: Int) -> String { "\(count) to send" }
     static func waitingChip(_ count: Int) -> String { "\(count) waiting" }
     static func notConfirmedChip(_ count: Int) -> String { "\(count) not confirmed" }
-    static func nearbyCaption(notConfirmed: Int) -> String {
-        guard notConfirmed > 0 else { return "Phone to phone, encrypted. No internet, no server." }
-        return notConfirmed == 1
-            ? "Phone to phone, encrypted. Also confirms the note sent earlier."
-            : "Phone to phone, encrypted. Also confirms the \(notConfirmed) notes sent earlier."
+    /// Nil when there is nothing to add: how the phones talk is the README's job, not a caption's.
+    static func nearbyCaption(notConfirmed: Int) -> String? {
+        switch notConfirmed {
+        case 0: nil
+        case 1: "Also confirms the note sent earlier."
+        default: "Also confirms the \(notConfirmed) notes sent earlier."
+        }
     }
     static let nothingToSendCaption = "Nothing to send. You can still receive."
     static let fileOptionSub = "AirDrop, Messages or Files. Confirmed later."
@@ -296,8 +290,7 @@ enum Copy {
         }
     }
     static let pairFirstTitle = "Pair with your partner first"
-    static let pairFirstSub = "Exchange only works between two paired iPhones"
-    static let pairFirstBody = "It takes about a minute, side by side. After that, this is where you exchange."
+    static let pairFirstBody = "Exchange only works between two paired iPhones. Pairing takes about a minute, side by side."
     static let pairNow = "Pair now"
     static let gotAFileAlready = "Got a file from your partner already? Pair first, then open it again."
     static let searchNotes = "Search notes"
@@ -502,7 +495,6 @@ enum Copy {
     static let recoveryNotSavedTitle = "Recovery file not saved"
     // Board 15 and rows 6.1 to 6.4: restore from the partner.
     static let restoreFromPartner = "Restore from your partner"
-    static let restoreFromPartnerSub = "New phone? Get your vault back from their recovery copy."
     static let restoreBody = "Your partner's iPhone holds an encrypted recovery file for your vault."
     static let restoreStep1 = "Pair again"
     static let restoreStep1Done = "Done. New keys for this phone."
@@ -535,7 +527,6 @@ enum Copy {
     static let recoveryUnreadable = "This file could not be read. Nothing was saved."
     static let noPartnerPaired = "No partner paired yet"
     static let pairedPartner = "Paired partner"
-    static let pairInPerson = "Pair in person, side by side. Nothing is sent over a network."
     static let pairWithPartner = "Pair with partner"
     static let scanPartnersCode = "Scan partner's code"
 
@@ -696,10 +687,6 @@ enum Copy {
     static func afterMinutes(_ count: Int) -> String { "After \(minutes(count))" }
     static let clearClipboard = "Clear clipboard"
     static let after60s = "After 60 s"
-    static let data = "Data"
-    static let exportBackup = "Export backup"
-    static let attachmentsUnlock = "Attachments unlock"
-    static let comingIn11 = "1.1"
     static let about = "About"
     // Settings > Appearance: System is the handoff's default.
     static let appearance = "Appearance"
@@ -714,8 +701,7 @@ enum Copy {
     static let iconFooter = "Changes the icon on your Home Screen. iOS confirms the change."
     static let iconNotChanged = "The icon could not be changed. Try again."
     static let version = "Version"
-    static let collectsNothing = "This app collects nothing and has no server to send it to."
-    static func versionFooter(_ version: String) -> String { "Version \(version). \(collectsNothing)" }
+    static func versionFooter(_ version: String) -> String { "Version \(version)" }
     // Settings > About (board 17, 17d, 17e), plus Terms of use (owner request; no board).
     static let privacyPolicy = "Privacy policy"
     static let threatModel = "Threat model"

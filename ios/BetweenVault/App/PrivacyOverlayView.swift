@@ -372,13 +372,30 @@ private struct VaultMark: View {
 
 extension PrivacyOverlayView {
     /// The cover window's root. A fresh lock screen per lock, so it opens on board 1 every time.
+    /// While the app is not active, only the mark: that is the app switcher's picture of it.
     struct Cover: View {
         let lockManager: LockManager
 
         var body: some View {
             if lockManager.isLocked {
-                PrivacyOverlayView(lockManager: lockManager)
+                if lockManager.isSceneActive {
+                    PrivacyOverlayView(lockManager: lockManager)
+                } else {
+                    shield
+                }
             }
+        }
+
+        private var shield: some View {
+            VStack(spacing: Theme.Space.md) {
+                VaultMark()
+                Text(Copy.productName)
+                    .font(.system(.title2, design: .serif).weight(.semibold))
+                    .foregroundStyle(Theme.Colors.text)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.Colors.lockScreen.ignoresSafeArea())
+            .preferredColorScheme(.dark)
         }
     }
 }

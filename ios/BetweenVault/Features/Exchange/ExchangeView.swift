@@ -6,8 +6,8 @@ import UniformTypeIdentifiers
 /// on top holds the partner, the counts and the one main action, Exchange nearby; below it, what
 /// is to send, files waiting for a decision, and History. Not paired, only the way to pair.
 struct ExchangeView: View {
-    /// X3 Pair now: the Partner tab, where pairing starts.
-    var onPairNow: () -> Void = {}
+    /// X3, once paired from here: the Partner tab, where sending the recovery copy is next.
+    var onPaired: () -> Void = {}
 
     @Environment(AppServices.self) private var services
     @State private var outbox: [ExchangeService.OutboxItem] = []
@@ -23,26 +23,32 @@ struct ExchangeView: View {
     @State private var opening = false
     @State private var reviewing: ImportReviewView.Content?
     @State private var toast: String?
+    @State private var choosesRole = false
+    @State private var pairing: PairingFlow.Role?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Space.lg) {
-                    if partner == nil {
-                        notPaired
-                    } else {
-                        exchangeArea
-                        toSend
-                        waitingForYou
-                        historyRow
+            // A ZStack, not a Group, so the covers and sheets below stay put when pairing flips it.
+            ZStack {
+                if partner == nil {
+                    notPaired
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Theme.Space.lg) {
+                            exchangeArea
+                            toSend
+                            waitingForYou
+                            historyRow
+                        }
+                        .padding(Theme.Space.md)
                     }
+                    .refreshable { reload() }
                 }
-                .padding(Theme.Space.md)
             }
             .background(Theme.Colors.bg)
             .navigationTitle(Copy.tabExchange)
             .task { reload() }
-            .refreshable { reload() }
+            .pairingFlow(choosingRole: $choosesRole, role: $pairing, services: services, onDismiss: pairingEnded)
             .sheet(isPresented: $sendingFile, onDismiss: reload) {
                 ReviewSheet(items: outbox, resend: false) { toast = Copy.toastFileHandedOver }
             }
@@ -101,11 +107,13 @@ struct ExchangeView: View {
                 if !unconfirmed.isEmpty { PanelChip(text: Copy.notConfirmedChip(unconfirmed.count)) }
             }
             PanelPrimaryButton(title: Copy.exchangeNearby, systemImage: "iphone.radiowaves.left.and.right") { nearby = true }
-            Text(outbox.isEmpty && unconfirmed.isEmpty ? Copy.nothingToSendCaption : Copy.nearbyCaption(notConfirmed: unconfirmed.count))
-                .font(Theme.Typography.footnote)
-                .opacity(0.75)
-                .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center)
+            if let caption = outbox.isEmpty && unconfirmed.isEmpty ? Copy.nothingToSendCaption : Copy.nearbyCaption(notConfirmed: unconfirmed.count) {
+                Text(caption)
+                    .font(Theme.Typography.footnote)
+                    .opacity(0.75)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+            }
             PanelAltRow(
                 title: Copy.sendAsFileInstead,
                 subtitle: outbox.isEmpty ? Copy.addNotesFirst : Copy.fileOptionSub,
@@ -209,16 +217,12 @@ struct ExchangeView: View {
     // MARK: X3: not paired
 
     private var notPaired: some View {
-        VStack(alignment: .leading, spacing: Theme.Space.md) {
-            DarkPanel {
-                PanelHeader(title: Copy.pairFirstTitle, subtitle: Copy.pairFirstSub, pill: Copy.notPairedPill, pillMuted: true)
-                Text(Copy.pairFirstBody).font(Theme.Typography.subheadline).opacity(0.85)
-                PanelPrimaryButton(title: Copy.pairNow, systemImage: "iphone.radiowaves.left.and.right", action: onPairNow)
-            }
-            Text(Copy.gotAFileAlready)
-                .font(Theme.Typography.footnote)
-                .foregroundStyle(Theme.Colors.secondary)
-        }
+        NotPairedView(
+            systemImage: "arrow.left.arrow.right",
+            title: Copy.pairFirstTitle,
+            lines: [Copy.pairFirstBody, Copy.gotAFileAlready],
+            primary: (Copy.pairNow, { choosesRole = true })
+        )
     }
 
     // MARK: Pieces
@@ -266,6 +270,11 @@ struct ExchangeView: View {
         let history = (try? services.exchangeLogRepository.history()) ?? []
         lastEntry = history.first
         lastFileSend = history.first { $0.unconfirmed }?.date
+    }
+
+    private func pairingEnded() {
+        reload()
+        if partner != nil { onPaired() }
     }
 
     /// A waiting file: checked again, then the same review as when it arrived. One that no longer

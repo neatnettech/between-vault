@@ -27,31 +27,28 @@ struct PartnerView: View {
     @State private var awaitsRestore = false
     @State private var holdsRetired = false
     @State private var asksNewPhone = false
-    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Space.lg) {
-                    if let partner {
-                        paired(partner)
-                    } else {
-                        notPaired
+            // A ZStack, not a Group: a Group hands every modifier below to whichever branch shows,
+            // so pairing from Restore would rebuild its destination and pop it mid restore.
+            ZStack {
+                if let partner {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Theme.Space.lg) {
+                            paired(partner)
+                        }
+                        .padding(Theme.Space.md)
                     }
+                    .refreshable { reload() }
+                } else {
+                    notPaired
                 }
-                .padding(Theme.Space.md)
             }
             .background(Theme.Colors.bg)
             .navigationTitle(Copy.tabPartner)
             .task { reload() }
-            .refreshable { reload() }
-            .fullScreenCover(item: $pairing, onDismiss: reload) { role in
-                PairingView {
-                    PairingFlow(role: role, deviceID: services.deviceID) { agreement in
-                        try Pairing.commit(agreement, partners: services.partnerRepository)
-                    }
-                }
-            }
+            .pairingFlow(choosingRole: $choosesRole, role: $pairing, services: services, onDismiss: reload)
             .fullScreenCover(isPresented: $nearby, onDismiss: reload) {
                 if let partner, let key = try? KeyManager.load(Pairing.pairKeyAccount) {
                     NearbyView(partner: partner, pairKey: key, recoveryOnly: true) {
@@ -66,11 +63,6 @@ struct PartnerView: View {
                         reload()
                     }
                 }
-            }
-            // P3: one Pair button; which phone shows and which scans is chosen here.
-            .confirmationDialog(Copy.whichPhone, isPresented: $choosesRole, titleVisibility: .visible) {
-                Button(Copy.showMyCode) { pairing = .starter }
-                Button(Copy.scanTheirCodeChoice) { pairing = .joiner }
             }
             // P5, first ask; the second is typing UNPAIR.
             .confirmationDialog(Copy.unpairFromPartner, isPresented: $asksUnpair, titleVisibility: .visible) {
@@ -203,37 +195,13 @@ struct PartnerView: View {
     // MARK: P3
 
     private var notPaired: some View {
-        Group {
-            DarkPanel {
-                PanelHeader(title: Copy.noPartnerYet, subtitle: Copy.pairOnce, pill: Copy.notPairedPill, pillMuted: true)
-                Text(Copy.afterPairingBody).font(Theme.Typography.subheadline).opacity(0.85)
-                if holdsRetired {
-                    Text(Copy.keepingCopyForNewPhone).font(Theme.Typography.subheadline).opacity(0.85)
-                }
-                PanelPrimaryButton(title: Copy.pairWithPartner, systemImage: "iphone.radiowaves.left.and.right") { choosesRole = true }
-                PanelAltRow(
-                    title: Copy.restoreFromPartner,
-                    subtitle: Copy.restoreFromPartnerSub,
-                    systemImage: "arrow.counterclockwise",
-                    action: { restoring = true }
-                )
-            }
-            section(Copy.howPairingWorks) {
-                ForEach(Array([Copy.pairingStep1, Copy.pairingStep2, Copy.pairingStep3].enumerated()), id: \.offset) { number, step in
-                    Label {
-                        Text(step).foregroundStyle(Theme.Colors.text)
-                    } icon: {
-                        Text("\(number + 1)")
-                            .font(Theme.Typography.footnote.weight(.semibold))
-                            .frame(minWidth: badgeSize, minHeight: badgeSize)
-                            .background(Theme.Colors.privateBadgeBG, in: Circle())
-                            .foregroundStyle(Theme.Colors.privateBadgeInk)
-                    }
-                }
-            } footer: {
-                Copy.noAccountFootnote
-            }
-        }
+        NotPairedView(
+            systemImage: "person.2",
+            title: Copy.pairOnce,
+            lines: [Copy.afterPairingBody] + (holdsRetired ? [Copy.keepingCopyForNewPhone] : []),
+            primary: (Copy.pairWithPartner, { choosesRole = true }),
+            secondary: (Copy.restoreFromPartner, { restoring = true })
+        )
     }
 
     // MARK: Pieces
@@ -444,4 +412,104 @@ private struct ShareSheet: UIViewControllerRepresentable {
 private struct SharedFile: Identifiable {
     let url: URL
     var id: URL { url }
+}
+
+// MARK: - X3, P3
+
+/// Not paired, on Exchange and on Partner: the whole screen says what pairing is, laid out like the
+/// onboarding pages, with the buttons pinned at the bottom.
+struct NotPairedView: View {
+    let systemImage: String
+    let title: String
+    let lines: [String]
+    let primary: (String, () -> Void)
+    var secondary: (String, () -> Void)?
+
+    @ScaledMetric(relativeTo: .footnote) private var badgeSize: CGFloat = 24
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Space.lg) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 56))
+                    .foregroundStyle(Theme.Colors.accent)
+                    .frame(height: 96)
+                    .accessibilityHidden(true)
+                Text(title)
+                    .font(Theme.Typography.hero)
+                    .foregroundStyle(Theme.Colors.text)
+                    .accessibilityAddTraits(.isHeader)
+                ForEach(Array(lines.enumerated()), id: \.offset) { offset, line in
+                    Text(line)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(offset == 0 ? Theme.Colors.text : Theme.Colors.secondary)
+                }
+                steps
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Theme.Space.lg)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: Theme.Space.sm) {
+                Button(primary.0, action: primary.1)
+                    .buttonStyle(.vaultPrimary)
+                if let secondary {
+                    Button(secondary.0, action: secondary.1)
+                        .buttonStyle(.vaultSecondary)
+                }
+            }
+            .padding(Theme.Space.lg)
+            .background(Theme.Colors.bg)
+        }
+    }
+
+    private var steps: some View {
+        VStack(alignment: .leading, spacing: Theme.Space.xs) {
+            Text(Copy.howPairingWorks.uppercased())
+                .font(Theme.Typography.footnote.weight(.semibold))
+                .foregroundStyle(Theme.Colors.secondary)
+                .padding(.horizontal, Theme.Space.xs)
+                .accessibilityAddTraits(.isHeader)
+            VStack(alignment: .leading, spacing: Theme.Space.sm) {
+                ForEach(Array([Copy.pairingStep1, Copy.pairingStep2, Copy.pairingStep3].enumerated()), id: \.offset) { number, step in
+                    Label {
+                        Text(step).foregroundStyle(Theme.Colors.text)
+                    } icon: {
+                        Text("\(number + 1)")
+                            .font(Theme.Typography.footnote.weight(.semibold))
+                            .frame(minWidth: badgeSize, minHeight: badgeSize)
+                            .background(Theme.Colors.privateBadgeBG, in: Circle())
+                            .foregroundStyle(Theme.Colors.privateBadgeInk)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            .padding(Theme.Space.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
+        }
+    }
+}
+
+extension View {
+    /// P3, X3 and row 6.2: which phone shows the code, then the pairing flow over everything.
+    @MainActor
+    func pairingFlow(
+        choosingRole: Binding<Bool>,
+        role: Binding<PairingFlow.Role?>,
+        services: AppServices,
+        onDismiss: @escaping () -> Void
+    ) -> some View {
+        fullScreenCover(item: role, onDismiss: onDismiss) { chosen in
+            PairingView {
+                PairingFlow(role: chosen, deviceID: services.deviceID) { agreement in
+                    try Pairing.commit(agreement, partners: services.partnerRepository)
+                }
+            }
+        }
+        .confirmationDialog(Copy.whichPhone, isPresented: choosingRole, titleVisibility: .visible) {
+            Button(Copy.showMyCode) { role.wrappedValue = .starter }
+            Button(Copy.scanTheirCodeChoice) { role.wrappedValue = .joiner }
+        }
+    }
 }

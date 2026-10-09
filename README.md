@@ -45,7 +45,7 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 ## Security at a glance
 
-* AES-GCM throughout: each record is encrypted at rest with a per device vault key, each exchange package is encrypted end to end under its own key, derived from the couple's pair key
+* AES-GCM throughout: note titles and bodies are encrypted at rest with a per device vault key (category names, note states and dates are not), each exchange package is encrypted end to end under its own key, derived from the couple's pair key
 * Pairing: QR handoff plus a six digit verification code, compared in person
 * Exchange nearby: the two phones connect directly (peer to peer Wi-Fi, no internet, no server), only while the exchange screen is open, over TLS keyed from the pair key, so only the paired phone can connect. Nearby devices see only a random code, never a name
 * Recovery: your partner holds an encrypted copy of your vault key, by design

@@ -9,7 +9,7 @@ struct RootView: View {
                 .tabItem { Label(Copy.tabVault, systemImage: "tray.full") }
                 .tag(AppTab.vault)
 
-            ExchangeView(onPairNow: { tab = .partner })
+            ExchangeView(onPaired: { tab = .partner })
                 .tabItem { Label(Copy.tabExchange, systemImage: "arrow.left.arrow.right") }
                 .tag(AppTab.exchange)
 

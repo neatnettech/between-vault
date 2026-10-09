@@ -24,7 +24,7 @@ Device IDs are random UUIDs, one per installation, written in lowercase. A reset
 
 | Key | Where it lives | Made from |
 | --- | --- | --- |
-| Vault key | Keychain, this device only | 32 random bytes. Encrypts every note at rest. Never leaves the phone except inside a recovery blob. |
+| Vault key | Keychain, this device only | 32 random bytes. Encrypts each note's title and body at rest. Never leaves the phone except inside a recovery blob. |
 | Pair key | Keychain, this device only | Pairing, below |
 | Package key | Never stored | `HKDF(pairKey, salt: exchange ID, info: "betweenvault.exchange.v1")` |
 | Recovery key | Never stored | `HKDF(pairKey, info: "betweenvault.recovery.v1")` |
@@ -88,7 +88,7 @@ The plaintext is a JSON array of items:
 | `version` | The sender's version of the note |
 | `baseVersion` | The version the sender last had from the partner, for conflict detection |
 | `updatedAt` | Last edit |
-| `title`, `body` | The note |
+| `title`, `body` | The note. `body` is plain text that may carry inline Markdown marks (`**bold**`, `*italic*`, `~~struck~~`, with `\` escaping a literal mark character) and list prefixes (`• `, `1. `); a reader that does not render them shows them as typed |
 | `category` | `name`, `symbol`, and `builtInKey` for built in categories, or absent |
 
 A receiving phone imports a package only if it comes from the paired partner, is addressed to this phone, and authenticates. Import is atomic: all items land or none do. Titles are shown for review before anything is saved, and a note changed on both phones asks the owner which copy to keep.

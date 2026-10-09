@@ -68,11 +68,6 @@ struct SettingsView: View {
                     }
                 }
                 .listRowBackground(Theme.Colors.surface)
-                Section(Copy.data) {
-                    LabeledContent(Copy.exportBackup, value: Copy.comingIn11)
-                    LabeledContent(Copy.attachmentsUnlock, value: Copy.comingIn11)
-                }
-                .listRowBackground(Theme.Colors.surface)
                 // Board 17's About, plus Terms of use.
                 Section {
                     NavigationLink(Copy.privacyPolicy) { PrivacyStatementView() }

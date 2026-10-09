@@ -133,6 +133,7 @@ struct NoteRow: View {
     }
 
     var body: some View {
+        let preview = NoteFormatting.rendered(note.body)
         VStack(alignment: .leading, spacing: Theme.Space.xxs) {
             HStack(alignment: .firstTextBaseline, spacing: Theme.Space.xs) {
                 Text(note.title)
@@ -143,12 +144,13 @@ struct NoteRow: View {
                     .font(Theme.Typography.footnote)
                     .foregroundStyle(Theme.Colors.secondary)
             }
-            Text(note.body)
+            Text(preview)
                 .font(Theme.Typography.subheadline)
                 .foregroundStyle(Theme.Colors.secondary)
                 .lineLimit(2)
                 // lineLimit only shortens what is drawn; VoiceOver would read the whole body.
-                .accessibilityLabel(String(note.body.prefix(120)))
+                // From the rendered text, so the marks are never read aloud.
+                .accessibilityLabel(String(String(preview.characters).prefix(120)))
             HStack(spacing: Theme.Space.xs) {
                 StateBadge(state: note.state, changedSinceSent: note.hasChangedSinceSent, sentNotConfirmed: note.isSentNotConfirmed)
                 // Never colour alone: the bar is paired with words.
@@ -497,7 +499,6 @@ struct PanelHeader: View {
     var subtitle: String?
     let pill: String
     var pillIcon: String?
-    var pillMuted = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -515,10 +516,10 @@ struct PanelHeader: View {
                 if let pillIcon { Label(pill, systemImage: pillIcon) } else { Text(pill) }
             }
             .font(Theme.Typography.footnote.weight(.semibold))
-            .foregroundStyle(pillMuted ? Color.white : Theme.Colors.onAccentTint)
+            .foregroundStyle(Theme.Colors.onAccentTint)
             .padding(.vertical, Theme.Space.xxs)
             .padding(.horizontal, Theme.Space.sm)
-            .background(pillMuted ? Color.white.opacity(0.12) : Theme.Colors.accentTint, in: Capsule())
+            .background(Theme.Colors.accentTint, in: Capsule())
         }
     }
 }
