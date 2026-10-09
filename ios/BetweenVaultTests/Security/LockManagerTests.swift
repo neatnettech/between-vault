@@ -292,6 +292,27 @@ struct LockManagerTests {
         #expect(lock.isLocked)
     }
 
+    /// A biometric grant lands while the Face ID sheet holds the scene inactive. Unlocked there,
+    /// the vault stays covered until the scene is truly active again: swiping away mid dismissal
+    /// must leave the app switcher the shield, not the content.
+    @Test func aGrantWhileInactiveStaysCoveredUntilActive() async {
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let lock = makeOnboardedLock(defaults, enrolled: Data("owner".utf8))
+        lock.openAfterSetup()
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(!lock.coversScene(guarded: true))
+
+        _ = lock.sceneChanged(to: .inactive, guarded: true)
+        #expect(lock.coversScene(guarded: true), "inactive covers, even unlocked")
+
+        await lock.unlock(context: EnrolledContext(Data("owner".utf8)))
+        #expect(!lock.isLocked)
+        #expect(lock.coversScene(guarded: true), "a grant that lands while inactive stays covered")
+
+        _ = lock.sceneChanged(to: .active, guarded: true)
+        #expect(!lock.coversScene(guarded: true), "active and unlocked uncovers")
+    }
+
     /// Before onboarding nothing asks; the first return after it does.
     @Test func nothingAsksBeforeOnboarding() {
         let lock = makeLock()

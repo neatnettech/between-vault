@@ -166,6 +166,14 @@ final class LockManager {
         promptOnActive = true
     }
 
+    /// The cover must stay up whenever the vault is locked or the scene is not active, or the
+    /// app switcher could keep a picture of the content. Unlocked alone does not uncover: a
+    /// biometric grant lands while the Face ID sheet holds the scene inactive, and the owner can
+    /// swipe the app away before it ever activates again.
+    func coversScene(guarded: Bool) -> Bool {
+        guarded && (isLocked || !isSceneActive)
+    }
+
     /// Row 2.5: any touch or keystroke while open.
     func noteActivity() {
         lastActivity = now()
