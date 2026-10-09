@@ -377,12 +377,12 @@ extension PrivacyOverlayView {
         let lockManager: LockManager
 
         var body: some View {
-            if lockManager.isLocked {
-                if lockManager.isSceneActive {
+            if lockManager.isSceneActive {
+                if lockManager.isLocked {
                     PrivacyOverlayView(lockManager: lockManager)
-                } else {
-                    shield
                 }
+            } else {
+                shield
             }
         }
 

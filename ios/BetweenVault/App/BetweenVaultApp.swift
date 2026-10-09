@@ -36,7 +36,7 @@ struct BetweenVaultApp: App {
     /// it already holds notes (rc.1, a flag lost in a restore): the flag alone must never take the
     /// lock off a vault that holds something. Then Face ID opens onboarding, which sets the passcode.
     private var guarded: Bool { onboarded || services?.guardsOnboarding ?? true }
-    private var covered: Bool { guarded && lockManager.isLocked }
+    private var covered: Bool { lockManager.coversScene(guarded: guarded) }
 
     /// Row 5.1: a package from the partner. Checked first (9a to 9d), then reviewed (9, U4); the
     /// file itself is read once here and nothing else keeps it.
