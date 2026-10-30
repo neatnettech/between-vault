@@ -48,7 +48,6 @@
   --control-h: 52px;
   --header-h: 72px;
   --col: 720px;
-  --form-w: 560px;
 }
 
 /* Dark values, from the "Website index, dark mode" board.
@@ -139,15 +138,6 @@ a:hover { color: var(--accent-hover); }
 .container {
   width: min(var(--col), 100% - 40px);
   margin-inline: auto;
-}
-
-/* Honeypot: off screen for people, present for bots */
-.hp {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
 }
 
 /* Typography */
@@ -323,93 +313,11 @@ section {
   .screens li { scroll-snap-align: center; }
 }
 
-/* Waiting list form */
+/* App Store badge: Apple's file, shown unmodified */
 
-.waitlist-form {
-  display: flex;
-  flex-direction: column;
-  max-width: var(--form-w);
-}
+.store-badge { align-self: flex-start; }
 
-.waitlist-form label.lab {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.form-row { display: flex; gap: 10px; }
-
-.form-row input[type="email"] {
-  flex: 1;
-  min-width: 0;
-  height: var(--control-h);
-  padding: 0 16px;
-  font-size: 17px;
-  font-family: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-control);
-}
-
-.form-row input[aria-invalid="true"] { border: 2px solid var(--error); }
-
-.form-row button {
-  height: var(--control-h);
-  padding: 0 22px;
-  font-size: 17px;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--on-accent);
-  background: var(--accent);
-  border: 0;
-  border-radius: var(--radius-control);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.form-row button:hover { background: var(--accent-hover); }
-
-.consent {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-top: 14px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--body);
-}
-
-.consent input {
-  width: 20px;
-  height: 20px;
-  margin: 1px 0 0;
-  flex-shrink: 0;
-  accent-color: var(--accent);
-}
-
-.err {
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  margin-top: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--error);
-}
-
-/* A class level display beats the [hidden] attribute, so restate it */
-.err[hidden] { display: none; }
-
-.err svg { flex-shrink: 0; margin-top: 1px; }
-
-.form-status {
-  margin-top: 14px;
-  font-size: 15px;
-  color: var(--accent);
-}
+.store-badge img { display: block; height: 54px; width: auto; }
 
 /* Promise band */
 
@@ -658,8 +566,6 @@ section {
 
 .final-cta h2 { margin: 0; }
 
-.final-note { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--secondary); }
-
 /* Privacy policy */
 
 .page-title { font-size: 44px; margin-bottom: 12px; }
@@ -795,18 +701,6 @@ footer nav { display: flex; gap: 24px; }
 
   h2 { font-size: 26px; letter-spacing: normal; margin-bottom: 14px; }
   p { font-size: 17px; }
-
-  .waitlist-form { gap: 12px; max-width: none; }
-  .form-row { flex-direction: column; }
-
-  /* Stacked, the row's main axis is vertical, so flex: 1 would resolve the
-     height to a 0 basis and collapse the field. The mobile board swaps to
-     width for exactly this reason. */
-  .form-row input[type="email"] { flex: none; width: 100%; padding: 0 14px; }
-
-  .form-row button { width: 100%; }
-  .consent { margin-top: 0; }
-  .consent input { width: 22px; height: 22px; margin: 0; }
 
   .band .container {
     grid-template-columns: 1fr;
