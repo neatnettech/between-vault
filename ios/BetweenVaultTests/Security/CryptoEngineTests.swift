@@ -16,6 +16,14 @@ struct CryptoEngineTests {
         #expect(opened == plaintext)
     }
 
+    /// Keys are full length and never repeat, or zeros.
+    @Test func randomKeysAreFullLengthAndDistinct() {
+        let first = CryptoEngine.randomKey()
+        #expect(first.count == 32)
+        #expect(first != CryptoEngine.randomKey())
+        #expect(first != Data(count: 32))
+    }
+
     @Test func tamperedCiphertextFails() throws {
         let key = CryptoEngine.randomKey()
         var box = try CryptoEngine.encrypt(Data("secret".utf8), key: key)

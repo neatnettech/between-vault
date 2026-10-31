@@ -1,6 +1,5 @@
 import CryptoKit
 import Foundation
-import Security
 
 enum CryptoEngine {
     enum CryptoError: Error {
@@ -11,10 +10,10 @@ enum CryptoEngine {
 
     // MARK: Key material
 
+    /// CryptoKit's generator stops the app rather than hand back zeros, which an unchecked
+    /// `SecRandomCopyBytes` could. Vault keys, salts and nonces all come from here.
     static func randomKey() -> Data {
-        var bytes = [UInt8](repeating: 0, count: keySize.bitCount / 8)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        return Data(bytes)
+        SymmetricKey(size: keySize).withUnsafeBytes { Data($0) }
     }
 
     /// A key for one purpose from the pair key. `info` names the purpose; `salt` binds it to one
