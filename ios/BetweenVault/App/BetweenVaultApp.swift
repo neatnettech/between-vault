@@ -28,11 +28,6 @@ struct BetweenVaultApp: App {
             // Only after a full reset: a failed one keeps the flag, so the next launch tries again.
             if (try? services.resetVault()) != nil { lockManager.forget() }
         }
-        // A fresh install, or a reset one with nothing kept: what the Keychain held from before
-        // goes, so no old vault key is reused. A Keychain error leaves it for the next launch.
-        if let services, !UserDefaults.standard.bool(forKey: LockManager.onboardedKey), !services.guardsOnboarding {
-            try? services.forgetEarlierInstall()
-        }
         _services = State(initialValue: services)
         _lockManager = State(initialValue: lockManager)
     }
@@ -116,7 +111,7 @@ struct BetweenVaultApp: App {
     private var root: some View {
         Group {
             if !onboarded {
-                OnboardingView(lockManager: lockManager) { onboarded = true }
+                OnboardingView(lockManager: lockManager, startFresh: { try services?.forgetEarlierInstall() }) { onboarded = true }
             } else if let services {
                 RootView()
                     .environment(services)

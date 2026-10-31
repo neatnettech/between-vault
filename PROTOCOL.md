@@ -118,7 +118,7 @@ The file is UTF8 JSON:
 
 The holder keeps only `blob`, and only if the file names the paired partner as owner and this phone as holder, and the blob opens under the current pair key. By design the holder can open it: a paired partner can recover the vault.
 
-Unpairing cannot reach the other phone, so a blob held there stays. The owner's phone therefore makes a new vault key and moves every note to it before the pairing ends: the old blob then opens nothing on that phone, nor in a backup made after it (a backup made before still holds notes under the old key). The new key is staged in the Keychain first and replaces the old one only once the notes are saved under it, so a rotation cut short at any step resolves at the next launch.
+Unpairing cannot reach the other phone, so a blob held there stays. The owner's phone therefore makes a new vault key and moves every note to it before the pairing ends, so the old blob opens no note the app keeps. It does not reach older copies: an iPhone backup made before the Unpair still holds the notes under the old key, which only the old blob opens, and until SQLite reuses the space the store file itself can still hold them too, readable by someone who has the old key outside the app. The new key is staged in the Keychain first and replaces the old one only once the notes are saved under it. A rotation cut short at any step finishes before the vault key is next read, and before another rotation starts.
 
 ### Restore on a new phone
 

@@ -21,8 +21,18 @@ struct PasscodeTests {
         return (try? KeyManager.save(Data([1]), account: account)) != nil
     }()
 
-    /// The Keychain outlives a reinstall while the onboarding flag does not, so onboarding again
-    /// must replace the old passcode, not fail on it.
+    /// The lock trusts the faces of the day only while no passcode is stored, so only a definite
+    /// "nothing stored" may read as none.
+    @Test(.enabled(if: hasKeychain)) func aPasscodeIsStoredOnlyOnceSet() throws {
+        let account = "test.passcode.\(UUID().uuidString)"
+        defer { try? KeyManager.delete(account) }
+
+        #expect(!Passcode.isStored(account: account))
+        try Passcode.set("583920", account: account)
+        #expect(Passcode.isStored(account: account))
+    }
+
+    /// Setting again writes in place: the new passcode replaces the old one, never fails on it.
     @Test(.enabled(if: hasKeychain)) func settingAgainReplacesTheOldPasscode() throws {
         let account = "test.passcode.\(UUID().uuidString)"
         defer { try? KeyManager.delete(account) }

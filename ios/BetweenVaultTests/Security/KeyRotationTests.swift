@@ -8,6 +8,7 @@ import Testing
 /// nothing. The Keychain is a dictionary here: CI's simulator has none.
 @MainActor
 struct KeyRotationTests {
+    /// Writes are all or nothing, as `KeyManager.replace` updates in place.
     private final class Keychain {
         var items: [String: Data] = [:]
         /// Set to make writes of one account fail, as a rotation cut short there would.
@@ -77,6 +78,27 @@ struct KeyRotationTests {
         #expect(try titles(under: staged, in: store.context) == ["Boiler"])
     }
 
+    /// Unpair failed at the key swap and the owner taps Unpair again, as the alert asks, before
+    /// anything read a note: the retry finishes the first rotation before it starts its own, so
+    /// every note still opens under the key that is left.
+    @Test func aRetriedUnpairAfterAFailedSwapKeepsEveryNote() throws {
+        let store = try makeStore(notes: ["Boiler", "Wifi"])
+        let keychain = Keychain()
+        keychain.items[AppServices.vaultKeyAccount] = oldKey
+        keychain.refusing = AppServices.vaultKeyAccount
+        #expect(throws: (any Error).self) {
+            try AppServices.rotateVaultKey(in: store.context, load: keychain.load, replace: keychain.replace)
+        }
+
+        keychain.refusing = nil
+        try AppServices.rotateVaultKey(in: store.context, load: keychain.load, replace: keychain.replace)
+
+        let key = try #require(keychain.items[AppServices.vaultKeyAccount])
+        #expect(key != oldKey)
+        #expect(keychain.items[AppServices.stagedVaultKeyAccount] == nil)
+        #expect(try titles(under: key, in: store.context) == ["Boiler", "Wifi"])
+    }
+
     /// Stopped before the notes moved: the staged key opens nothing and goes; the old key stays.
     @Test func aRotationCutShortBeforeTheSaveKeepsTheOldKey() throws {
         let store = try makeStore(notes: ["Boiler"])
@@ -91,15 +113,18 @@ struct KeyRotationTests {
         #expect(try titles(under: oldKey, in: store.context) == ["Boiler"])
     }
 
-    /// No notes, nothing to move: the key just goes, and the next note makes a new one.
-    @Test func aVaultWithNoNotesDropsItsKey() throws {
+    /// No notes, nothing to move: a fresh key takes the old one's place, so a recovery copy sent
+    /// right after already wraps the new one.
+    @Test func aVaultWithNoNotesGetsAFreshKey() throws {
         let store = try makeStore(notes: [])
         let keychain = Keychain()
         keychain.items[AppServices.vaultKeyAccount] = oldKey
 
         try AppServices.rotateVaultKey(in: store.context, load: keychain.load, replace: keychain.replace)
 
-        #expect(keychain.items.isEmpty)
+        let key = try #require(keychain.items[AppServices.vaultKeyAccount])
+        #expect(key != oldKey)
+        #expect(keychain.items[AppServices.stagedVaultKeyAccount] == nil)
     }
 
     /// Restore tries every note, so one damaged note does not make the right key read as "not

@@ -34,11 +34,10 @@ final class AppServices {
 
         let context = container.mainContext
         // A new vault key cut short (Unpair) resolves before anything reads the key. A launch
-        // while the phone is locked cannot reach the Keychain: the key closure resolves it then.
-        try? Self.finishRotation(in: context)
+        // while the phone is locked cannot reach the Keychain: the first read resolves it then.
+        _ = try? Self.storedVaultKey(in: context)
         let vaultKey: () throws -> Data = {
-            try Self.finishRotation(in: context)
-            if let key = try KeyManager.load(Self.vaultKeyAccount) { return key }
+            if let key = try Self.storedVaultKey(in: context) { return key }
             // Notes without their key were kept by a reset for restore from the partner. A new
             // key here would strand them for good, so none is made until they are restored.
             guard try context.fetchCount(FetchDescriptor<NoteRecord>()) == 0 else { throw VaultKeyError.awaitingRestore }
@@ -81,12 +80,9 @@ final class AppServices {
     /// the final step and a retry after any failure still decides the same way. Notes left without
     /// their key meanwhile are safe, because no new key is made over them.
     func resetVault() throws {
-        try KeyManager.delete(Self.vaultKeyAccount)
-        try KeyManager.delete(Self.stagedVaultKeyAccount)
-        try KeyManager.delete(Passcode.account)
-        try KeyManager.delete(Pairing.pairKeyAccount)
-        try KeyManager.delete(Pairing.partnerRecoveryAccount)
-        try KeyManager.delete(Pairing.retiredRecoveryAccount)
+        for account in Self.keychainAccounts + [Pairing.retiredRecoveryAccount] {
+            try KeyManager.delete(account)
+        }
         RecoveryStatus().forget()
         Identity.reset()
         try Self.eraseRecords(in: container.mainContext)
@@ -102,19 +98,24 @@ final class AppServices {
         return count(NoteRecord.self) + count(PartnerRecord.self) + count(PendingPackageRecord.self) > 0
     }
 
-    /// The Keychain outlives deleting the app; the store and the settings do not. A fresh install
-    /// must not reuse the old vault key, which an old recovery copy (a former partner's) still
-    /// opens, nor the old pairing's leftovers. Only for a store that holds nothing, before
-    /// onboarding, so no note is ever stranded. The retired copy stays: the not paired screen
-    /// says this phone keeps it.
+    /// Onboarding's first write. The Keychain outlives deleting the app; the store and the
+    /// settings do not. A new vault must not reuse the old vault key, which an old recovery copy
+    /// (a former partner's) still opens, nor the old pairing's leftovers. Only while the store
+    /// holds nothing, so no note is ever stranded: an rc.1 vault, or one waiting for a restore,
+    /// keeps what it has. The retired copy stays: the not paired screen says this phone keeps it.
     func forgetEarlierInstall() throws {
-        for account in [
-            Self.vaultKeyAccount, Self.stagedVaultKeyAccount, Passcode.account, Pairing.pairKeyAccount,
-            Pairing.partnerRecoveryAccount, LockManager.attemptsAccount, LockManager.enrollmentAccount,
-        ] {
+        guard !Self.holdsAnything(container.mainContext) else { return }
+        for account in Self.keychainAccounts {
             try KeyManager.delete(account)
         }
     }
+
+    /// Every Keychain item of this vault but the retired copy. A fresh install clears these; a
+    /// reset clears them and that copy too.
+    static let keychainAccounts = [
+        vaultKeyAccount, stagedVaultKeyAccount, Passcode.account, Pairing.pairKeyAccount,
+        Pairing.partnerRecoveryAccount, LockManager.attemptsAccount, LockManager.enrollmentAccount,
+    ]
 }
 
 // MARK: - Partner (row 3.7)
@@ -138,7 +139,7 @@ extension AppServices {
     /// The recovery file's bytes, for the file route above or the nearby connection.
     func recoveryFileData() throws -> Data {
         guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
-        guard let vaultKey = try KeyManager.load(Self.vaultKeyAccount),
+        guard let vaultKey = try Self.storedVaultKey(in: container.mainContext),
               let pairKey = try KeyManager.load(Pairing.pairKeyAccount)
         else { throw PartnerError.keyMissing }
         // Row 6.2: a copy kept from their old iPhone goes back to them, wrapped for this pairing.
@@ -169,8 +170,7 @@ extension AppServices {
         guard let partner = try partnerRepository.partner() else { throw PartnerError.notPaired }
         guard let pairKey = try KeyManager.load(Pairing.pairKeyAccount) else { throw PartnerError.keyMissing }
         let accepted = try Pairing.RecoveryFile.accept(data, pairKey: pairKey, me: deviceID, partner: partner.deviceID)
-        try KeyManager.delete(Pairing.partnerRecoveryAccount)
-        try KeyManager.save(accepted.blob, account: Pairing.partnerRecoveryAccount)
+        try KeyManager.replace(accepted.blob, account: Pairing.partnerRecoveryAccount)
         RecoveryStatus().markReceived()
         // Their own copy arrived, so their phone works under this pairing: a retired copy is done
         // with. Single use: it must not travel on to whoever this phone pairs with next.
@@ -187,7 +187,7 @@ extension AppServices {
     func cameFromDeviceBackup(onboarded: Bool) -> Bool {
         guard onboarded,
               case .some(.none) = try? KeyManager.load(Passcode.account),
-              case .some(.none) = try? KeyManager.load(Self.vaultKeyAccount)
+              case .some(.none) = try? Self.storedVaultKey(in: container.mainContext)
         else { return false }
         return true
     }
@@ -195,7 +195,7 @@ extension AppServices {
     /// Notes kept without their key: after a reset (2.4) or a device backup (keys never travel in
     /// one). Only a definite "no key" counts; a Keychain error is not a missing key.
     var awaitsRestore: Bool {
-        guard case .some(.none) = try? KeyManager.load(Self.vaultKeyAccount) else { return false }
+        guard case .some(.none) = try? Self.storedVaultKey(in: container.mainContext) else { return false }
         return ((try? container.mainContext.fetchCount(FetchDescriptor<NoteRecord>())) ?? 0) > 0
     }
 
@@ -227,8 +227,11 @@ extension AppServices {
     /// Spec 13: unpairing stops future exchanges here. Keys first, record last: while any step
     /// fails the partner still shows, so Unpair stays on screen and a retry finishes the job.
     /// Offline, the partner's phone cannot be told and keeps the recovery copy it holds, so the
-    /// vault moves to a new key first: that copy then opens nothing on this phone.
+    /// vault moves to a new key first: that copy then opens no note this phone keeps.
     func unpair() throws {
+        // Said first: if a later step fails and the pairing stays, the copy on their phone holds
+        // the old key and must not show as up to date.
+        RecoveryStatus().forget()
         try rotateVaultKey()
         try KeyManager.delete(Pairing.retiredRecoveryAccount)
         try endPairing()
@@ -242,8 +245,7 @@ extension AppServices {
         if let blob = try KeyManager.load(Pairing.partnerRecoveryAccount),
            let pairKey = try KeyManager.load(Pairing.pairKeyAccount) {
             let retired = try JSONEncoder().encode(Pairing.RetiredCopy(blob: blob, pairKey: pairKey, ownerDeviceID: partner.deviceID))
-            try KeyManager.delete(Pairing.retiredRecoveryAccount)
-            try KeyManager.save(retired, account: Pairing.retiredRecoveryAccount)
+            try KeyManager.replace(retired, account: Pairing.retiredRecoveryAccount)
         }
         try endPairing()
     }
@@ -273,26 +275,43 @@ extension AppServices {
     static let stagedVaultKeyAccount = "betweenvault.vaultKey.next"
 
     /// Unpair's first step. The former partner keeps a copy of this vault key, and Unpair cannot
-    /// reach their phone; after this, the copy opens nothing on this phone or in a backup made
-    /// from now on.
+    /// reach their phone; after this the copy opens no note the app keeps. A backup made before,
+    /// and for a while the store file itself, still hold notes under the old key (PROTOCOL.md).
     func rotateVaultKey() throws {
         try Self.rotateVaultKey(in: container.mainContext)
     }
 
-    /// No key (notes waiting for a restore) has nothing readable to protect. No notes needs no
-    /// move: the key goes, and the next note makes a new one. Otherwise the new key is staged,
-    /// every note moves to it in one save, and then it takes over (`finishRotation`).
+    /// Whether this launch already resolved a rotation left half done, so reads skip that
+    /// Keychain check. Cleared while a rotation stages a key.
+    private static var rotationSettled = false
+
+    /// The vault key as every reader sees it: a rotation left half done resolves first.
+    static func storedVaultKey(in context: ModelContext) throws -> Data? {
+        if !rotationSettled {
+            try finishRotation(in: context)
+            rotationSettled = true
+        }
+        return try KeyManager.load(vaultKeyAccount)
+    }
+
+    /// No key (notes waiting for a restore) has nothing to move, and no notes need no move: a
+    /// fresh key takes the old one's place. Otherwise the new key is staged, every note moves to
+    /// it in one save, and then it takes over (`finishRotation`).
     static func rotateVaultKey(
         in context: ModelContext,
         load: (String) throws -> Data? = { try KeyManager.load($0) },
         replace: (Data?, String) throws -> Void = { try KeyManager.replace($0, account: $1) }
     ) throws {
+        // A rotation an earlier try left half done finishes first: staging a new key over it
+        // would overwrite the key its notes are under.
+        try finishRotation(in: context, load: load, replace: replace)
         guard let old = try load(vaultKeyAccount) else { return }
         guard try context.fetchCount(FetchDescriptor<NoteRecord>()) > 0 else {
-            try replace(nil, vaultKeyAccount)
+            try replace(CryptoEngine.randomKey(), vaultKeyAccount)
             return
         }
         let new = CryptoEngine.randomKey()
+        rotationSettled = false
         try replace(new, stagedVaultKeyAccount)
         do {
             // A note the old key does not open was unreadable before and stays as it is.
@@ -307,6 +326,7 @@ extension AppServices {
             throw error
         }
         try finishRotation(in: context, load: load, replace: replace)
+        rotationSettled = true
     }
 
     /// Resolves a rotation, finished or cut short at any step. A staged key that opens a note

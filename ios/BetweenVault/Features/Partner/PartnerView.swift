@@ -68,9 +68,9 @@ struct PartnerView: View {
             .confirmationDialog(Copy.unpairFromPartner, isPresented: $asksUnpair, titleVisibility: .visible) {
                 Button(Copy.unpair, role: .destructive) { typesUnpair = true }
             } message: {
-                Text(Copy.unpairP5Message)
+                Text(unpairMessage)
             }
-            .sheet(isPresented: $typesUnpair) { TypeToUnpair(onUnpair: unpair) }
+            .sheet(isPresented: $typesUnpair) { TypeToUnpair(message: unpairMessage, onUnpair: unpair) }
             // Row 6.2: one ask, nothing is lost; their copy stays for their new iPhone.
             .confirmationDialog(Copy.newPhoneTitle, isPresented: $asksNewPhone, titleVisibility: .visible) {
                 Button(Copy.pairWithNewPhone, action: retire)
@@ -187,6 +187,9 @@ struct PartnerView: View {
         case .notReceived: Copy.notReceivedYet
         }
     }
+
+    /// Notes still waiting for their key cannot move to a new one, so Unpair says what stays.
+    private var unpairMessage: String { awaitsRestore ? Copy.unpairWhileWaitingMessage : Copy.unpairP5Message }
 
     private func isUpToDate(_ yours: RecoveryStatus.Yours) -> Bool {
         if case .upToDate = yours { true } else { false }
@@ -359,6 +362,7 @@ private struct HowRecoveryWorks: View {
 
 /// Type UNPAIR, as reset types RESET. The board draws only the first ask.
 private struct TypeToUnpair: View {
+    let message: String
     let onUnpair: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var typed = ""
@@ -373,7 +377,7 @@ private struct TypeToUnpair: View {
                     .font(.body.monospaced())
                     .padding(Theme.Space.sm)
                     .background(Theme.Colors.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.panel))
-                Text(Copy.unpairP5Message).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
+                Text(message).font(Theme.Typography.footnote).foregroundStyle(Theme.Colors.secondary)
                 Spacer()
                 Button(Copy.unpair, role: .destructive) {
                     dismiss()

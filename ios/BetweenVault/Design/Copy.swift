@@ -228,12 +228,13 @@ enum Copy {
     static let fingerprintsMatch = "Fingerprints match"
     static let howRecoveryWorksBody = [
         "When you pair, each phone can hand the other a recovery copy: your vault key, encrypted so only your partner's phone can open it.",
-        "If you lose your phone, pair the new one with your partner and they send your recovery copy back. Your vault key unlocks your notes again: those in an iPhone backup of this app, and everything you shared, which your partner still has.",
+        "If you lose your phone, pair the new one with your partner and they send your recovery copy back. Your vault key unlocks your notes again: those in an iPhone backup of this app made since you last unpaired, and everything you shared, which your partner still has. A backup from before an unpair needs the key you had then.",
         "The recovery copy is your key, not your notes. Notes you never shared and never backed up can't come back from your partner.",
         "Your partner can recover your vault. This is by design.",
     ]
     static let unpairFromPartner = "Unpair from your partner?"
     static let unpairP5Message = "Exchanges stop. Notes you already shared stay on both phones. Your vault gets a new key, so the recovery copy on their phone no longer opens it, and you can no longer recover your vault from their phone."
+    static let unpairWhileWaitingMessage = "Exchanges stop. Notes you already shared stay on both phones. Your other notes still wait for their key, so they keep it, and the recovery copy on their phone still opens them. You can no longer recover your vault from their phone."
     static let typeUnpair = "Type UNPAIR to confirm"
     static let unpairWord = "UNPAIR"
     static let pairOnce = "Pair once, side by side"
@@ -477,15 +478,8 @@ enum Copy {
     static let alsoNewPhone = "It is also how you get your data back on a new phone."
     static let sendRecoveryFile = "Send recovery file to partner"
     static let compareFingerprintAgain = "Compare fingerprint again"
-    static let unpairFootnote = "Asks twice. Unpairing stops future exchanges. Items already shared stay on both phones."
-    // Not on a board: the second look at the fingerprint, and the two unpair asks.
+    // Not on a board: the second look at the fingerprint.
     static let compareFingerprintBody = "Hold both phones side by side. Partner, then Compare fingerprint again on theirs. Every character should be the same."
-    static let unpairTitle = "Unpair partner?"
-    static let unpairMessage = "Unpairing stops future exchanges. Items already shared stay on both phones."
-    static let unpairAgainTitle = "Unpair for good?"
-    /// Unpairing cannot reach the partner's phone offline, so the recovery file sent there stays;
-    /// the vault's new key makes it open nothing.
-    static let unpairAgainMessage = "You no longer hold your partner's recovery file. The one you sent stays on their phone, but your vault gets a new key, so it no longer opens it. Pairing again needs both phones side by side."
     static let unpair = "Unpair"
     static let unpairFailed = "Unpairing did not finish. Try again."
     static let recoveryFileNotMade = "The recovery file could not be made. Nothing was sent."

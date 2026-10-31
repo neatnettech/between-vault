@@ -50,9 +50,18 @@ These are documented design decisions, not vulnerabilities:
 
 * **Your partner can recover your vault.** Pairing grants that by design. It is
   stated plainly in the app and on the website.
+* **Old copies after an Unpair.** Unpair gives the vault a new key and moves every
+  note to it, so the recovery copy left on the former partner's phone opens no
+  note the app keeps. It cannot reach older copies: an iPhone backup made before
+  the Unpair still holds the notes under the old key, which only that old copy
+  opens, so a later partner's copy cannot restore it. Until SQLite reuses the
+  space, the store file can also keep notes under the old key for a while, so a
+  copy of it taken soon after an Unpair can still give them to someone who holds
+  the old key outside the app.
 * **No cloud backup.** The app never uploads your vault. An iPhone backup can
   hold the store. Note titles and bodies in it are encrypted with a vault key
-  that stays in this iPhone's Keychain and is not backed up; category names,
+  that stays in this iPhone's Keychain: an encrypted backup carries it only in a
+  form that restores to this same iPhone, never to another one. Category names,
   note states and dates are not encrypted. Lose both phones without a backup
   export and the data is gone. There is no server to recover it from and no
   account to reset.
@@ -61,5 +70,4 @@ These are documented design decisions, not vulnerabilities:
 
 ## Supported versions
 
-The app has not shipped yet. Until the first release, the supported version is
-whatever is on `main`.
+The supported version is the latest release on the App Store, and `main`.

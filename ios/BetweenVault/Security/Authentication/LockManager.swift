@@ -58,8 +58,8 @@ final class LockManager {
     nonisolated static let onboardedKey = "betweenvault.onboarded"
 
     /// Keychain accounts, frozen like the passcode's. The wrong tries and the trusted enrollment
-    /// sit beside the passcode, not in UserDefaults: a restored settings file can neither start the
-    /// count over nor plant an enrollment of its own.
+    /// sit beside the passcode, not in UserDefaults: a restored settings file cannot start the
+    /// count over, and once an enrollment is recorded here it cannot plant one of its own.
     nonisolated static let attemptsAccount = "betweenvault.passcodeAttempts"
     nonisolated static let enrollmentAccount = "betweenvault.biometryDomainState"
 
@@ -67,8 +67,8 @@ final class LockManager {
     private enum Keys {
         static let biometrics = "betweenvault.unlockWithBiometrics"
         static let autoLock = "betweenvault.autoLockMinutes"
-        /// Where 1.0 kept the count, the wait and the enrollment. The enrollment moves to the
-        /// Keychain on first use; the count and the wait are dropped.
+        /// Where 1.0 kept the count, the wait and the enrollment. Each moves to the Keychain on
+        /// first use, so the update neither gives fresh tries nor asks for the passcode.
         static let legacyFailures = "betweenvault.passcodeFailures"
         static let legacyWaitUntil = "betweenvault.passcodeWaitUntil"
         static let legacyDomainState = "betweenvault.biometryDomainState"
@@ -96,8 +96,6 @@ final class LockManager {
         self.enrollmentContext = enrollmentContext
         biometricsEnabled = defaults.object(forKey: Keys.biometrics) as? Bool ?? true
         autoLockMinutes = defaults.object(forKey: Keys.autoLock) as? Int ?? 1
-        defaults.removeObject(forKey: Keys.legacyFailures)
-        defaults.removeObject(forKey: Keys.legacyWaitUntil)
     }
 
     /// Face ID or Touch ID, for the unlock button.
@@ -230,7 +228,7 @@ final class LockManager {
     /// onboarding takes the screen. The lock stays on: a sheet being dismissed must not show its
     /// note on the way out. Onboarding draws uncovered and ends with `openAfterSetup()`.
     func forget() {
-        for key in [Self.onboardedKey, Keys.biometrics, Keys.autoLock, Keys.legacyDomainState] {
+        for key in [Self.onboardedKey, Keys.biometrics, Keys.autoLock, Keys.legacyFailures, Keys.legacyWaitUntil, Keys.legacyDomainState] {
             defaults.removeObject(forKey: key)
         }
         for account in [Self.attemptsAccount, Self.enrollmentAccount] {
@@ -266,7 +264,8 @@ final class LockManager {
         case opened
         case wrong(triesLeft: Int)
         case wait(until: Date)
-        /// The stored passcode or the attempt count could not be read. Not counted as a wrong try.
+        /// The stored passcode or the attempt count could not be read or written. The passcode
+        /// was not checked, and nothing was counted.
         case unreadable
     }
 
@@ -281,11 +280,30 @@ final class LockManager {
     /// `nil` when the Keychain cannot be read: then no try is counted, and none is given.
     private func attempts() -> Attempts? {
         do {
-            guard let data = try keychainLoad(Self.attemptsAccount) else { return Attempts() }
+            guard let data = try keychainLoad(Self.attemptsAccount) else { return carriedOver() }
             return (try? JSONDecoder().decode(Attempts.self, from: data)) ?? Attempts()
         } catch {
             return nil
         }
+    }
+
+    /// 1.0 kept the count and the wait in UserDefaults. Carried over, so the update gives no
+    /// fresh tries: the wall clock wait still left becomes an uptime wait from now. Nothing
+    /// written there can help a guesser, since it can only add tries and waits.
+    private func carriedOver() -> Attempts {
+        let legacyUntil = defaults.object(forKey: Keys.legacyWaitUntil) as? Date
+        guard defaults.object(forKey: Keys.legacyFailures) != nil || legacyUntil != nil else { return Attempts() }
+        var record = Attempts(failures: defaults.integer(forKey: Keys.legacyFailures))
+        if let legacyUntil, legacyUntil > now() {
+            record.waitStart = uptime()
+            record.waitLength = min(legacyUntil.timeIntervalSince(now()), Self.waits[Self.waits.count - 1])
+        }
+        // Left in place for the next try if the Keychain refuses it now.
+        if (try? store(record)) != nil {
+            defaults.removeObject(forKey: Keys.legacyFailures)
+            defaults.removeObject(forKey: Keys.legacyWaitUntil)
+        }
+        return record
     }
 
     private func store(_ attempts: Attempts) throws {
@@ -296,20 +314,20 @@ final class LockManager {
         try? keychainStore(nil, Self.attemptsAccount)
     }
 
-    /// The running wait, if any, for the lock screen to show board 1b straight away.
-    var waitingUntil: Date? {
-        guard var record = attempts(), let start = record.waitStart, let length = record.waitLength else { return nil }
+    /// The running wait in the record, if any, as the date the lock screen shows. A restart and
+    /// a served wait update the record.
+    private func runningWait(in record: inout Attempts) -> Date? {
+        guard let start = record.waitStart, let length = record.waitLength else { return nil }
         let since = uptime()
-        // Uptime starts over at a restart, so a reading below the start means one: the wait
-        // starts over at full length. A restart never shortens it.
+        // Uptime starts over at a restart, which came after the wait began: the time since boot
+        // has passed for sure. Counting only that never shortens a wait, and a wait that ended
+        // before the restart stays ended.
         if since < start {
-            record.waitStart = since
+            record.waitStart = 0
             try? store(record)
-            return now().addingTimeInterval(length)
         }
-        let left = length - (since - start)
+        let left = length - (since - (record.waitStart ?? 0))
         guard left > 0 else {
-            // Served, so a restart after this does not bring it back.
             record.waitStart = nil
             record.waitLength = nil
             try? store(record)
@@ -318,18 +336,39 @@ final class LockManager {
         return now().addingTimeInterval(left)
     }
 
+    /// The running wait, if any, for the lock screen to show board 1b straight away.
+    var waitingUntil: Date? {
+        guard var record = attempts() else { return nil }
+        return runningWait(in: &record)
+    }
+
     /// Board 1a. During a wait even the right passcode is refused, or the wait would only slow
     /// down guesses that happen to be wrong. The count and the wait sit in the Keychain and the
-    /// wait runs on uptime, so neither moving the clock nor restoring the settings file shortens it.
+    /// wait runs on uptime, so neither moving the clock nor restoring the settings file shortens
+    /// it. Each try is counted before it is checked: one that cannot be counted is never checked.
     ///
     /// ponytail: a restore that also deletes the Keychain record starts the count over. Upgrade:
     /// the vault key itself behind the passcode.
     func unlock(passcode: String) -> PasscodeResult {
         guard isLocked else { return .opened }
-        if let until = waitingUntil { return .wait(until: until) }
         guard var record = attempts() else { return .unreadable }
+        if let until = runningWait(in: &record) { return .wait(until: until) }
+        let before = record
+        record.failures += 1
+        let over = record.failures - Self.freeTries
+        if over >= 0 {
+            record.waitStart = uptime()
+            record.waitLength = Self.waits[min(over, Self.waits.count - 1)]
+        }
+        do { try store(record) } catch { return .unreadable }
         let isMatch: Bool
-        do { isMatch = try matches(passcode) } catch { return .unreadable }
+        do {
+            isMatch = try matches(passcode)
+        } catch {
+            // Not checked, so not counted either.
+            try? store(before)
+            return .unreadable
+        }
         if isMatch {
             clearAttempts()
             recordEnrollment()
@@ -337,14 +376,6 @@ final class LockManager {
             isLocked = false
             return .opened
         }
-        record.failures += 1
-        let over = record.failures - Self.freeTries
-        if over >= 0 {
-            record.waitStart = uptime()
-            record.waitLength = Self.waits[min(over, Self.waits.count - 1)]
-        }
-        // A wrong try that cannot be counted is not given either.
-        do { try store(record) } catch { return .unreadable }
         guard over >= 0, let length = record.waitLength else { return .wrong(triesLeft: -over) }
         return .wait(until: now().addingTimeInterval(length))
     }

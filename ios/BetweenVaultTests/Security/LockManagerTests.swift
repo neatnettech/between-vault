@@ -69,6 +69,8 @@ struct LockManagerTests {
     private final class Keychain {
         var items: [String: Data] = [:]
         var unreadable = false
+        /// Reads work, writes fail: a full disk, say.
+        var writesFail = false
 
         func load(_ account: String) throws -> Data? {
             if unreadable { throw CocoaError(.fileReadUnknown) }
@@ -76,7 +78,7 @@ struct LockManagerTests {
         }
 
         func store(_ data: Data?, _ account: String) throws {
-            if unreadable { throw CocoaError(.fileWriteUnknown) }
+            if unreadable || writesFail { throw CocoaError(.fileWriteUnknown) }
             items[account] = data
         }
     }
@@ -143,8 +145,8 @@ struct LockManagerTests {
         #expect(restored.unlock(passcode: "123456") == .wait(until: clock.now.addingTimeInterval(5 * 60)))
     }
 
-    /// Moving the iPhone clock does not end a wait, and a restart starts it over at full length,
-    /// never shorter. Only time since boot ends it.
+    /// Moving the iPhone clock does not end a wait, and a restart counts only the time since boot,
+    /// never more. Only time since boot ends it.
     @Test func neitherTheClockNorARestartEndsAWait() {
         let clock = Clock()
         let lock = makeLock(clock)
@@ -154,10 +156,23 @@ struct LockManagerTests {
         #expect(lock.unlock(passcode: "123456") == .wait(until: clock.now.addingTimeInterval(5 * 60)))
 
         clock.uptime = 30
-        #expect(lock.waitingUntil == clock.now.addingTimeInterval(5 * 60), "a restart starts the wait over")
+        #expect(lock.waitingUntil == clock.now.addingTimeInterval(5 * 60 - 30), "a restart counts only the time since boot")
 
-        clock.advance(5 * 60)
+        clock.advance(5 * 60 - 30)
         #expect(lock.unlock(passcode: "123456") == .opened)
+    }
+
+    /// A wait that ended while the app was closed stays ended after a restart: the restart came
+    /// later, so the time since boot covers it.
+    @Test func aWaitThatEndedBeforeARestartStaysEnded() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
+
+        clock.advance(2 * 60 * 60)
+        clock.uptime = 10 * 60
+        #expect(lock.waitingUntil == nil)
+        #expect(lock.unlock(passcode: "000000") == .wait(until: clock.now.addingTimeInterval(15 * 60)), "the next wrong try waits longer")
     }
 
     /// A Keychain that cannot be read gives no try at all: nothing is counted, nothing opens.
@@ -167,6 +182,40 @@ struct LockManagerTests {
         let lock = makeLock(keychain: keychain)
         #expect(lock.unlock(passcode: "123456") == .unreadable)
         #expect(lock.isLocked)
+    }
+
+    /// Each try is counted before it is checked. While the count cannot be written, no guess is
+    /// checked, the right one included, so a full disk gives no free tries.
+    @Test func aTryThatCannotBeCountedIsNotChecked() {
+        let keychain = Keychain()
+        let lock = makeLock(keychain: keychain)
+        _ = lock.unlock(passcode: "000000")
+
+        keychain.writesFail = true
+        #expect(lock.unlock(passcode: "000000") == .unreadable)
+        #expect(lock.unlock(passcode: "123456") == .unreadable)
+        #expect(lock.isLocked)
+
+        keychain.writesFail = false
+        #expect(lock.unlock(passcode: "000000") == .wrong(triesLeft: 3), "the count held through the failures")
+    }
+
+    /// 1.0 kept the count and the wait in UserDefaults. The update carries both over, so it gives
+    /// no fresh tries.
+    @Test func aCountFrom1_0CarriesOver() {
+        let clock = Clock()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        defaults.set(7, forKey: "betweenvault.passcodeFailures")
+        defaults.set(clock.now.addingTimeInterval(10 * 60), forKey: "betweenvault.passcodeWaitUntil")
+        let keychain = Keychain()
+        let lock = makeLock(clock, defaults: defaults, keychain: keychain)
+
+        #expect(lock.unlock(passcode: "123456") == .wait(until: clock.now.addingTimeInterval(10 * 60)))
+        #expect(keychain.items[LockManager.attemptsAccount] != nil)
+        #expect(defaults.object(forKey: "betweenvault.passcodeFailures") == nil)
+
+        clock.advance(10 * 60)
+        #expect(lock.unlock(passcode: "000000") == .wait(until: clock.now.addingTimeInterval(60 * 60)), "eight wrong tries wait an hour")
     }
 
     /// The right passcode opens and starts the count over.
@@ -242,6 +291,17 @@ struct LockManagerTests {
         #expect(onboarded.biometryChanged)
     }
 
+    /// Onboarded but with no enrollment recorded, the vault never trusts the faces of the day,
+    /// even when no passcode can be found.
+    @Test func anOnboardedVaultNeverTrustsAnUnrecordedFace() async {
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        defaults.set(true, forKey: LockManager.onboardedKey)
+        let lock = makeLock(defaults: defaults, passcodeStored: false)
+        await lock.unlock(context: EnrolledContext(Data("intruder".utf8)))
+        #expect(lock.isLocked)
+        #expect(lock.biometryChanged)
+    }
+
     /// The app's settings restored without the onboarded flag and the recorded enrollment: while a
     /// vault passcode is stored, Face ID with whatever face is enrolled now does not open, so
     /// onboarding can never be drawn over the vault. The passcode still opens.
@@ -291,9 +351,13 @@ struct LockManagerTests {
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
         let keychain = Keychain()
         let lock = makeOnboardedLock(defaults, clock: clock, keychain: keychain, enrolled: Data("owner".utf8))
+        lock.openAfterSetup()
+        lock.lock()
         lock.biometricsEnabled = false
         lock.autoLockMinutes = 15
         for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
+        #expect(keychain.items[LockManager.enrollmentAccount] != nil)
+        #expect(keychain.items[LockManager.attemptsAccount] != nil)
 
         lock.forget()
 
