@@ -233,7 +233,7 @@ enum Copy {
         "Your partner can recover your vault. This is by design.",
     ]
     static let unpairFromPartner = "Unpair from your partner?"
-    static let unpairP5Message = "Exchanges stop. Notes you already shared stay on both phones. You can no longer recover your vault from their phone, and their phone keeps your old recovery copy until they unpair too."
+    static let unpairP5Message = "Exchanges stop. Notes you already shared stay on both phones. Your vault gets a new key, so the recovery copy on their phone no longer opens it, and you can no longer recover your vault from their phone."
     static let typeUnpair = "Type UNPAIR to confirm"
     static let unpairWord = "UNPAIR"
     static let pairOnce = "Pair once, side by side"
@@ -483,9 +483,9 @@ enum Copy {
     static let unpairTitle = "Unpair partner?"
     static let unpairMessage = "Unpairing stops future exchanges. Items already shared stay on both phones."
     static let unpairAgainTitle = "Unpair for good?"
-    /// Honest about the limit: a recovery file already sent stays on the partner's phone and still
-    /// opens this vault; unpairing cannot reach it offline.
-    static let unpairAgainMessage = "You no longer hold your partner's recovery file. A recovery file you already sent stays on their phone and can still open this vault. Pairing again needs both phones side by side."
+    /// Unpairing cannot reach the partner's phone offline, so the recovery file sent there stays;
+    /// the vault's new key makes it open nothing.
+    static let unpairAgainMessage = "You no longer hold your partner's recovery file. The one you sent stays on their phone, but your vault gets a new key, so it no longer opens it. Pairing again needs both phones side by side."
     static let unpair = "Unpair"
     static let unpairFailed = "Unpairing did not finish. Try again."
     static let recoveryFileNotMade = "The recovery file could not be made. Nothing was sent."

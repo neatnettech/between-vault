@@ -77,6 +77,7 @@
 		D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */; };
 		DF7DD338C0D9A33CA10A77F0 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E3AEA809ED556F3068F402 /* RootView.swift */; };
 		E2BB9F18902EC7FCAB50E1D5 /* CategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E156D950FED97901EB412F /* CategoryRepository.swift */; };
+		E46433086251B8C9CB5D2ABE /* KeyRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7076EE5E3DC8C74A6CCEAA /* KeyRotationTests.swift */; };
 		E4D0335344DF5AB525FDE0B5 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A47012B8F91AB4BD7554FCB /* Category.swift */; };
 		E8A141490102176A2745B9C9 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B2DE6FA25C3CD5DBEE867 /* NoteRepository.swift */; };
 		F680C837F9E19F1F4E8CC174 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DB9ECF6FC12466EAB06444 /* OnboardingView.swift */; };
@@ -112,6 +113,7 @@
 		23F0EA6E9D25CC724AED1466 /* RestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreView.swift; sourceTree = "<group>"; };
 		26EA8ECC92995622449FF620 /* BetweenVaultTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BetweenVaultTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28310679148BD0779616585A /* PromiseLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromiseLineTests.swift; sourceTree = "<group>"; };
+		2E7076EE5E3DC8C74A6CCEAA /* KeyRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyRotationTests.swift; sourceTree = "<group>"; };
 		30DB933319C735C7C018BD7C /* IncomingReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingReview.swift; sourceTree = "<group>"; };
 		312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverWindow.swift; sourceTree = "<group>"; };
 		3A1B419FDA7FE6D44948DD10 /* RecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryTests.swift; sourceTree = "<group>"; };
@@ -525,6 +527,7 @@
 			children = (
 				13EF3749E7A530C3C1D40D54 /* ClipboardGuardTests.swift */,
 				108ADD224A1F91789C8887CB /* CryptoEngineTests.swift */,
+				2E7076EE5E3DC8C74A6CCEAA /* KeyRotationTests.swift */,
 				A58CEA06B06E6FA97F25D92D /* LockManagerTests.swift */,
 				FAF4DE883CA1729E49ABD109 /* PairingFlowTests.swift */,
 				E80D096B5A886D0EA1DEF95A /* PairingTests.swift */,
@@ -636,6 +639,7 @@
 				8FE69960E1CD89937079E2B3 /* CryptoEngineTests.swift in Sources */,
 				62659BC167C941BC1FB8A3F3 /* ExchangeIntegrationTests.swift in Sources */,
 				14198B0158DE7E4AD7419C1B /* ExchangeServiceTests.swift in Sources */,
+				E46433086251B8C9CB5D2ABE /* KeyRotationTests.swift in Sources */,
 				D0BCEAB8A297378B0D2E985C /* LockManagerTests.swift in Sources */,
 				ABD30BF649B4101D97AB8A9C /* NearbySessionTests.swift in Sources */,
 				91348795369062F4CF972A26 /* NoteFormattingTests.swift in Sources */,
