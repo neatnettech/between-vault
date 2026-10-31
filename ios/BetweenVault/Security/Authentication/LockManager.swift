@@ -45,35 +45,59 @@ final class LockManager {
 
     private let defaults: UserDefaults
     private let now: () -> Date
+    /// Measures the waits. Unlike `now`, nobody can set it.
+    private let uptime: () -> TimeInterval
     private let matches: (String) throws -> Bool
+    private let passcodeStored: () -> Bool
+    private let keychainLoad: (String) throws -> Data?
+    private let keychainStore: (Data?, String) throws -> Void
     /// Reads the current enrollment after a passcode unlock. A parameter only for tests.
     private let enrollmentContext: () -> LAContext
 
     /// Row 2.2's shown once flag, read here and written by the app root through @AppStorage.
     nonisolated static let onboardedKey = "betweenvault.onboarded"
 
-    /// Persisted keys. Renaming one resets that setting or, for the attempt counter, the wait.
+    /// Keychain accounts, frozen like the passcode's. The wrong tries and the trusted enrollment
+    /// sit beside the passcode, not in UserDefaults: a restored settings file can neither start the
+    /// count over nor plant an enrollment of its own.
+    nonisolated static let attemptsAccount = "betweenvault.passcodeAttempts"
+    nonisolated static let enrollmentAccount = "betweenvault.biometryDomainState"
+
+    /// Persisted keys. Renaming one resets that setting.
     private enum Keys {
         static let biometrics = "betweenvault.unlockWithBiometrics"
         static let autoLock = "betweenvault.autoLockMinutes"
-        static let failures = "betweenvault.passcodeFailures"
-        static let waitUntil = "betweenvault.passcodeWaitUntil"
-        static let domainState = "betweenvault.biometryDomainState"
+        /// Where 1.0 kept the count, the wait and the enrollment. The enrollment moves to the
+        /// Keychain on first use; the count and the wait are dropped.
+        static let legacyFailures = "betweenvault.passcodeFailures"
+        static let legacyWaitUntil = "betweenvault.passcodeWaitUntil"
+        static let legacyDomainState = "betweenvault.biometryDomainState"
     }
 
-    /// Everything is a parameter only so a test can hand in its own store, clock and passcode.
+    /// Everything is a parameter only so a test can hand in its own store, clocks, passcode and
+    /// Keychain.
     init(
         defaults: UserDefaults = .standard,
         now: @escaping () -> Date = Date.init,
+        uptime: @escaping () -> TimeInterval = LockManager.uptime,
         matches: @escaping (String) throws -> Bool = { try Passcode.matches($0) },
+        passcodeStored: @escaping () -> Bool = { Passcode.isStored() },
+        keychainLoad: @escaping (String) throws -> Data? = { try KeyManager.load($0) },
+        keychainStore: @escaping (Data?, String) throws -> Void = { try KeyManager.replace($0, account: $1) },
         enrollmentContext: @escaping () -> LAContext = { LAContext() }
     ) {
         self.defaults = defaults
         self.now = now
+        self.uptime = uptime
         self.matches = matches
+        self.passcodeStored = passcodeStored
+        self.keychainLoad = keychainLoad
+        self.keychainStore = keychainStore
         self.enrollmentContext = enrollmentContext
         biometricsEnabled = defaults.object(forKey: Keys.biometrics) as? Bool ?? true
         autoLockMinutes = defaults.object(forKey: Keys.autoLock) as? Int ?? 1
+        defaults.removeObject(forKey: Keys.legacyFailures)
+        defaults.removeObject(forKey: Keys.legacyWaitUntil)
     }
 
     /// Face ID or Touch ID, for the unlock button.
@@ -105,12 +129,22 @@ final class LockManager {
         blocked = nil
         // Anyone who knows the device passcode can enroll their own face. A changed enrollment,
         // or none recorded yet, needs the vault passcode once before biometrics open the vault.
-        // Before onboarding there is no passcode to fall back on and nothing recorded, so the
-        // enrollment of the day is trusted; onboarding records it (rc.1 vaults reach it this way).
-        // ponytail: an attacker who can edit a restored backup can clear both flags. Upgrade:
-        // keep them in the Keychain beside the passcode.
-        let recorded = defaults.data(forKey: Keys.domainState)
-        let trusted = recorded ?? (defaults.bool(forKey: Self.onboardedKey) ? nil : context.evaluatedPolicyDomainState)
+        // Only a vault that never had a passcode (rc.1, before onboarding) trusts the enrollment
+        // of the day, and onboarding records it. A stored passcode or the onboarded flag makes
+        // nothing recorded a change, so a restored settings file that drops both still ends at
+        // the passcode.
+        // ponytail: a restore that also deletes the passcode's Keychain item looks like rc.1.
+        // Upgrade: the vault key itself behind Face ID and the passcode.
+        let recorded: Data?
+        do {
+            recorded = try recordedEnrollment()
+        } catch {
+            // Unreadable is no proof of the same faces: the passcode once, as for a change.
+            biometryChanged = true
+            return
+        }
+        let beforeAnyPasscode = !defaults.bool(forKey: Self.onboardedKey) && !passcodeStored()
+        let trusted = recorded ?? (beforeAnyPasscode ? context.evaluatedPolicyDomainState : nil)
         guard let enrolled = context.evaluatedPolicyDomainState, enrolled == trusted else {
             biometryChanged = true
             return
@@ -125,8 +159,7 @@ final class LockManager {
             // (spec 22). Inactive is fine: the Face ID sheet itself makes the app inactive.
             if granted, UIApplication.shared.applicationState != .background {
                 // The owner just proved who they are, so leftover wrong tries start over.
-                defaults.removeObject(forKey: Keys.failures)
-                defaults.removeObject(forKey: Keys.waitUntil)
+                clearAttempts()
                 isLocked = false
             }
         } catch {
@@ -186,7 +219,9 @@ final class LockManager {
     }
 
     /// The end of onboarding: the owner just chose the passcode, so asking for it again is noise.
+    /// A count left in the Keychain by an earlier install starts over with the new vault.
     func openAfterSetup() {
+        clearAttempts()
         recordEnrollment()
         isLocked = false
     }
@@ -195,8 +230,11 @@ final class LockManager {
     /// onboarding takes the screen. The lock stays on: a sheet being dismissed must not show its
     /// note on the way out. Onboarding draws uncovered and ends with `openAfterSetup()`.
     func forget() {
-        for key in [Self.onboardedKey, Keys.biometrics, Keys.autoLock, Keys.failures, Keys.waitUntil, Keys.domainState] {
+        for key in [Self.onboardedKey, Keys.biometrics, Keys.autoLock, Keys.legacyDomainState] {
             defaults.removeObject(forKey: key)
+        }
+        for account in [Self.attemptsAccount, Self.enrollmentAccount] {
+            try? keychainStore(nil, account)
         }
         biometricsEnabled = true
         autoLockMinutes = 1
@@ -205,51 +243,114 @@ final class LockManager {
     }
 
     /// Trusts the faces or fingers enrolled right now. Only after the vault passcode was entered.
+    /// A write that fails asks for the passcode again next time, which is the safe side.
     private func recordEnrollment() {
         let context = enrollmentContext()
         _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-        defaults.set(context.evaluatedPolicyDomainState, forKey: Keys.domainState)
+        try? keychainStore(context.evaluatedPolicyDomainState, Self.enrollmentAccount)
+        defaults.removeObject(forKey: Keys.legacyDomainState)
         biometryChanged = false
+    }
+
+    /// The trusted enrollment. 1.0 kept it in UserDefaults: it moves to the Keychain on first
+    /// use, so Face ID keeps opening without a passcode the owner may not remember.
+    private func recordedEnrollment() throws -> Data? {
+        if let stored = try keychainLoad(Self.enrollmentAccount) { return stored }
+        guard let legacy = defaults.data(forKey: Keys.legacyDomainState) else { return nil }
+        try keychainStore(legacy, Self.enrollmentAccount)
+        defaults.removeObject(forKey: Keys.legacyDomainState)
+        return legacy
     }
 
     enum PasscodeResult: Equatable {
         case opened
         case wrong(triesLeft: Int)
         case wait(until: Date)
-        /// The stored passcode could not be read. Not counted as a wrong try.
+        /// The stored passcode or the attempt count could not be read. Not counted as a wrong try.
         case unreadable
+    }
+
+    /// The wrong tries and the running wait, as JSON in the Keychain.
+    private struct Attempts: Codable {
+        var failures = 0
+        /// `uptime` when the wait began, and how long it lasts.
+        var waitStart: TimeInterval?
+        var waitLength: TimeInterval?
+    }
+
+    /// `nil` when the Keychain cannot be read: then no try is counted, and none is given.
+    private func attempts() -> Attempts? {
+        do {
+            guard let data = try keychainLoad(Self.attemptsAccount) else { return Attempts() }
+            return (try? JSONDecoder().decode(Attempts.self, from: data)) ?? Attempts()
+        } catch {
+            return nil
+        }
+    }
+
+    private func store(_ attempts: Attempts) throws {
+        try keychainStore(JSONEncoder().encode(attempts), Self.attemptsAccount)
+    }
+
+    private func clearAttempts() {
+        try? keychainStore(nil, Self.attemptsAccount)
     }
 
     /// The running wait, if any, for the lock screen to show board 1b straight away.
     var waitingUntil: Date? {
-        guard let until = defaults.object(forKey: Keys.waitUntil) as? Date, until > now() else { return nil }
-        return until
+        guard var record = attempts(), let start = record.waitStart, let length = record.waitLength else { return nil }
+        let since = uptime()
+        // Uptime starts over at a restart, so a reading below the start means one: the wait
+        // starts over at full length. A restart never shortens it.
+        if since < start {
+            record.waitStart = since
+            try? store(record)
+            return now().addingTimeInterval(length)
+        }
+        let left = length - (since - start)
+        guard left > 0 else {
+            // Served, so a restart after this does not bring it back.
+            record.waitStart = nil
+            record.waitLength = nil
+            try? store(record)
+            return nil
+        }
+        return now().addingTimeInterval(left)
     }
 
     /// Board 1a. During a wait even the right passcode is refused, or the wait would only slow
-    /// down guesses that happen to be wrong.
+    /// down guesses that happen to be wrong. The count and the wait sit in the Keychain and the
+    /// wait runs on uptime, so neither moving the clock nor restoring the settings file shortens it.
     ///
-    /// ponytail: the wait is wall clock in UserDefaults, so changing the device clock skips it.
-    /// Upgrade: a monotonic clock plus a Keychain copy of the counter, if that ever matters.
+    /// ponytail: a restore that also deletes the Keychain record starts the count over. Upgrade:
+    /// the vault key itself behind the passcode.
     func unlock(passcode: String) -> PasscodeResult {
         guard isLocked else { return .opened }
         if let until = waitingUntil { return .wait(until: until) }
+        guard var record = attempts() else { return .unreadable }
         let isMatch: Bool
         do { isMatch = try matches(passcode) } catch { return .unreadable }
         if isMatch {
-            defaults.removeObject(forKey: Keys.failures)
-            defaults.removeObject(forKey: Keys.waitUntil)
+            clearAttempts()
             recordEnrollment()
             blocked = nil
             isLocked = false
             return .opened
         }
-        let failures = defaults.integer(forKey: Keys.failures) + 1
-        defaults.set(failures, forKey: Keys.failures)
-        let over = failures - Self.freeTries
-        guard over >= 0 else { return .wrong(triesLeft: -over) }
-        let until = now().addingTimeInterval(Self.waits[min(over, Self.waits.count - 1)])
-        defaults.set(until, forKey: Keys.waitUntil)
-        return .wait(until: until)
+        record.failures += 1
+        let over = record.failures - Self.freeTries
+        if over >= 0 {
+            record.waitStart = uptime()
+            record.waitLength = Self.waits[min(over, Self.waits.count - 1)]
+        }
+        // A wrong try that cannot be counted is not given either.
+        do { try store(record) } catch { return .unreadable }
+        guard over >= 0, let length = record.waitLength else { return .wrong(triesLeft: -over) }
+        return .wait(until: now().addingTimeInterval(length))
+    }
+
+    /// Seconds since the phone started, sleep included. Unlike the clock, nobody can set it.
+    nonisolated static func uptime() -> TimeInterval {
+        TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / 1_000_000_000
     }
 }

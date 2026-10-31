@@ -45,23 +45,57 @@ struct LockManagerTests {
     /// the vault locked and records why for the lock screen.
     @Test func aFailedPreflightNeverOpensTheVault() async {
         for code in [LAError.Code.biometryNotAvailable, .biometryNotEnrolled, .passcodeNotSet, .biometryLockout] {
-            let lock = LockManager(defaults: UserDefaults(suiteName: UUID().uuidString)!)
+            let lock = makeLock()
             await lock.unlock(context: FailingContext(code))
             #expect(lock.isLocked, "\(code)")
             #expect(lock.blocked == code, "\(code)")
         }
     }
 
-    /// A fresh store, a clock the test moves, and "123456" as the passcode.
+    /// A fresh store, clocks the test moves, an in memory Keychain, and "123456" as the passcode.
     private final class Clock {
         var now = Date(timeIntervalSince1970: 1_000_000)
+        /// Time since boot, which the waits run on.
+        var uptime: TimeInterval = 10_000
+
+        /// Time passing, as both clocks see it.
+        func advance(_ seconds: TimeInterval) {
+            now.addTimeInterval(seconds)
+            uptime += seconds
+        }
     }
 
-    private func makeLock(_ clock: Clock = Clock(), defaults: UserDefaults? = nil) -> LockManager {
+    /// CI's simulator has no Keychain, and two launches of a test can share this one.
+    private final class Keychain {
+        var items: [String: Data] = [:]
+        var unreadable = false
+
+        func load(_ account: String) throws -> Data? {
+            if unreadable { throw CocoaError(.fileReadUnknown) }
+            return items[account]
+        }
+
+        func store(_ data: Data?, _ account: String) throws {
+            if unreadable { throw CocoaError(.fileWriteUnknown) }
+            items[account] = data
+        }
+    }
+
+    private func makeLock(
+        _ clock: Clock = Clock(),
+        defaults: UserDefaults? = nil,
+        keychain: Keychain = Keychain(),
+        passcodeStored: Bool = false,
+        matches: @escaping (String) throws -> Bool = { $0 == "123456" }
+    ) -> LockManager {
         LockManager(
             defaults: defaults ?? UserDefaults(suiteName: UUID().uuidString)!,
             now: { clock.now },
-            matches: { $0 == "123456" }
+            uptime: { clock.uptime },
+            matches: matches,
+            passcodeStored: { passcodeStored },
+            keychainLoad: keychain.load,
+            keychainStore: keychain.store
         )
     }
 
@@ -82,7 +116,7 @@ struct LockManagerTests {
         let clock = Clock()
         let lock = makeLock(clock)
         for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
-        clock.now.addTimeInterval(4 * 60)
+        clock.advance(4 * 60)
         #expect(lock.unlock(passcode: "123456") == .wait(until: Date(timeIntervalSince1970: 1_000_000 + 5 * 60)))
         #expect(lock.isLocked)
     }
@@ -93,18 +127,46 @@ struct LockManagerTests {
         let lock = makeLock(clock)
         for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
         for wait: TimeInterval in [15 * 60, 60 * 60, 60 * 60] {
-            clock.now.addTimeInterval(2 * 60 * 60)
+            clock.advance(2 * 60 * 60)
             #expect(lock.unlock(passcode: "000000") == .wait(until: clock.now.addingTimeInterval(wait)))
         }
     }
 
-    /// The count survives a relaunch: a new LockManager on the same store is still waiting.
-    @Test func theWaitSurvivesARelaunch() {
+    /// The count lives in the Keychain: a relaunch with the app's settings restored from a backup,
+    /// with no count in them, is still waiting.
+    @Test func theWaitSurvivesARelaunchWithRestoredSettings() {
         let clock = Clock()
-        let defaults = UserDefaults(suiteName: UUID().uuidString)!
-        let first = makeLock(clock, defaults: defaults)
+        let keychain = Keychain()
+        let first = makeLock(clock, keychain: keychain)
         for _ in 0..<5 { _ = first.unlock(passcode: "000000") }
-        #expect(makeLock(clock, defaults: defaults).waitingUntil != nil)
+        let restored = makeLock(clock, defaults: UserDefaults(suiteName: UUID().uuidString)!, keychain: keychain)
+        #expect(restored.unlock(passcode: "123456") == .wait(until: clock.now.addingTimeInterval(5 * 60)))
+    }
+
+    /// Moving the iPhone clock does not end a wait, and a restart starts it over at full length,
+    /// never shorter. Only time since boot ends it.
+    @Test func neitherTheClockNorARestartEndsAWait() {
+        let clock = Clock()
+        let lock = makeLock(clock)
+        for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
+
+        clock.now.addTimeInterval(24 * 60 * 60)
+        #expect(lock.unlock(passcode: "123456") == .wait(until: clock.now.addingTimeInterval(5 * 60)))
+
+        clock.uptime = 30
+        #expect(lock.waitingUntil == clock.now.addingTimeInterval(5 * 60), "a restart starts the wait over")
+
+        clock.advance(5 * 60)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+    }
+
+    /// A Keychain that cannot be read gives no try at all: nothing is counted, nothing opens.
+    @Test func anUnreadableKeychainGivesNoTry() {
+        let keychain = Keychain()
+        keychain.unreadable = true
+        let lock = makeLock(keychain: keychain)
+        #expect(lock.unlock(passcode: "123456") == .unreadable)
+        #expect(lock.isLocked)
     }
 
     /// The right passcode opens and starts the count over.
@@ -122,7 +184,7 @@ struct LockManagerTests {
     /// An unreadable passcode store is not a wrong try and never opens the vault.
     @Test func anUnreadableStoreIsNotCounted() {
         struct Unreadable: Error {}
-        let lock = LockManager(defaults: UserDefaults(suiteName: UUID().uuidString)!, matches: { _ in throw Unreadable() })
+        let lock = makeLock(matches: { _ in throw Unreadable() })
         #expect(lock.unlock(passcode: "123456") == .unreadable)
         #expect(lock.isLocked)
     }
@@ -136,17 +198,23 @@ struct LockManagerTests {
         #expect(lock.isLocked)
     }
 
-    private func makeOnboardedLock(_ defaults: UserDefaults, clock: Clock = Clock(), enrolled: Data) -> LockManager {
+    private func makeOnboardedLock(
+        _ defaults: UserDefaults, clock: Clock = Clock(), keychain: Keychain = Keychain(), enrolled: Data
+    ) -> LockManager {
         defaults.set(true, forKey: LockManager.onboardedKey)
-        return LockManager(defaults: defaults, now: { clock.now }, matches: { $0 == "123456" },
-                           enrollmentContext: { EnrolledContext(enrolled) })
+        return LockManager(
+            defaults: defaults, now: { clock.now }, uptime: { clock.uptime }, matches: { $0 == "123456" },
+            passcodeStored: { true }, keychainLoad: keychain.load, keychainStore: keychain.store,
+            enrollmentContext: { EnrolledContext(enrolled) }
+        )
     }
 
     /// Someone who knows the device passcode can enroll their own face. A changed enrollment never
     /// opens the vault until the vault passcode is entered, which then trusts it.
     @Test func aChangedEnrollmentNeedsTheVaultPasscodeOnce() async {
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
-        let lock = makeOnboardedLock(defaults, enrolled: Data("owner".utf8))
+        let keychain = Keychain()
+        let lock = makeOnboardedLock(defaults, keychain: keychain, enrolled: Data("owner".utf8))
         lock.openAfterSetup()
         lock.lock()
 
@@ -154,7 +222,7 @@ struct LockManagerTests {
         #expect(lock.isLocked)
         #expect(lock.biometryChanged)
 
-        let next = makeOnboardedLock(defaults, enrolled: Data("intruder".utf8))
+        let next = makeOnboardedLock(defaults, keychain: keychain, enrolled: Data("intruder".utf8))
         #expect(next.unlock(passcode: "123456") == .opened)
         next.lock()
         await next.unlock(context: EnrolledContext(Data("intruder".utf8)))
@@ -172,6 +240,32 @@ struct LockManagerTests {
         await onboarded.unlock(context: EnrolledContext(Data("owner".utf8)))
         #expect(onboarded.isLocked)
         #expect(onboarded.biometryChanged)
+    }
+
+    /// The app's settings restored without the onboarded flag and the recorded enrollment: while a
+    /// vault passcode is stored, Face ID with whatever face is enrolled now does not open, so
+    /// onboarding can never be drawn over the vault. The passcode still opens.
+    @Test func aLostFlagStillNeedsThePasscodeWhileOneIsStored() async {
+        let lock = makeLock(passcodeStored: true)
+        await lock.unlock(context: EnrolledContext(Data("intruder".utf8)))
+        #expect(lock.isLocked)
+        #expect(lock.biometryChanged)
+        #expect(lock.unlock(passcode: "123456") == .opened)
+    }
+
+    /// 1.0 kept the trusted enrollment in UserDefaults. It moves to the Keychain on the first Face
+    /// ID unlock, which opens without asking for a passcode the owner may not remember.
+    @Test func anEnrollmentTrustedBy1_0CarriesOver() async {
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        defaults.set(Data("owner".utf8), forKey: "betweenvault.biometryDomainState")
+        let keychain = Keychain()
+        let lock = makeOnboardedLock(defaults, keychain: keychain, enrolled: Data("owner".utf8))
+
+        await lock.unlock(context: EnrolledContext(Data("owner".utf8)))
+
+        #expect(!lock.isLocked)
+        #expect(keychain.items[LockManager.enrollmentAccount] == Data("owner".utf8))
+        #expect(defaults.data(forKey: "betweenvault.biometryDomainState") == nil)
     }
 
     /// A biometric match proves the owner, so leftover wrong tries and a running wait start over.
@@ -195,7 +289,8 @@ struct LockManagerTests {
     @Test func forgetStartsEverythingOver() {
         let clock = Clock()
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
-        let lock = makeOnboardedLock(defaults, clock: clock, enrolled: Data("owner".utf8))
+        let keychain = Keychain()
+        let lock = makeOnboardedLock(defaults, clock: clock, keychain: keychain, enrolled: Data("owner".utf8))
         lock.biometricsEnabled = false
         lock.autoLockMinutes = 15
         for _ in 0..<5 { _ = lock.unlock(passcode: "000000") }
@@ -207,7 +302,8 @@ struct LockManagerTests {
         #expect(lock.biometricsEnabled)
         #expect(lock.autoLockMinutes == 1)
         #expect(!defaults.bool(forKey: LockManager.onboardedKey))
-        let relaunched = makeLock(clock, defaults: defaults)
+        #expect(keychain.items.isEmpty, "the count and the enrollment go with the vault")
+        let relaunched = makeLock(clock, defaults: defaults, keychain: keychain)
         #expect(relaunched.biometricsEnabled)
         relaunched.lock()
         #expect(relaunched.unlock(passcode: "000000") == .wrong(triesLeft: 4))

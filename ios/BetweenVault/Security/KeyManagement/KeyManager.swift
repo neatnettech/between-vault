@@ -48,6 +48,13 @@ enum KeyManager {
         guard status == errSecSuccess else { throw KeyError.keychainFailure(status) }
     }
 
+    /// Delete then add, or for `nil` only delete. For records that are rewritten as they change,
+    /// never for a key that still decrypts the vault.
+    static func replace(_ data: Data?, account: String) throws {
+        try delete(account)
+        if let data { try save(data, account: account) }
+    }
+
     /// Absent counts as deleted. Never call it on the vault key: that strands every stored note.
     static func delete(_ account: String) throws {
         let status = SecItemDelete(baseQuery(account) as CFDictionary)

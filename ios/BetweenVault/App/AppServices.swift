@@ -17,8 +17,9 @@ final class AppServices {
     let importService: ImportService
     /// Read each time: a reset hands the installation a new one.
     var deviceID: String { Identity.deviceID() }
-    /// Row 2.4. True while the store holds notes from before onboarding (rc.1, a lost flag), so
-    /// onboarding stays behind the lock. A reset clears it: what is left is unreadable.
+    /// Row 2.4. True while the store holds notes, a pairing or a package kept for later, so
+    /// onboarding never draws over them without the lock (rc.1, a lost flag). A reset clears it:
+    /// what is left is unreadable.
     private(set) var guardsOnboarding: Bool
 
     /// Keychain account name. Renaming it makes every existing record undecryptable, because the
@@ -62,7 +63,7 @@ final class AppServices {
             deviceID: { Identity.deviceID() }
         )
         _ = Identity.deviceID()
-        guardsOnboarding = (try? context.fetchCount(FetchDescriptor<NoteRecord>())) != 0
+        guardsOnboarding = Self.holdsAnything(context)
 
         try categoryRepository.seedIfNeeded()
     }
@@ -84,6 +85,29 @@ final class AppServices {
         Identity.reset()
         try Self.eraseRecords(in: container.mainContext)
         guardsOnboarding = false
+    }
+
+    /// Notes, a pairing (whose key opens the partner's packages) or a package kept for later. A
+    /// paired vault with no notes is as much worth guarding. A count that fails counts as something.
+    static func holdsAnything(_ context: ModelContext) -> Bool {
+        func count<Record: PersistentModel>(_: Record.Type) -> Int {
+            (try? context.fetchCount(FetchDescriptor<Record>())) ?? 1
+        }
+        return count(NoteRecord.self) + count(PartnerRecord.self) + count(PendingPackageRecord.self) > 0
+    }
+
+    /// The Keychain outlives deleting the app; the store and the settings do not. A fresh install
+    /// must not reuse the old vault key, which an old recovery copy (a former partner's) still
+    /// opens, nor the old pairing's leftovers. Only for a store that holds nothing, before
+    /// onboarding, so no note is ever stranded. The retired copy stays: the not paired screen
+    /// says this phone keeps it.
+    func forgetEarlierInstall() throws {
+        for account in [
+            Self.vaultKeyAccount, Passcode.account, Pairing.pairKeyAccount, Pairing.partnerRecoveryAccount,
+            LockManager.attemptsAccount, LockManager.enrollmentAccount,
+        ] {
+            try KeyManager.delete(account)
+        }
     }
 }
 
