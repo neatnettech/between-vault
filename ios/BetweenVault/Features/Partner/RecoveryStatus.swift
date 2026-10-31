@@ -59,11 +59,13 @@ struct RecoveryStatus {
     }
 
     /// Meeting nearby: the partner's phone says whether it holds this phone's copy. Holding it
-    /// confirms a file send; not holding it (they reset or unpaired since) means sending again.
-    func partnerHolds(_ holds: Bool, at date: Date = .now) {
+    /// confirms a file send, and only that: it cannot say which vault key the copy holds, and one
+    /// from before the key changed (Unpair) is no recovery copy. Not holding it (they reset or
+    /// unpaired since) means sending again.
+    func partnerHolds(_ holds: Bool) {
         if holds {
-            if defaults.object(forKey: Keys.deliveredAt) == nil {
-                markDelivered(at: (defaults.object(forKey: Keys.fileSentAt) as? Date) ?? date)
+            if defaults.object(forKey: Keys.deliveredAt) == nil, let sent = defaults.object(forKey: Keys.fileSentAt) as? Date {
+                markDelivered(at: sent)
             }
         } else {
             defaults.removeObject(forKey: Keys.deliveredAt)

@@ -4,6 +4,8 @@ import SwiftUI
 /// app root swaps it for the vault when `onFinish` runs.
 struct OnboardingView: View {
     let lockManager: LockManager
+    /// Clears what an earlier install left in the Keychain, before the passcode is saved.
+    let startFresh: () throws -> Void
     let onFinish: () -> Void
 
     private enum Step {
@@ -209,10 +211,12 @@ struct OnboardingView: View {
         }
     }
 
-    /// The passcode is saved last and alone can fail; nothing else is written until it is stored,
-    /// so a failure leaves onboarding where it was.
+    /// What an earlier install left goes first, then the passcode; either can fail, nothing else is
+    /// written until both are done, so a failure leaves onboarding where it was. A new vault never
+    /// starts on an old vault key.
     private func create() {
         do {
+            try startFresh()
             try Passcode.set(chosen)
         } catch {
             saveFailed = true

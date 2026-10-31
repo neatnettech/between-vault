@@ -39,7 +39,8 @@ enum KeyManager {
         }
     }
 
-    /// Adds, never replaces: a duplicate fails instead of overwriting a key that still decrypts the vault.
+    /// Adds, never replaces: a duplicate fails instead of overwriting a key that still decrypts the
+    /// vault. `loadOrCreate` and a restored key use it.
     static func save(_ data: Data, account: String) throws {
         var query = baseQuery(account)
         query[kSecValueData as String] = data
@@ -48,14 +49,21 @@ enum KeyManager {
         guard status == errSecSuccess else { throw KeyError.keychainFailure(status) }
     }
 
-    /// Delete then add, or for `nil` only delete. For records that are rewritten as they change,
-    /// never for a key that still decrypts the vault.
+    /// Writes in place, adding only when nothing is stored; `nil` deletes. An update never leaves a
+    /// moment with nothing stored, so a failure keeps the old value whole. Overwriting the vault key
+    /// is for the rotation alone, once every note is saved under the new one.
     static func replace(_ data: Data?, account: String) throws {
-        try delete(account)
-        if let data { try save(data, account: account) }
+        guard let data else { return try delete(account) }
+        let status = SecItemUpdate(baseQuery(account) as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        switch status {
+        case errSecSuccess: return
+        case errSecItemNotFound: try save(data, account: account)
+        default: throw KeyError.keychainFailure(status)
+        }
     }
 
-    /// Absent counts as deleted. Never call it on the vault key: that strands every stored note.
+    /// Absent counts as deleted. On the vault key only on purpose: a reset (the partner's copy
+    /// brings it back) or a fresh install.
     static func delete(_ account: String) throws {
         let status = SecItemDelete(baseQuery(account) as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw KeyError.keychainFailure(status) }

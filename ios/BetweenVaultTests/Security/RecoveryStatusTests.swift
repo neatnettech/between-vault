@@ -21,8 +21,16 @@ struct RecoveryStatusTests {
         let sent = paired.addingTimeInterval(60)
         status.markSentAsFile(at: sent)
         #expect(status.yours(pairedAt: paired) == .sentAsFile(sent))
-        status.partnerHolds(true, at: sent.addingTimeInterval(3600))
+        status.partnerHolds(true)
         #expect(status.yours(pairedAt: paired) == .upToDate(sent))
+    }
+
+    /// Holding a copy with no send to confirm proves nothing: it may hold the vault key from
+    /// before Unpair gave the vault a new one.
+    @Test func holdingACopyConfirmsOnlyASend() {
+        let status = store()
+        status.partnerHolds(true)
+        #expect(status.yours(pairedAt: paired) == .notSent)
     }
 
     /// The partner reset or unpaired since: they no longer hold it, so it needs sending again.

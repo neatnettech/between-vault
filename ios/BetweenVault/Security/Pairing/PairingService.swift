@@ -187,7 +187,7 @@ enum Pairing {
     static func commit(
         _ agreement: Agreement,
         partners: PartnerRepository,
-        saveKey: (Data) throws -> Void = { try KeyManager.delete(pairKeyAccount); try KeyManager.save($0, account: pairKeyAccount) },
+        saveKey: (Data) throws -> Void = { try KeyManager.replace($0, account: pairKeyAccount) },
         deleteKey: () throws -> Void = { try KeyManager.delete(pairKeyAccount) },
         now: Date = .now
     ) throws {

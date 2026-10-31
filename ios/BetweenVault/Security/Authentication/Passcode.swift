@@ -13,11 +13,9 @@ enum Passcode {
     private static let rounds: UInt32 = 200_000
     private static let saltSize = 16
 
-    /// Replaces any stored passcode. The Keychain outlives a reinstall while the onboarding flag
-    /// does not, so a fresh onboarding has to be able to overwrite the old one.
+    /// Replaces any stored passcode, in place: a failure keeps the old one rather than none.
     static func set(_ passcode: String, account: String = account) throws {
-        try KeyManager.delete(account)
-        try KeyManager.save(record(passcode), account: account)
+        try KeyManager.replace(record(passcode), account: account)
     }
 
     /// False only when the Keychain says nothing is stored. An error counts as stored, so it can
