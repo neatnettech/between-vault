@@ -49,4 +49,19 @@ struct VaultResetTests {
         #expect(try PartnerRepository(context: store.context).partner() == nil)
         #expect(try store.context.fetchCount(FetchDescriptor<ExchangeLogRecord>()) == 0)
     }
+
+    /// Row 2.4: without the onboarded flag a vault still stays behind the lock if it holds
+    /// anything. A pairing alone counts: its key opens the partner's packages.
+    @Test func aPairingAloneIsGuarded() throws {
+        let container = try ModelContainer(
+            for: CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+        try CategoryRepository(context: context).seedIfNeeded()
+        #expect(!AppServices.holdsAnything(context), "the starter categories alone are nothing to guard")
+
+        try PartnerRepository(context: context).save(Partner(id: UUID(), deviceID: "b", fingerprint: "f", pairedAt: .now))
+        #expect(AppServices.holdsAnything(context))
+    }
 }

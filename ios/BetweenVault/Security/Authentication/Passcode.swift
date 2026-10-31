@@ -20,6 +20,13 @@ enum Passcode {
         try KeyManager.save(record(passcode), account: account)
     }
 
+    /// False only when the Keychain says nothing is stored. An error counts as stored, so it can
+    /// never make the lock trust a face it has not seen.
+    static func isStored(account: String = account) -> Bool {
+        if case .some(.none) = try? KeyManager.load(account) { return false }
+        return true
+    }
+
     /// False when nothing is stored, so a missing passcode never opens the vault.
     static func matches(_ passcode: String, account: String = account) throws -> Bool {
         guard let stored = try KeyManager.load(account) else { return false }
