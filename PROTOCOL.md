@@ -24,7 +24,7 @@ Device IDs are random UUIDs, one per installation, written in lowercase. A reset
 
 | Key | Where it lives | Made from |
 | --- | --- | --- |
-| Vault key | Keychain, this device only | 32 random bytes. Encrypts each note's title and body at rest. Never leaves the phone except inside a recovery blob. |
+| Vault key | Keychain, this device only | 32 random bytes. Encrypts each note's title and body at rest. Never leaves the phone except inside a recovery blob. Replaced by a new one when the owner unpairs. |
 | Pair key | Keychain, this device only | Pairing, below |
 | Package key | Never stored | `HKDF(pairKey, salt: exchange ID, info: "betweenvault.exchange.v1")` |
 | Recovery key | Never stored | `HKDF(pairKey, info: "betweenvault.recovery.v1")` |
@@ -117,6 +117,8 @@ The file is UTF8 JSON:
 ```
 
 The holder keeps only `blob`, and only if the file names the paired partner as owner and this phone as holder, and the blob opens under the current pair key. By design the holder can open it: a paired partner can recover the vault.
+
+Unpairing cannot reach the other phone, so a blob held there stays. The owner's phone therefore makes a new vault key and moves every note to it before the pairing ends: the old blob then opens nothing on that phone, nor in a backup made after it (a backup made before still holds notes under the old key). The new key is staged in the Keychain first and replaces the old one only once the notes are saved under it, so a rotation cut short at any step resolves at the next launch.
 
 ### Restore on a new phone
 
