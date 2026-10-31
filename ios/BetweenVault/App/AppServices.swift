@@ -28,7 +28,8 @@ final class AppServices {
 
     init() throws {
         let schema = Schema([CategoryRecord.self, NoteRecord.self, PartnerRecord.self, ExchangeLogRecord.self, PendingPackageRecord.self])
-        let configuration = ModelConfiguration(schema: schema)
+        // Never iCloud: an entitlement added one day must not reach the vault.
+        let configuration = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
         container = try ModelContainer(for: schema, configurations: [configuration])
 
         let context = container.mainContext
