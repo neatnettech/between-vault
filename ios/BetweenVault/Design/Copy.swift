@@ -711,7 +711,7 @@ enum Copy {
         "Between Vault collects nothing. There is no account, no analytics, no tracking and no server of ours.",
         "Your notes stay on this iPhone, encrypted. They leave only when you send them to your paired partner, phone to phone or as a file you hand over yourself.",
         "Nothing is sent to us, because we have nothing to receive it with.",
-        "Once a day, while your vault is open, the app asks Apple's App Store which version is current, so it can tell you when an update is out. The request carries nothing about you or your vault.",
+        "About once a day, while your vault is open, the app asks Apple's App Store which version is current, so it can tell you when an update is out. The request carries nothing about you or your vault. Apple sees your phone's address, as with any App Store request.",
     ]
     static let privacyWebsiteNote = "The website and waiting list have their own policy."
     static let fullPrivacyPolicy = "Full privacy policy"

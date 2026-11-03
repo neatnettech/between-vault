@@ -193,7 +193,7 @@ struct BetweenVaultApp: App {
                 if !covered, lockManager.isLocked { cover.dismissPresented() }
                 cover.show(covered)
             }
-            // Once a day at most, and only with the vault open: the lock screen never waits on it.
+            // About once a day, and only with the vault open: the lock screen never waits on it.
             .task(id: canCheckForUpdate) {
                 if canCheckForUpdate { await updateNotice.check() }
             }
