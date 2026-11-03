@@ -104,9 +104,13 @@ final class AppServices {
     /// holds nothing, so no note is ever stranded: an rc.1 vault, or one waiting for a restore,
     /// keeps what it has. The retired copy stays: the not paired screen says this phone keeps it.
     func forgetEarlierInstall() throws {
-        guard !Self.holdsAnything(container.mainContext) else { return }
-        for account in Self.keychainAccounts {
-            try KeyManager.delete(account)
+        try Self.forgetEarlierInstall(in: container.mainContext)
+    }
+
+    static func forgetEarlierInstall(in context: ModelContext, delete: (String) throws -> Void = KeyManager.delete) throws {
+        guard !holdsAnything(context) else { return }
+        for account in keychainAccounts {
+            try delete(account)
         }
     }
 

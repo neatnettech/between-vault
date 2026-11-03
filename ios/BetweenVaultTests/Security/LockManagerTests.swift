@@ -344,6 +344,24 @@ struct LockManagerTests {
         #expect(lock.unlock(passcode: "000000") == .wrong(triesLeft: 4))
     }
 
+    /// A phone updated from 1.0 whose first unlock is Face ID: the old count never reaches the
+    /// Keychain, so clearing must drop it too or the next wrong try would inherit it.
+    @Test func aFaceUnlockDropsTheCountFrom1_0() async {
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let lock = makeOnboardedLock(defaults, enrolled: Data("owner".utf8))
+        lock.openAfterSetup()
+        lock.lock()
+        defaults.set(4, forKey: "betweenvault.passcodeFailures")
+        defaults.set(Date.distantFuture, forKey: "betweenvault.passcodeWaitUntil")
+
+        await lock.unlock(context: EnrolledContext(Data("owner".utf8)))
+        #expect(!lock.isLocked)
+        #expect(defaults.object(forKey: "betweenvault.passcodeFailures") == nil)
+        #expect(defaults.object(forKey: "betweenvault.passcodeWaitUntil") == nil)
+        lock.lock()
+        #expect(lock.unlock(passcode: "000000") == .wrong(triesLeft: 4))
+    }
+
     /// Row 2.4: after the vault is erased, every setting and the attempt count start over, the
     /// lock comes off and onboarding runs again.
     @Test func forgetStartsEverythingOver() {
