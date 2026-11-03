@@ -1,8 +1,8 @@
 # Between Vault protocol, version 1
 
-This document describes everything that leaves a Between Vault phone: the pairing codes, the exchange package (`.nvlt`), the recovery file (`.nvrec`) and the nearby connection. The code in `ios/BetweenVault/Security` and `ios/BetweenVault/Protocol` is the reference; where this text and the code disagree, the code wins and this text is a bug.
+This document describes everything of the vault that leaves a Between Vault phone: the pairing codes, the exchange package (`.nvlt`), the recovery file (`.nvrec`) and the nearby connection. The code in `ios/BetweenVault/Security` and `ios/BetweenVault/Protocol` is the reference; where this text and the code disagree, the code wins and this text is a bug.
 
-There is no server. Nothing here is sent anywhere by the app on its own: every transfer starts with one of the two people.
+There is no server. Nothing here is sent anywhere by the app on its own: every transfer starts with one of the two people. The one automatic request, the update check, carries nothing of the vault and is described at the end.
 
 ## Primitives
 
@@ -146,3 +146,7 @@ Packages sent nearby are still sealed packages: the link is a second layer, not 
 ## Versioning
 
 `protocolVersion` in packages, `version` in recovery files, and the first byte of pairing codes are versioned apart. A phone refuses a version it does not know and says so; it never tries to read it.
+
+## Update check
+
+Not part of the protocol, listed so nothing that leaves the phone is missing. About once a day, while the vault is open, the app sends one HTTPS GET to `https://itunes.apple.com/lookup?id=6818837797` on an ephemeral session (no cookies, no cache) and reads the current App Store version from the answer. It sends no identifier and nothing from the vault. Apple sees the phone's address and the app's name and version, as with any App Store request. A failed ask is tried again in an hour.

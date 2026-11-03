@@ -21,6 +21,8 @@ struct UpdateBanner: View {
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
                     .foregroundStyle(Theme.Colors.secondary)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .accessibilityLabel(Copy.dismissUpdate)
         }

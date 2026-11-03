@@ -48,6 +48,9 @@ struct UpdateNoticeTests {
         #expect(UpdateNotice.isNewer("1.1", than: "1.0.9"))
         #expect(!UpdateNotice.isNewer("1.0.9", than: "1.0.10"))
         #expect(!UpdateNotice.isNewer("2.0", than: ""))
+        #expect(!UpdateNotice.isNewer("1.0.0", than: "1.0"), "padding does not make a version newer")
+        #expect(!UpdateNotice.isNewer("1.0", than: "1.0.0"))
+        #expect(UpdateNotice.isNewer("1.0.1", than: "1.0"))
     }
 
     @Test func itAsksOnceADay() async {
@@ -69,12 +72,15 @@ struct UpdateNoticeTests {
         #expect(await counter.asked == 2)
     }
 
-    /// Offline or an unreadable answer: nothing changes, and the next unlock tries again.
-    @Test func aFailedAskChangesNothingAndIsRetried() async {
+    /// Offline or an unreadable answer: nothing changes, and it is asked again in an hour, not at
+    /// every unlock.
+    @Test func aFailedAskChangesNothingAndIsRetriedInAnHour() async {
         let (notice, counter) = notice(defaults(), answers: [nil, "1.0.2"])
         await notice.check(now: start)
         #expect(notice.available == nil)
-        await notice.check(now: start.addingTimeInterval(60))
+        await notice.check(now: start.addingTimeInterval(3599))
+        #expect(await counter.asked == 1)
+        await notice.check(now: start.addingTimeInterval(3600))
         #expect(await counter.asked == 2)
         #expect(notice.available == "1.0.2")
     }
@@ -118,5 +124,16 @@ struct UpdateNoticeTests {
         }
         #expect(UpdateNotice.latestVersion(in: Data(#"{"resultCount":0,"results":[]}"#.utf8)) == nil)
         #expect(UpdateNotice.latestVersion(in: Data("not json".utf8)) == nil)
+    }
+
+    /// A version this iOS cannot install is not offered: the Update button would lead nowhere.
+    @Test func aVersionNeedingANewerIOSIsNotOffered() {
+        func answer(minimum: String) -> Data {
+            Data(#"{"results":[{"version":"2.0","minimumOsVersion":"\#(minimum)"}]}"#.utf8)
+        }
+        #expect(UpdateNotice.latestVersion(in: answer(minimum: "17.0"), osVersion: "17.0.0") == "2.0")
+        #expect(UpdateNotice.latestVersion(in: answer(minimum: "17.0"), osVersion: "18.2.1") == "2.0")
+        #expect(UpdateNotice.latestVersion(in: answer(minimum: "18.0"), osVersion: "17.6.1") == nil)
+        #expect(UpdateNotice.latestVersion(in: Data(#"{"results":[{"version":"2.0"}]}"#.utf8), osVersion: "17.0.0") == "2.0")
     }
 }

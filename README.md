@@ -38,7 +38,7 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 ## Principles
 
-* Nothing leaves a device unless its owner explicitly sends it
+* No vault content leaves a device unless its owner explicitly sends it
 * Encryption happens before transport; the transport is never trusted
 * No server dependency: there is no backend to breach or trust
 * The exchange format is an open document, independent of the app's storage
@@ -55,7 +55,7 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 Protects against: a lost or stolen locked device, intercepted or tampered exchange files, wrong recipient, replay and duplicate imports.
 
-No automatic sync. One request goes to Apple, not to us: once a day, while the vault is open, the app asks the App Store which version is current so it can offer an update. It carries nothing about you or your vault.
+No automatic sync. One request goes to Apple, not to us: about once a day, while the vault is open, the app asks the App Store which version is current so it can offer an update. It carries nothing about you or your vault.
 
 One exception to the exchange rule, spelled out: when both of you open Exchange nearby, your phones tell each other which earlier files they imported (exchange IDs only, never content), so notes you sent as a file can show as confirmed. It happens only in a session one of you started.
 
