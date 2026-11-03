@@ -31,7 +31,6 @@
 		4CC5B655319E137113430EAE /* ExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90DF4968C346930F5ADABB3 /* ExchangeService.swift */; };
 		4EA39BA481F6312CCCCBE820 /* PromiseLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28310679148BD0779616585A /* PromiseLineTests.swift */; };
 		4F57D3EDF37DB0CA68CA1561 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F738238F6615CC5CC47F33E /* NoteEditorView.swift */; };
-		513B9FAFE175B2E004B36B51 /* UpdateBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78491A43D6ED801735DD4ED4 /* UpdateBanner.swift */; };
 		5229A3E1A35B9F1E0834EFD5 /* CoverWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */; };
 		52E3E0E5B337DE62A98E6B02 /* PartnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */; };
 		559E75583A964439CAE511EA /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3E697EDF1A1A091BDAE7BD /* Appearance.swift */; };
@@ -134,7 +133,6 @@
 		69EC1B6E9D410C2F67EF2744 /* PackageSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSerializer.swift; sourceTree = "<group>"; };
 		6D4FA60BA437D5C2F21C4549 /* PartnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerView.swift; sourceTree = "<group>"; };
 		6E4019E724CC4067D6FE7112 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
-		78491A43D6ED801735DD4ED4 /* UpdateBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateBanner.swift; sourceTree = "<group>"; };
 		796A83D62D755B7619B9B8D3 /* PairingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingService.swift; sourceTree = "<group>"; };
 		7CF0A0F45F745836889C862F /* Partner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Partner.swift; sourceTree = "<group>"; };
 		7F738238F6615CC5CC47F33E /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
@@ -488,7 +486,6 @@
 				312C6AA3F0C3F0E6B60D092A /* CoverWindow.swift */,
 				5D788E953133A59B9242FEFF /* PrivacyOverlayView.swift */,
 				D0E3AEA809ED556F3068F402 /* RootView.swift */,
-				78491A43D6ED801735DD4ED4 /* UpdateBanner.swift */,
 				9347A5EBA00A94F6C0FED00B /* UpdateNotice.swift */,
 			);
 			path = App;
@@ -723,7 +720,6 @@
 				DF7DD338C0D9A33CA10A77F0 /* RootView.swift in Sources */,
 				CA121E7EBC8ED8F48B3EE759 /* SettingsView.swift in Sources */,
 				84909282EED201E43A90205E /* Theme.swift in Sources */,
-				513B9FAFE175B2E004B36B51 /* UpdateBanner.swift in Sources */,
 				D11175118EF6C8F2E0C60808 /* UpdateNotice.swift in Sources */,
 				C5A3E99240EB2BCD5B4039C9 /* VaultView.swift in Sources */,
 			);
