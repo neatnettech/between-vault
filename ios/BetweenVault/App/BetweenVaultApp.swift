@@ -7,6 +7,7 @@ struct BetweenVaultApp: App {
     @State private var lockManager: LockManager
     @State private var cover = CoverWindow()
     @State private var clipboard = ClipboardGuard()
+    @State private var updateNotice = UpdateNotice()
     @State private var showsClipboardToast = false
     /// A file opened from AirDrop, Messages or Files, held until the vault is open (row 3.7).
     @State private var openedFile: URL?
@@ -38,6 +39,7 @@ struct BetweenVaultApp: App {
     /// onboarding, which sets the passcode, but only while no passcode is stored (LockManager).
     private var guarded: Bool { onboarded || services?.guardsOnboarding ?? true }
     private var covered: Bool { lockManager.coversScene(guarded: guarded) }
+    private var canCheckForUpdate: Bool { onboarded && !covered && scenePhase == .active }
 
     /// Row 5.1: a package from the partner. Checked first (9a to 9d), then reviewed (9, U4); the
     /// file itself is read once here and nothing else keeps it.
@@ -115,6 +117,7 @@ struct BetweenVaultApp: App {
             } else if let services {
                 RootView()
                     .environment(services)
+                    .environment(updateNotice)
                     .modelContainer(services.container)
             } else {
                 ContentUnavailableView(
@@ -189,6 +192,10 @@ struct BetweenVaultApp: App {
                 // A reset drops `guarded` while still locked: take any vault sheet down first.
                 if !covered, lockManager.isLocked { cover.dismissPresented() }
                 cover.show(covered)
+            }
+            // Once a day at most, and only with the vault open: the lock screen never waits on it.
+            .task(id: canCheckForUpdate) {
+                if canCheckForUpdate { await updateNotice.check() }
             }
             // Row 2.5: auto lock. Checked often enough that a minute means about a minute.
             .task {

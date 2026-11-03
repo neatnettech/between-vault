@@ -696,6 +696,11 @@ enum Copy {
     static let iconNotChanged = "The icon could not be changed. Try again."
     static let version = "Version"
     static func versionFooter(_ version: String) -> String { "Version \(version)" }
+    // The update notice (the App Store has a newer version).
+    static func updateAvailable(_ version: String) -> String { "Version \(version) is available" }
+    static let updateBody = "Please update soon. New versions carry fixes for your vault."
+    static let update = "Update"
+    static let dismissUpdate = "Not now"
     // Settings > About (board 17, 17d, 17e), plus Terms of use (owner request; no board).
     static let privacyPolicy = "Privacy policy"
     static let threatModel = "Threat model"
@@ -703,9 +708,10 @@ enum Copy {
     static let gplv3 = "GPLv3"
     static let termsOfUse = "Terms of use"
     static let privacyStatement = [
-        "Between Vault collects nothing. There is no account, no analytics, no tracking and no server.",
+        "Between Vault collects nothing. There is no account, no analytics, no tracking and no server of ours.",
         "Your notes stay on this iPhone, encrypted. They leave only when you send them to your paired partner, phone to phone or as a file you hand over yourself.",
         "Nothing is sent to us, because we have nothing to receive it with.",
+        "Once a day, while your vault is open, the app asks Apple's App Store which version is current, so it can tell you when an update is out. The request carries nothing about you or your vault.",
     ]
     static let privacyWebsiteNote = "The website and waiting list have their own policy."
     static let fullPrivacyPolicy = "Full privacy policy"
