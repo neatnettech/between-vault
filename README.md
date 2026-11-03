@@ -55,7 +55,9 @@ No server. No account. No analytics. No automatic sync. Open source.
 
 Protects against: a lost or stolen locked device, intercepted or tampered exchange files, wrong recipient, replay and duplicate imports.
 
-No automatic sync, and one exception spelled out: when both of you open Exchange nearby, your phones tell each other which earlier files they imported (exchange IDs only, never content), so notes you sent as a file can show as confirmed. It happens only in a session one of you started.
+No automatic sync. One request goes to Apple, not to us: once a day, while the vault is open, the app asks the App Store which version is current so it can offer an update. It carries nothing about you or your vault.
+
+One exception to the exchange rule, spelled out: when both of you open Exchange nearby, your phones tell each other which earlier files they imported (exchange IDs only, never content), so notes you sent as a file can show as confirmed. It happens only in a session one of you started.
 
 Does not protect against: a fully compromised iOS installation, someone who knows your vault passcode, your partner (who can recover your vault by design), screenshots taken by the recipient.
 

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(UpdateNotice.self) private var updateNotice
     @State private var tab: AppTab = .vault
 
     var body: some View {
@@ -22,6 +23,11 @@ struct RootView: View {
                 .tag(AppTab.settings)
         }
         .tint(Theme.Colors.accent)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if let version = updateNotice.available {
+                UpdateBanner(version: version, onDismiss: { withAnimation { updateNotice.dismiss() } })
+            }
+        }
     }
 }
 

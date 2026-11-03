@@ -65,6 +65,11 @@ These are documented design decisions, not vulnerabilities:
   note states and dates are not encrypted. Lose both phones without a backup
   export and the data is gone. There is no server to recover it from and no
   account to reset.
+* **One request to Apple.** The app has no server of ours, but once a day, while the
+  vault is open, it asks Apple's App Store which version is current, so it can offer
+  an update. The request carries no identifier and nothing from the vault, and the
+  answer is shown only if it looks like a version number. Apple sees the phone's IP
+  address, as with any App Store request. It cannot force an update.
 * **A compromised device.** If iOS itself is compromised, or the device is
   jailbroken, the vault key is reachable once the device is unlocked.
 
