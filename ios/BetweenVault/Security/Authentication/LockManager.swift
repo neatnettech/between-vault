@@ -312,6 +312,9 @@ final class LockManager {
 
     private func clearAttempts() {
         try? keychainStore(nil, Self.attemptsAccount)
+        // A 1.0 count not yet carried over (a Face ID unlock came first) must not come back.
+        defaults.removeObject(forKey: Keys.legacyFailures)
+        defaults.removeObject(forKey: Keys.legacyWaitUntil)
     }
 
     /// The running wait in the record, if any, as the date the lock screen shows. A restart and

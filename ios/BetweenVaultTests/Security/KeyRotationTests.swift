@@ -142,4 +142,42 @@ struct KeyRotationTests {
         #expect(try AppServices.restore(oldKey, in: store.context) { saved.append($0) })
         #expect(saved == [oldKey])
     }
+
+    // MARK: - Starting over after a delete and reinstall
+
+    /// Onboarding's first write wipes the Keychain of an earlier install, but only while the store
+    /// holds nothing: a vault with notes keeps its key.
+    @Test func anEarlierInstallIsForgottenOnlyWhileTheStoreIsEmpty() throws {
+        var deleted: [String] = []
+        let empty = try makeStore(notes: [])
+        try AppServices.forgetEarlierInstall(in: empty.context) { deleted.append($0) }
+        #expect(Set(deleted) == Set(AppServices.keychainAccounts))
+
+        deleted = []
+        let withNotes = try makeStore(notes: ["Boiler"])
+        try AppServices.forgetEarlierInstall(in: withNotes.context) { deleted.append($0) }
+        #expect(deleted.isEmpty)
+    }
+
+    /// A failed delete stops the wipe and reaches the caller, so onboarding says Not saved.
+    @Test func aFailedDeleteReachesTheCaller() throws {
+        let empty = try makeStore(notes: [])
+        #expect(throws: CocoaError.self) {
+            try AppServices.forgetEarlierInstall(in: empty.context) { _ in throw CocoaError(.fileWriteUnknown) }
+        }
+    }
+
+    /// `KeyManager.replace` on the real Keychain (signed runs only): adds when absent, overwrites in
+    /// place, and nil deletes.
+    @Test(.enabled(if: PasscodeTests.hasKeychain)) func replaceAddsOverwritesAndDeletes() throws {
+        let account = "test.replace.\(UUID().uuidString)"
+        defer { try? KeyManager.delete(account) }
+
+        try KeyManager.replace(Data([1]), account: account)
+        #expect(try KeyManager.load(account) == Data([1]))
+        try KeyManager.replace(Data([2]), account: account)
+        #expect(try KeyManager.load(account) == Data([2]))
+        try KeyManager.replace(nil, account: account)
+        #expect(try KeyManager.load(account) == nil)
+    }
 }
